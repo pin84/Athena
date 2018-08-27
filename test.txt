@@ -7,3 +7,5 @@ git tracks changes
 tracks changes of files
 
 my stupid boos still prefers SVN
+
+create a new branch with dev
