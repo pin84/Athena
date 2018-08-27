@@ -5,3 +5,5 @@ git has a mutable index called stage
 
 git tracks changes
 tracks changes of files
+
+my stupid boos still prefers SVN
