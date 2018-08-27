@@ -12,3 +12,5 @@ create a new branch with dev
 
 
 creating a new branch is quick & simple
+
+git create a new branch dev again
