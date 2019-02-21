@@ -1,3 +1,5 @@
+
+
 class Button extends HTMLElement {
   constructor() {
     super() //必须首先调用super方法

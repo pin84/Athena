@@ -1,21 +1,20 @@
-class Input extends HTMLElement {
+class CheckBox extends HTMLElement {
   constructor() {
     super() //必须首先调用super方法
 
     let shadow = this.attachShadow({ mode: 'open' })
 
-    let input = document.createElement('input')
-    input.setAttribute('class','input')
-    input.setAttribute('placeholder', '请输入关键字搜索')
+    let checkbox = document.createElement('input')
+    checkbox.setAttribute('class','checkbox')
+    checkbox.setAttribute('type','checkbox')
 
 
     //css
     const style = document.createElement('style')
     console.log(style.isConnected);
     style.textContent = `
-      .input{
-        outline:none;
-        padding:2px 5px;
+      .checkbox{
+        border:1px solid red;
       }
     
     `
@@ -23,10 +22,10 @@ class Input extends HTMLElement {
     shadow.appendChild(style);
     console.log(style.isConnected);
 
-    shadow.appendChild(input)
+    shadow.appendChild(checkbox)
   }
 }
 
 
 // Define the new element
-customElements.define('my-input', Input);
+customElements.define('my-checkbox', CheckBox);
