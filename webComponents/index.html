@@ -10,7 +10,7 @@
     *{ 
       margin: 0;
       padding: 0;
-      font-size:0;
+      /* font-size:0; */
     }
     .myCheckbox{
       display:inline-block;
@@ -19,7 +19,54 @@
       margin-top: 10px;
       font-size:14px;
     }
-   
+.code-box-demo{
+  padding:42px;
+  border-bottom: 1px solid #000;
+}
+.cascader-picker{
+  width: 300px;
+  margin: 0;
+  padding: 0;
+  color:red;
+  font-size:14px;
+  line-height:1.5;
+  list-style:none;
+  display: inline-block;
+  border:1px solid blue;
+  border-radius:4px;
+  outline:none;
+  cursor:pointer;
+  transition:color .3s;
+  position: relative;
+}
+.cascader-picker-label{
+  position:absolute;
+  top:50%;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  margin-top: -10px;
+  padding: 0 12px;
+  overflow: hidden;
+  white-space:nowrap;
+  text-overflow: ellipsis;
+}
+.cascader-input{
+  position: relative;
+  width: 100%;
+
+}
+  .ant-input{
+    box-sizing: border-box;
+    margin: 0;
+    display: inline-block;
+    height: 32px;
+    padding: 4px 11px;
+    color: pink;
+    border: 1px solid black;
+    border-radius:4px;
+    margin-top: 10px;
+  }
   </style>
 </head>
 
@@ -29,9 +76,25 @@
   <my-checkbox class="myCheckbox" ></my-checkbox><br>
   <button id="btn">外面的按钮</button>
 
+  <hr style="margin:20px 0;">
+  <!-- cascader -->
+  <my-cascader></my-cascader>
+
+  <section class="code-box-demo">
+    <span class="cascader-picker" tabindex="0">
+      <span class="cascader-picker-label">
+        Zhejiang / Hangzhou / West Lake
+      </span>
+      <input type="text" class="cascader-input ant-input" readonly autocomplete="off">
+      <i>abc</i>
+    </span>
+  </section>
+
+
   <script src="./input.js"></script>
   <script src="./button.js"></script>
   <script src="./checkbox.js"></script>
+  <script src="./cascader.js"></script>
 
 
 </body>

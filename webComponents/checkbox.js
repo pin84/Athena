@@ -183,12 +183,7 @@ class CheckBox extends HTMLElement {
         return item.checked === true
       })
 
-      
-      
-
       console.log(checkedInput[0].id);
-      
-
     })
 
   }
