@@ -178,12 +178,13 @@ class CheckBox extends HTMLElement {
 
     //外面按钮的点击事件
     let btn = document.getElementById('btn')
+    let checkedInput
     btn.addEventListener('click', () => {
-      let checkedInput = allInput.filter((item) => {
+       checkedInput = allInput.filter((item) => {
         return item.checked === true
       })
 
-      console.log(checkedInput[0].id);
+      alert(checkedInput);
     })
 
   }
