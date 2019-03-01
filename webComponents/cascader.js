@@ -53,8 +53,6 @@ class Cascader extends HTMLElement {
   addListItem(e) {
     // console.log(Object.values(data))
 
-
-
     if (this.showSelect) {
       let fragment = document.createElement('div')
       let innerHTML = `
@@ -83,7 +81,7 @@ class Cascader extends HTMLElement {
 
 
   handleData(data){
-
+    
   }
 
 
