@@ -15,24 +15,57 @@
 
 <body>
 
-    <ul>
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
-        <li>4</li>
-    </ul>
-  
-
   <script>
-    let aLi = document.getElementsByTagName('li')
-    for(var i = 0; i < aLi.length; i++){
-      (function(n){
-        aLi[i].onclick = function () {
-          console.log(n);
-          
-        }
-      })(i)
+
+    let a = {
+      a: 'a',
+      b: { b1: 1, b2: 2, b3: { b31: 3, b32: 4 } }
     }
+
+    let a1 = {
+      c: 2
+    }
+
+    // 第二版
+    function extend() {
+      var deep = false;
+      var name, options, src, copy;
+      var length = arguments.length;
+      var i = 1;
+      var target = arguments[0] || {};
+      if (typeof target == 'boolean') {
+        deep = target;
+        target = arguments[i] || {};
+        i++;
+      }
+      if (typeof target !== 'object') {
+        target = {}
+      }
+      for (; i < length; i++) {
+        options = arguments[i];
+        if (options != null) {
+          for (name in options) {
+            src = target[name];
+            copy = options[name];
+            if (deep && copy && typeof copy == 'object') {
+              target[name] = extend(deep, src, copy);
+            }
+            else if (copy !== undefined) {
+              target[name] = copy;
+            }
+          }
+        }
+      }
+      return target;
+    };
+
+
+
+
+
+
+    // console.log(extend(a, a1));
+
 
   </script>
 </body>
