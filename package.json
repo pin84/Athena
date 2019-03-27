@@ -19,5 +19,6 @@
   "homepage": "https://github.com/pin84/Athena#readme",
   "dependencies": {
     "imagemin-webp": "^5.0.0"
-  }
+  },
+  "devDependencies": {}
 }
