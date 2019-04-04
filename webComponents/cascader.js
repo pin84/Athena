@@ -20,6 +20,13 @@ class Cascader extends HTMLElement {
     const style = document.createElement('style')
     console.log(style.isConnected);
     style.textContent = `
+        ul,li{
+          list-style:none;
+        }
+        *{
+          margin:0;
+          padding:0;
+        }
          #input-box{
            width:300px;
            box-sizing: border-box;
@@ -38,6 +45,17 @@ class Cascader extends HTMLElement {
            border-color:#40a9ff;
            box-shadow:0 0 0 2px rgba(24,144,255,0.2);
          }
+         .list{
+           display:inline-block;
+           border:1px dotted #ccc;
+           user-select:none;
+         }
+         .list .selectItem{
+           padding:3px 5px;
+         }
+         .list .selectItem:hover{
+           background:#f5f5f5;
+         }
        
        `
     shadow.appendChild(style);
@@ -46,61 +64,52 @@ class Cascader extends HTMLElement {
     shadow.appendChild(input)
 
     this.addListItem = this.addListItem.bind(this)
-
-    this.showSelect = true
+    this.scale = 1
   }
 
   addListItem(e) {
     // console.log(Object.values(data))
+    let ul = this.shadowRoot.querySelector('.list')
 
-    if (this.showSelect) {
-      let fragment = document.createElement('div')
-      let innerHTML = `
-        <ul>
-        ${Object.keys(data).map(item => `
-          <li class='selectItem' >${item}</li>
-        `).join('')}
-        </ul>
-        `
-      fragment.innerHTML = innerHTML
-      this.shadowRoot.appendChild(fragment)
-
-
-
-      this.showSelect = false
-    } else {
-
-      this.showSelect = true
+    if (ul) {
+      this.isShowList(ul)
+      return
     }
+    let div = document.createElement('div')
+    let innerHTML = `
+          <ul class='list'>
+          ${Object.keys(data).map(item => `
+            <li class='selectItem' >${item}</li>
+          `).join('')}
+          </ul>
+          `
+
+    div.innerHTML = innerHTML
+    this.shadowRoot.appendChild(div)
 
 
-    
-    // this.abc()
-
-  }
-
-
-  handleData(data){
-    
-  }
-
-
-  abc(){
-    let allLi = this.shadowRoot.querySelectorAll('.selectItem')
-    allLi.forEach(item => {
-      item.addEventListener('click',()=>{
-        console.log(item.innerText);
+    const a = function (data) {
+      data.map(item =>{
         
-      })
-    })
-    
-    
+      }) 
+    }
   }
+
+  isShowList(ele) {
+    ele.style.transform = `scale(${this.scale === 1 ? this.scale = 0 : this.scale = 1})`
+  }
+
+
+  handleData(data) {
+
+  }
+
+
 
   connectedCallback() {
     let inputBox = this.shadowRoot.querySelector('#input-box')
     inputBox.addEventListener('click', this.addListItem, false)
-    
+
   }
 
   attributeChangedCallback() {
