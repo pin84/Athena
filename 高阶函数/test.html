@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <form action="">
+    <input type="text" id="content">
+    <div id="result"></div>
+  </form>
+</body>
+
+
+<script>
+  let contetn = document.querySelector('#content')
+  let result = document.querySelector('#result')
+
+  let debounce = function (fn, delay) {
+    let timer = null
+    return function (...args) {
+      console.log(args);
+      
+      clearTimeout(timer)
+      timer = setTimeout(()=>fn.apply(this,args), delay)
+    }
+  }
+
+  let fetch = function () {
+    //异步获取(实际工作中是异步调用地图api获取地址)
+    result.innerHTML = `你搜索的是${content.value}`
+  }
+
+  let search = debounce(fetch, 500)
+  content.addEventListener('input', search)
+
+</script>
+
+</html>
