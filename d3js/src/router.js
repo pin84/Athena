@@ -24,10 +24,12 @@ export default new Router({
     {
       path: '/barchart',
       name: 'barchart',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/02-BarChart.vue')
+      component: () => import( './views/02-BarChart.vue')
+    },
+    {
+      path: '/03-barchart',
+      name: '03-barchart',
+      component: () => import( './views/03-BarChart.vue')
     },
   ]
 })
