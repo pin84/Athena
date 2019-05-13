@@ -11,7 +11,8 @@ import {
   max,
   scaleBand,
   axisLeft,
-  axisBottom
+  axisBottom,
+  format
 } from "d3";
 export default {
   data() {
@@ -35,6 +36,10 @@ export default {
 
   methods: {
     render(data) {
+      data.forEach(d => {
+        d.population = +d.population * 1000;
+      });
+
       const margin = {
         left: 80,
         top: 20,
@@ -57,7 +62,8 @@ export default {
         .range([0, innerWidth]);
       const yScale = scaleBand()
         .domain(data.map(yValue))
-        .range([0, innerHeight]).padding(0.1)
+        .range([0, innerHeight])
+        .padding(0.1);
 
       // const yAxis = axisLeft(yScale);
 
@@ -65,9 +71,16 @@ export default {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      g.append("g").call(axisLeft(yScale));
+      const xAxisTichFormat = number => format(".3s")(number).replace("G", "B");
+
+      const xAxis = axisBottom(xScale).tickFormat(xAxisTichFormat);
+
       g.append("g")
-        .call(axisBottom(xScale))
+        .call(axisLeft(yScale))
+        .selectAll(".domain,.tick line")
+        .remove();
+      g.append("g")
+        .call(xAxis)
         .attr("transform", `translate(0,${innerHeight})`);
 
       g.selectAll("rect")
