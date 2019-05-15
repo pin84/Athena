@@ -5,6 +5,7 @@
       <router-link to="/about">01-Face</router-link>
       <router-link to="/barchart">02-Barchart</router-link>
       <router-link to="/03-barchart">03-Barchart</router-link>
+      <router-link to="/04-ScatterBlot">04-ScatterBlot</router-link>
     </div>
     <router-view/>
   </div>

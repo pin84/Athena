@@ -9,7 +9,7 @@ import {
   csv,
   scaleLinear,
   max,
-  scaleBand,
+  scalePoint,
   axisLeft,
   axisBottom,
   format
@@ -59,11 +59,12 @@ export default {
 
       const xScale = scaleLinear()
         .domain([0, max(data, xValue)])
-        .range([0, innerWidth]);
-      const yScale = scaleBand()
+        .range([0, innerWidth])
+        .nice()
+      const yScale = scalePoint()
         .domain(data.map(yValue))
         .range([0, innerHeight])
-        .padding(0.1);
+        .padding(0.7);
 
       // const yAxis = axisLeft(yScale);
 
@@ -77,9 +78,11 @@ export default {
         .tickFormat(xAxisTichFormat)
         .tickSize(-innerHeight);
 
+        const yAxis = axisLeft(yScale).tickSize(-innerWidth)
+
       g.append("g")
-        .call(axisLeft(yScale))
-        .selectAll(".domain,.tick line")
+        .call(yAxis)
+        .selectAll(".domain")
         .remove();
       const xAxisG = g
         .append("g")
@@ -94,13 +97,13 @@ export default {
         .attr("fill", "black")
         .text(" Population ");
 
-      g.selectAll("rect")
+      g.selectAll("circle")
         .data(data)
         .enter()
-        .append("rect")
-        .attr("y", d => yScale(yValue(d)))
-        .attr("width", d => xScale(xValue(d)))
-        .attr("height", yScale.bandwidth());
+        .append("circle")
+        .attr("cy", d => yScale(yValue(d))  )
+        .attr("cx", d => xScale(xValue(d)))
+        .attr("r",10);
       g.append("text")
         .attr("y", -10)
         .text("top 10 most populous contries");
@@ -111,7 +114,7 @@ export default {
 
 <style lang="scss" >
 #barchart {
-  rect {
+  circle {
     fill: steelblue;
   }
   text {

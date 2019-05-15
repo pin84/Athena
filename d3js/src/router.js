@@ -31,5 +31,10 @@ export default new Router({
       name: '03-barchart',
       component: () => import( './views/03-BarChart.vue')
     },
+    {
+      path: '/04-ScatterBlot',
+      name: '04-ScatterBlot',
+      component: () => import( './views/04-ScatterBlot.vue')
+    },
   ]
 })
