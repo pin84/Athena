@@ -36,5 +36,20 @@ export default new Router({
       name: '04-ScatterBlot',
       component: () => import( './views/04-ScatterBlot.vue')
     },
+    {
+      path: '/05-CartScatterBlot',
+      name: '05-CartScatterBlot',
+      component: () => import( './views/05-CartScatterBlot')
+    },
+    {
+      path: '/06-arc',
+      name: '06-arc',
+      component: () => import( './views/06-arc')
+    },
+    {
+      path: '/07-Radial',
+      name: '07-Radial',
+      component: () => import( './views/07-Radial')
+    },
   ]
 })
