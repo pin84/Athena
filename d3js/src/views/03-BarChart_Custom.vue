@@ -1,5 +1,5 @@
 <template>
-  <svg id="barchart" width="600" height="300"></svg>
+  <svg id="barchart-custom" width="600" height="300"></svg>
 </template>
 
 
@@ -9,7 +9,7 @@ import {
   csv,
   scaleLinear,
   max,
-  scalePoint,
+  scaleBand,
   axisLeft,
   axisBottom,
   format
@@ -44,7 +44,7 @@ export default {
         left: 80,
         top: 60,
         right: 40,
-        bottom: 40
+        bottom: 60
       };
 
       const svg = select("svg");
@@ -59,12 +59,11 @@ export default {
 
       const xScale = scaleLinear()
         .domain([0, max(data, xValue)])
-        .range([0, innerWidth])
-        .nice()
-      const yScale = scalePoint()
+        .range([0, innerWidth]);
+      const yScale = scaleBand()
         .domain(data.map(yValue))
         .range([0, innerHeight])
-        .padding(0.7);
+        .padding(0.1);
 
       // const yAxis = axisLeft(yScale);
 
@@ -78,11 +77,9 @@ export default {
         .tickFormat(xAxisTichFormat)
         .tickSize(-innerHeight);
 
-        const yAxis = axisLeft(yScale).tickSize(-innerWidth)
-
       g.append("g")
-        .call(yAxis)
-        .selectAll(".domain")
+        .call(axisLeft(yScale))
+        .selectAll(".domain,.tick line")
         .remove();
       const xAxisG = g
         .append("g")
@@ -92,19 +89,20 @@ export default {
       xAxisG
         .append("text")
         .attr('class','axis-label')
-        .attr("y", -10)
+        .attr("y", 50)
         .attr("x", innerWidth / 2)
         .attr("fill", "black")
         .text(" Population ");
 
-      g.selectAll("circle")
+      g.selectAll("rect")
         .data(data)
         .enter()
-        .append("circle")
-        .attr("cy", d => yScale(yValue(d))  )
-        .attr("cx", d => xScale(xValue(d)))
-        .attr("r",10);
+        .append("rect")
+        .attr("y", d => yScale(yValue(d)))
+        .attr("width", d => xScale(xValue(d)))
+        .attr("height", yScale.bandwidth());
       g.append("text")
+        .attr('class','title')
         .attr("y", -10)
         .text("top 10 most populous contries");
     }
@@ -112,23 +110,18 @@ export default {
 };
 </script>
 
-<style lang="scss" >
-#barchart {
-  circle {
-    fill: steelblue;
-  }
-  text {
-    font-size: 1.4em;
-    font-family: sans-serif;
-  }
-  .tick text{
-    fill: aqua;
-  }
-  .tick line {
-    stroke:blueviolet;
-  }
-  .axis-label{
-    fill:burlywood ;
-  }
-}
+<style lang="stylus">
+#barchart-custom
+  position relative
+  text
+    font-size 1rem
+  rect
+    fill deeppink
+  .tick text
+    fill #8e8883  
+  .axis-label,.title
+    font-size 2rem  
+
 </style>
+
+

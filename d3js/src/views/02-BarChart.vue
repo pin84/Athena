@@ -1,5 +1,5 @@
 <template>
-  <svg id="barchart" width="600" height="300"></svg>
+  <svg id="barchart-01" width="960" height="300"></svg>
 </template>
 
 
@@ -30,6 +30,10 @@ export default {
     };
   },
   mounted() {
+     this.data.forEach(d =>{
+      d.population = d.population*1000
+    })
+    
     this.render(this.data);
   },
 
@@ -58,11 +62,9 @@ export default {
       const yScale = scaleBand()
         .domain(data.map(yValue))
         .range([0, innerHeight]).padding(0.1)
-
-      // const yAxis = axisLeft(yScale);
-
       const g = svg
         .append("g")
+        .attr('id','abc')
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
       g.append("g").call(axisLeft(yScale));
@@ -77,45 +79,17 @@ export default {
         .attr("y", d => yScale(yValue(d)))
         .attr("width", d => xScale(xValue(d)))
         .attr("height", yScale.bandwidth());
-
-      // const xScaleWidth = 600;
-      // const yScaleHeight = 300;
-      // const xScale = scaleLinear()
-      //   .domain([0, max(this.data, xValue)])
-      //   .range([0, xScaleWidth]);
-
-      // const yScale = scaleBand()
-      //   .domain(this.data.map(yValue))
-      //   .range([0, yScaleHeight])
-      //   .padding(0.1);
-
-      // const g = svg
-      //   .append("g")
-      //   .attr("transform", `translate(${margin.left},${margin.top})`);
-      // g.append("g").call(axisLeft(yScale));
-      // g.append("g")
-      //   .call(axisBottom(xScale))
-      //   .attr("transform", `translate(0,${yScaleHeight})`);
-
-      // g.selectAll("rect")
-      //   .data(this.data)
-      //   .enter()
-      //   .append("rect")
-      //   .attr("y", d => yScale(yValue(d)))
-      //   .attr("width", d => xScale(xValue(d)))
-      //   .attr("height", yScale.bandwidth());
     }
   }
 };
 </script>
 
-<style lang="scss" >
-#barchart {
-  rect {
-    fill: steelblue;
-  }
-  text {
-    font-size: 1.4em;
-  }
-}
+<style lang="stylus" >
+#barchart-01
+  position relative
+  rect
+    fill blue
+  text
+    font-size 1rem  
+
 </style>

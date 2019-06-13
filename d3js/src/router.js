@@ -29,17 +29,32 @@ export default new Router({
     {
       path: '/03-barchart',
       name: '03-barchart',
-      component: () => import( './views/03-BarChart.vue')
+      component: () => import( './views/03-BarChart_Custom.vue')
     },
     {
-      path: '/04-ScatterBlot',
-      name: '04-ScatterBlot',
-      component: () => import( './views/04-ScatterBlot.vue')
+      path: '/04-circular-bar',
+      name: '04-circular-bar',
+      component: () => import( './views/04-circular-bar.vue')
     },
     {
-      path: '/05-CartScatterBlot',
-      name: '05-CartScatterBlot',
-      component: () => import( './views/05-CartScatterBlot')
+      path: '/05-basic',
+      name: '05-basic',
+      component: () => import( './views/05-basic')
+    },
+    {
+      path: '/05-basic-line',
+      name: '05-basic-line',
+      component: () => import( './views/05-basic-line')
+    },
+    {
+      path: '/05-basic-area',
+      name: '05-basic-area',
+      component: () => import( './views/05-basic-area')
+    },
+    {
+      path: '/05-basic-area-1',
+      name: '05-basic-area-1',
+      component: () => import( './views/05-basic-area-1')
     },
     {
       path: '/06-arc',
@@ -47,9 +62,24 @@ export default new Router({
       component: () => import( './views/06-arc')
     },
     {
-      path: '/07-Radial',
-      name: '07-Radial',
-      component: () => import( './views/07-Radial')
+      path: '/06-clickEvent',
+      name: '06-clickEvent',
+      component: () => import( './views/06-clickEvent')
+    },
+    {
+      path: '/06-clickEvent-1',
+      name: '06-clickEvent-1',
+      component: () => import( './views/06-clickEvent-1')
+    },
+    {
+      path: '/07-worldMap',
+      name: '07-worldMap',
+      component: () => import( './views/07-worldMap')
+    },
+    {
+      path: '/07-worldMap-1',
+      name: '07-worldMap-1',
+      component: () => import( './views/07-worldMap-1')
     },
   ]
 })
