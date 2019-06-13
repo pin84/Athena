@@ -15,6 +15,9 @@
       <router-link to="/06-clickEvent-1">06-clickEvent-1</router-link>
       <router-link to="/07-worldMap">07-worldMap</router-link>
       <router-link to="/07-worldMap-1">07-worldMap-1</router-link>
+
+      <router-link to="/100-test">100-test</router-link>
+      <router-link to="/08-arc">08-arc</router-link>
     </div>
     <router-view/>
   </div>
