@@ -6,8 +6,14 @@
       <router-link to="/barchart">02-Barchart</router-link>
       <router-link to="/03-barchart">03-Barchart</router-link>
       <router-link to="/04-ScatterBlot">04-ScatterBlot</router-link>
+<<<<<<< HEAD
       <router-link to="/100-test">100-test</router-link>
       <router-link to="/08-arc">08-arc</router-link>
+=======
+      <router-link to="/05-CartScatterBlot">05-CartScatterBlot</router-link>
+      <router-link to="/06-arc">06-arc</router-link>
+      <router-link to="/07-radial">07-Radial</router-link>
+>>>>>>> 4f5d1df939d8a84edd388a9560421ae9c4bfde6e
     </div>
     <router-view/>
   </div>

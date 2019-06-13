@@ -37,6 +37,7 @@ export default new Router({
       component: () => import( './views/04-ScatterBlot.vue')
     },
     {
+<<<<<<< HEAD
       path: '/100-test',
       name: '100-test',
       component: () => import( './views/100-test.vue')
@@ -45,6 +46,21 @@ export default new Router({
       path: '/08-arc',
       name: '08-arc',
       component: () => import( './views/08-arc.vue')
+=======
+      path: '/05-CartScatterBlot',
+      name: '05-CartScatterBlot',
+      component: () => import( './views/05-CartScatterBlot')
+    },
+    {
+      path: '/06-arc',
+      name: '06-arc',
+      component: () => import( './views/06-arc')
+    },
+    {
+      path: '/07-Radial',
+      name: '07-Radial',
+      component: () => import( './views/07-Radial')
+>>>>>>> 4f5d1df939d8a84edd388a9560421ae9c4bfde6e
     },
   ]
 })
