@@ -36,5 +36,15 @@ export default new Router({
       name: '04-ScatterBlot',
       component: () => import( './views/04-ScatterBlot.vue')
     },
+    {
+      path: '/100-test',
+      name: '100-test',
+      component: () => import( './views/100-test.vue')
+    },
+    {
+      path: '/08-arc',
+      name: '08-arc',
+      component: () => import( './views/08-arc.vue')
+    },
   ]
 })

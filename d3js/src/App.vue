@@ -6,6 +6,8 @@
       <router-link to="/barchart">02-Barchart</router-link>
       <router-link to="/03-barchart">03-Barchart</router-link>
       <router-link to="/04-ScatterBlot">04-ScatterBlot</router-link>
+      <router-link to="/100-test">100-test</router-link>
+      <router-link to="/08-arc">08-arc</router-link>
     </div>
     <router-view/>
   </div>
