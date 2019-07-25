@@ -1,0 +1,219 @@
+<com-pop v-if="index==0" :my-index="index">
+        <!-- @close="maskShow(item)" -->
+        <template v-slot:pop-content>
+            <!-- 这里是中间内容插槽 -->                                        
+        </template>
+        
+        <template v-slot:flex-left>
+            <!-- 这里是全屏按钮左侧插槽 -->
+        </template>
+        <template v-slot:flex-right>
+            <!-- 这里是全屏按钮右侧插槽 -->
+        </template>
+    </com-pop>
+
+<!-- /* com-pop-trans  style */ -->
+<style>
+.g-pop-trans {
+  -webkit-transition: all .5s;
+  transition: all .5s;
+  position: fixed;
+  top: 100%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  color: black; }
+  .g-pop-trans.g-pop-show {
+    top: 0; }
+  .g-pop-trans .u-mask {
+    background-color: black;
+    opacity: .8;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0; }
+  .g-pop-trans .m-bannerBg {
+    width: 96%;
+    height: 90%;
+    margin: 50px auto 0px;
+    position: relative;
+    background-color: white;
+    border-radius: 12px; }
+    .g-pop-trans .m-bannerBg .u-close {
+      position: absolute;
+      right: 0;
+      top: -15px;
+      -webkit-transform: translateY(-100%);
+      transform: translateY(-100%);
+      width: 30px;
+      height: 30px; }
+      .g-pop-trans .m-bannerBg .u-close .icon {
+        width: 100%; }
+  .g-pop-trans .iconbg {
+    background-color: #08a3a2;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%; }
+    .g-pop-trans .iconbg .icon {
+      width: 42px;
+      height: auto; }
+  .g-pop-trans .m-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 50px;
+    background-color: #00000050;
+    overflow-y: scroll;
+    z-index: 11; }
+  .g-pop-trans .m-footer {
+    position: absolute;
+    bottom: 0;
+    background-color: #f3f3f3;
+    width: 100%;
+    height: 50px;
+    border: 0px solid #f3f3f3;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px; }
+  .g-pop-trans .close {
+    display: none; }
+  .g-pop-trans.fullscreen .m-content {
+    position: fixed;
+    top: 0;
+    bottom: 0; }
+    .g-pop-trans.fullscreen .m-content .content {
+      position: absolute;
+      top: 0;
+      bottom: 0.6rem;
+      left: 0;
+      right: 0;
+      overflow-y: scroll; }
+    .g-pop-trans.fullscreen .m-content .close {
+      display: block;
+      background: #08a3a2;
+      color: white;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 0.88rem;
+      text-align: center;
+      line-height: 0.88rem;
+      font-size: 0.36rem;
+      z-index: 14; }
+</style>
+
+<!-- com-foot -->
+<style>
+.flex-layout, .com-flex, .com-flex .m-item {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-justify-content: space-around;
+  -ms-flex-pack: distribute;
+  justify-content: space-around;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  text-align: center; }
+</style>
+
+
+<script>
+let stateControl = new Vue(); //用于通信
+// @click="popIsShow(index)" 在需要点击弹出窗口
+// popIsShow方法内: stateControl.$emit('popIsShow',index);
+// 插入popIsShow方法 index参数是唯一id 不可重复
+
+
+let comPopTrans = {
+    // 子组件comPop
+
+    template:`
+    <div class="g-pop-trans" @click.stop :class="{fullscreen:item.isFull,'g-pop-show':item.isShow}">
+        <div class="u-mask"></div>
+        <div class="m-bannerBg">
+            <div class="u-close" @click="close">
+                <img class="icon" src="./asset/icon/close@2x.png" alt="">
+            </div>
+
+            <div class="m-content">
+                <div class="content">
+                    <!-- 内容预留插槽 -->
+                    <slot name="pop-content">
+
+                    </slot>
+                </div>
+                <div class="close" @click="full">关闭全屏</div>
+            </div>
+            <div class="m-footer">
+                <div class="com-flex fill">
+                    <slot name="flex-left">
+                        <div class="m-item" @click="close">
+                        <span class="item-text">关闭</span>
+                        </div>
+                    </slot>
+                        <div class="m-item m-itemcenter" @click="full">
+                            <i class="iconfont-mask phone item-icon-block">&#xe786;</i>
+                            <span class="item-text">全屏</span>
+                        </div>
+                    <slot name="flex-right">
+                        <div class="m-item m-itemcenter" @click="">
+                            <i class="iconfont-mask phone item-icon-block">&#xe6ff;</i>
+                            <span class="item-text">分享</span>
+                        </div>
+                    </slot>
+                </div>
+            </div>
+        </div>
+    </div>
+    `,
+    created(){
+        // 是否显示
+        stateControl.$on('popIsShow',(index)=>{
+            if(this.myIndex == index){
+                this.item.isShow = !this.item.isShow;
+            }
+        });
+    },
+    props:{
+        myIndex:{
+            type:Number,
+            default:0
+        }
+    },
+    data:function(){
+        
+        return{
+            item:{
+                isShow:false, //是否显示
+                isFull:false  //是否全屏
+            },
+            index:this.myIndex, //绑定索引
+        }
+    },
+    watch:{
+    },
+    methods:{
+        close(){
+            this.item.isShow = !this.item.isShow;
+        },
+        full(){
+            this.item.isFull = !this.item.isFull;
+        }
+    },
+    
+}
+
+</script>

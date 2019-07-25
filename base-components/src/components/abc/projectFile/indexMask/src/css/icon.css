@@ -1,0 +1,35 @@
+.weui-cell {
+  font-size: 0.32rem !important; }
+
+.u-reset.weui-btn {
+  background-color: #08a3a2; }
+  .u-reset.weui-btn:active {
+    background-color: #078e8d; }
+
+.u-reset.weui-label {
+  width: 2.4rem; }
+
+.weui-cell .weui-cell__ft {
+  color: black; }
+
+@font-face {
+  font-family: 'iconfont';
+  /* project id 1085680 */
+  src: url("//at.alicdn.com/t/font_1085680_2whhvphv745.eot");
+  src: url("//at.alicdn.com/t/font_1085680_2whhvphv745.eot?#iefix") format("embedded-opentype"), url("//at.alicdn.com/t/font_1085680_2whhvphv745.woff2") format("woff2"), url("//at.alicdn.com/t/font_1085680_2whhvphv745.woff") format("woff"), url("//at.alicdn.com/t/font_1085680_2whhvphv745.ttf") format("truetype"), url("//at.alicdn.com/t/font_1085680_2whhvphv745.svg#iconfont") format("svg"); }
+
+.iconfont-mask {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.2px;
+  -moz-osx-font-smoothing: grayscale; }
+
+.del-icon {
+  color: #ff3130;
+  font-size: 0.3rem; }
+
+.add-icon {
+  color: #08a3a2;
+  font-size: 0.3rem; }
