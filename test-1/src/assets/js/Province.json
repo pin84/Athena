@@ -1,0 +1,192 @@
+{
+    "reason": "成功返回",
+    "result": {
+        "area_list": [
+            {
+                "id": "1",
+                "name": "常用",
+                "province_list": [
+                    {
+                        "city_name": "福建",
+                        "city_sort": "闽"
+                    },
+                    {
+                        "city_name": "浙江",
+                        "city_sort": "浙"
+                    },
+                    {
+                        "city_name": "广东",
+                        "city_sort": "粤"
+                    }
+                ]
+            },
+            {
+                "id": "2",
+                "name": "华东地区",
+                "province_list": [
+                    {
+                        "city_name": "山东",
+                        "city_sort": "鲁"
+                    },
+                    {
+                        "city_name": "江苏",
+                        "city_sort": "苏"
+                    },
+                    {
+                        "city_name": "上海",
+                        "city_sort": "沪"
+                    },
+                    {
+                        "city_name": "浙江",
+                        "city_sort": "浙"
+                    },
+                    {
+                        "city_name": "福建",
+                        "city_sort": "闽"
+                    },
+                    {
+                        "city_name": "安徽",
+                        "city_sort": "皖"
+                    },
+                    {
+                        "city_name": "江西",
+                        "city_sort": "赣"
+                    }
+                ]
+            },
+            {
+                "id": "3",
+                "name": "华南地区",
+                "province_list": [
+                    {
+                        "city_name": "广东",
+                        "city_sort": "粤"
+                    },
+                    {
+                        "city_name": "广西",
+                        "city_sort": "桂"
+                    },
+                    {
+                        "city_name": "海南",
+                        "city_sort": "琼"
+                    }
+                ]
+            },
+            {
+                "id": "4",
+                "name": "华中地区",
+                "province_list": [
+                    {
+                        "city_name": "湖北",
+                        "city_sort": "鄂"
+                    },
+                    {
+                        "city_name": "湖南",
+                        "city_sort": "湘"
+                    },
+                    {
+                        "city_name": "河南",
+                        "city_sort": "豫"
+                    }
+                ]
+            },
+            {
+                "id": "5",
+                "name": "华中地区",
+                "province_list": [
+                    {
+                        "city_name": "北京",
+                        "city_sort": "京"
+                    },
+                    {
+                        "city_name": "天津",
+                        "city_sort": "津"
+                    },
+                    {
+                        "city_name": "河北",
+                        "city_sort": "冀"
+                    },
+                    {
+                        "city_name": "山西",
+                        "city_sort": "晋"
+                    },
+                    {
+                        "city_name": "内蒙古",
+                        "city_sort": "蒙"
+                    }
+                ]
+            },
+            {
+                "id": "6",
+                "name": "西北地区",
+                "province_list": [
+                    {
+                        "city_name": "宁夏",
+                        "city_sort": "宁"
+                    },
+                    {
+                        "city_name": "新疆",
+                        "city_sort": "新"
+                    },
+                    {
+                        "city_name": "青海",
+                        "city_sort": "清"
+                    },
+                    {
+                        "city_name": "陕西",
+                        "city_sort": "陕"
+                    },
+                    {
+                        "city_name": "甘肃",
+                        "city_sort": "甘"
+                    }
+                ]
+            },
+            {
+                "id": "7",
+                "name": "西南地区",
+                "province_list": [
+                    {
+                        "city_name": "四川",
+                        "city_sort": "川"
+                    },
+                    {
+                        "city_name": "云南",
+                        "city_sort": "云"
+                    },
+                    {
+                        "city_name": "贵州",
+                        "city_sort": "贵"
+                    },
+                    {
+                        "city_name": "西藏",
+                        "city_sort": "藏"
+                    },
+                    {
+                        "city_name": "重庆",
+                        "city_sort": "渝"
+                    }
+                ]
+            },
+            {
+                "id": "8",
+                "name": "东北地区",
+                "province_list": [
+                    {
+                        "city_name": "辽宁",
+                        "city_sort": "辽"
+                    },
+                    {
+                        "city_name": "吉林",
+                        "city_sort": "吉"
+                    },
+                    {
+                        "city_name": "黑龙江",
+                        "city_sort": "黑"
+                    }
+                ]
+            }
+        ],
+        "error_code": 0
+    }
+}

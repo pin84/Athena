@@ -1,0 +1,53 @@
+$recommendBtnColor:rgba(226, 26, 16, 0.78);
+
+.recommendBtn{
+    
+    position: absolute;
+    z-index: 1;
+    right: 0px;
+    bottom: calRem(40);
+    width: calRem(70);
+    height:calRem(40);
+    background-color: $recommendBtnColor;
+    color: white;
+    line-height: calRem(40);
+    border-radius: calRem(20) 0 0 calRem(20);
+    font-size: calRem(12);
+    text-align: right;
+    padding-right: calRem(10);
+
+    .white-point{
+        width: calRem(12);
+        height: calRem(12);
+        margin:auto;
+        position: absolute;
+        left: calRem(12);
+        top: 50%;
+        transform: translateY(-50%);
+        background-color:white;
+        border-radius: 50%;
+        filter: blur(1.2px);
+    }
+}
+
+.recommendPop{
+    @include absCenter;
+    width: 80%;
+    height: 20%;
+    transition: all .5s;
+
+    .mask{
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        opacity: 0.8;
+    }
+    .text{
+        @include absCenter;
+        width: 100%;
+        text-align: center;
+        color: white;
+        font-size: calRem(22);
+        letter-spacing: calRem(4);
+    }
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.bootcss.com/axios/0.19.0/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+    <script>
+    // window.location.href="./js/index.html";
+    // var obj = {
+    //     'xixi':'haha'
+    // }
+    // localStorage.setItem('userInfo',JSON.stringify(obj))
+
+    // alert(JSON.stringify(localStorage)+'---')
+    // alert(localStorage)
+    // alert(localStorage.getItem('userInfo'))
+    // console.log(localStorage.getItem('ajklfdjslkjfkpsjfdds'))
+    // console.log(localStorage.getItem('userInfo'))
+    // if(JSON.parse(localStorage.getItem('userInfo'))){
+    //     console.log(true);
+    //     console.log(JSON.parse(localStorage.getItem('userInfo')))
+    // }else{
+    //     console.log(false);
+    // }
+    
+    window.onload=function(){
+
+        const baseUrl = 'http://117.48.207.24:8000/'
+        const api = {
+            
+            // 获取微信code码
+            getUserInfo: baseUrl + 'oauth/users',
+            
+        }
+        let Host = window.location.host
+        let currentPage = window.location.href;
+        console.log(currentHref)
+        console.log(encodeURIComponent(currentHref))
+        let targetPage = Host + '/js?#/';
+        console.log(targetPage)
+        // let objTest = {
+        //     createdTime:Date.now(),
+        //     name:'L'
+        // }
+        // console.log( new Date(objTest.createdTime))
+        // localStorage.setItem('createdTime',JSON.stringify(objTest))
+        // let getRes = localStorage.getItem('creatTime');
+
+        // console.log(getRes);
+
+        // setTimeout(()=>{
+        //     let newTime = Date.now();
+        //     console.log(newTime);
+        //     console.log(newTime - objTest.createdTime)
+        // },10000)
+
+        // let oneDay = 86400;
+        
+        // axios.get('')
+
+        // console.log('oneDayTime',oneDay )
+    }
+    
+    </script>
+
+    <script>
+    
+    let testArr = [
+        {
+            "MASTER_NAME":"惰惰",
+            "KPI_MONTH":"201905",
+            "KPI_VALUE":1
+        },
+        {
+            "MASTER_NAME":"李伟刚",
+            "KPI_MONTH":"201905",
+            "KPI_VALUE":1
+        },
+        {
+            "MASTER_NAME":"杨漫",
+            "KPI_MONTH":"201905",
+            "KPI_VALUE":1
+        },
+
+        {
+            "MASTER_NAME":"惰惰",
+            "KPI_MONTH":"201805",
+            "KPI_VALUE":5
+        },
+        {
+            "MASTER_NAME":"李伟刚",
+            "KPI_MONTH":"201805",
+            "KPI_VALUE":5
+        },
+        {
+            "MASTER_NAME":"杨漫",
+            "KPI_MONTH":"201805",
+            "KPI_VALUE":5
+        },
+    ]
+    
+    let newArr = [];
+    
+    let  timeList = new Set();
+    testArr.forEach(ele=>{
+        timeList.add(ele.KPI_MONTH)
+        let findIndex = newArr.findIndex((arrItem=>{
+            return arrItem.NAME == ele.MASTER_NAME
+        }));
+        if(findIndex != -1){
+            newArr[findIndex][ele.KPI_MONTH] = ele.KPI_VALUE
+        }else{
+            newArr.push({
+                NAME:ele.MASTER_NAME,
+                [ele.KPI_MONTH]:ele.KPI_VALUE
+            })
+        }
+    })
+    console.log(newArr,timeList)
+    
+
+    </script>
+</body>
+</html>
