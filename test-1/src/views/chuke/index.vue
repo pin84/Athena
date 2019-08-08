@@ -18,6 +18,7 @@
             class="left"
             @click="toPage(index)"
           >
+
             <span class="item-title">
               <h2>{{content[index]['h2']}}</h2>
               <span>{{content[index]['span']}}</span>
@@ -78,6 +79,7 @@ export default {
           useNum: "",
           status: undefined
         },
+
         {
           h2: "采购招标公告订阅",
           span: "（认证企业免费）",
@@ -92,6 +94,7 @@ export default {
           useNum: "",
           status: undefined
         },
+
         {
           h2: "触客分发",
           span: "（认证企业免费）",
@@ -158,7 +161,7 @@ export default {
 
           break;
       }
-    },
+    }
 
     // toast() {
     //   this.$messageBox

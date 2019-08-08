@@ -223,16 +223,56 @@ export default {
     },
 
     // 点击不同公司后 改变公司
-    changeCompany(companyId, companyName, industriesId) {
+    async changeCompany(companyId, companyName, industriesId) {
       console.log(companyId, companyName, industriesId);
       this.index_search = companyName;
       // this.companyInfo = companyInfo;
-      
-      this.bus.$emit("changeCompany", companyId,companyName, industriesId);
+      let companyInfo = await this.searchNewCompanyInfo(companyId,companyName,industriesId);
+      this.$store.commit('indexInfo',companyInfo);
+      this.bus.$emit("changeCompany", companyId,companyName, industriesId,companyInfo);
       // this.$emit("inputText", { searchText: companyName, resultState: true });
       this.isShowResult = false;
 
       // this.index_search = name;
+    },
+    async searchNewCompanyInfo(enterpriseid,enterprise,industriesId){
+      let companyOtherInfo = await this.$axios.get(this.$api.searchCompany,{
+          params:{
+          enterpriseid:enterprise,
+          industryid:+industriesId
+          }
+      }).then(res=>res.data).catch(rej=>rej)
+      console.log(companyOtherInfo);
+      let {code,count,identity_status,kind,kind_count,number} = companyOtherInfo;
+      
+      let authComInfo =  this.$store.state.company.authComInfo;
+
+      if(authComInfo){
+          let {
+              enterprise:authCompany,
+              enterpriseid:authId,
+          } = authComInfo;
+
+          if(authCompany == enterprise && authId==enterpriseid){
+              identity_status = true
+          }
+
+      }
+
+      let companyInfo = {
+          code,
+          count, //访问数
+          enterprise: enterprise,
+          enterpriseid: enterpriseid,
+          industryid: industriesId,
+          number, //推荐数
+          kind,
+          kind_count,
+          identity_status,
+      }
+
+      return companyInfo;
+
     },
 
     //加载更多

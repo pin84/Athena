@@ -443,7 +443,8 @@ export default {
       // let time = new Date()
       // localStorage.setItem("setFirstRequestFlag", time);
 
-      await this.$axios.post(`${this.$api.setSubKeyword}`, data);
+      let a = await this.$axios.post(`${this.$api.setSubKeyword}`, data);
+      console.log(`===save kw====`, a.data);
       this.$router.push("/mySubscript");
       setTimeout(() => {
         // instance.close();

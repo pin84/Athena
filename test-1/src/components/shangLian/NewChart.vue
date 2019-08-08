@@ -685,10 +685,15 @@ export default {
     },
 
     // 更改企业显示
-    async changeCompany(enterpriseid,enterprise,industriesId){
+    async changeCompany(enterpriseid,enterprise,industriesId,hadCompanyInfo){
         console.log('706 changeCompany');
-        let companyInfo = await this.searchNewCompanyInfo(enterpriseid,enterprise,industriesId);
-        vm.companyInfo = companyInfo
+        let companyInfo;
+        if(hadCompanyInfo){
+          companyInfo = hadCompanyInfo;
+        }else{
+          companyInfo = await this.searchNewCompanyInfo(enterpriseid,enterprise,industriesId);
+          vm.companyInfo = companyInfo
+        }
         this.$store.commit('indexInfo',companyInfo)
         localStorage.setItem('com-indexinfo',JSON.stringify(this.companyInfo)); //快搜 采招推荐 用到
         
@@ -2779,22 +2784,6 @@ export default {
 
     },
 
-    businessScope(scope) {
-      if (typeof scope == "string" && scope.length > 0 && scope !== "\r") {
-        // console.log('ok ',scope)
-        let spliteStrArray = scope.split("|");
-        let setSpliteStrArray  = new Set(spliteStrArray);
-        console.log(setSpliteStrArray,spliteStrArray)
-        if (spliteStrArray.length > 2) {
-          spliteStrArray.splice(0, 1);
-        }
-
-        return spliteStrArray;
-      } else {
-        return [];
-      }
-    },
-    
     // 点击事件处理
     mainBtnItem(order){
       //获得order 得知是主节点的哪个按钮被触发 并触发相关事件
@@ -2816,6 +2805,7 @@ export default {
         enterpriseid:enterprisesid,
         industryid,
       } = vm.$store.state.company.indexInfo;
+      
       switch(order){
         case '0':
           console.log('0')
@@ -2831,7 +2821,7 @@ export default {
           
           let chooseCompany = {
             companyName,
-            companyTags:vm.businessScope(kind),
+            companyTags:kind,
             enterprisesid,
             industryid,
           }
@@ -2850,7 +2840,9 @@ export default {
 
         break;
         case '5':
-          vm.bus.$emit('labelShowCall', enterprisesid,companyName,industryid );
+          
+          vm.bus.$emit('labelShowCall', enterprisesid,companyName,industryid, vm.$store.state.company.indexInfo );
+          
         break;
 
         case '9':
@@ -3233,10 +3225,10 @@ export default {
 
   },
   deactivated(){
-    this.bus.$on('changeCompany',(enterpriseid,enterprise,industriesId)=>{
+    this.bus.$on('changeCompany',(enterpriseid,enterprise,industriesId,hadCompanyInfo)=>{
       console.log('changeCompany listen')
       this.activatedFunc = {};
-      this.activatedFunc.params = [enterpriseid,enterprise,industriesId]
+      this.activatedFunc.params = [enterpriseid,enterprise,industriesId,hadCompanyInfo]
       this.activatedFunc.func = this.changeCompany
     })
   },

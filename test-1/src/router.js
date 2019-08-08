@@ -687,7 +687,7 @@ sessionStorage.setItem('auth', 'false')
 
 // 设置问号
 function questionMarkSet(){
-  let url = window.location.href;
+  let url = window.location.href.split('#')[0];
   if (!url.match(/\?/)) {
     // sessionStorage.removeItem('sxlFirstLink')
     location.replace(window.location.href.split('#')[0] + '?' + window.location.hash);
@@ -749,10 +749,10 @@ async function userAuth(to, form, next) {
       saveUserInfo2Vuex(userInfo);
       // let token = userInfo.token;
 
-      let userCheck = ()=>[189,211].indexOf(userInfo.user_id)
+      let userCheck = ()=>[211].indexOf(userInfo.user_id)
 
       if(userCheck() !== -1){
-        
+        // this is tool for dev
         var vConsole = new VConsole();
       }
 

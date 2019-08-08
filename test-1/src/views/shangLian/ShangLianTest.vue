@@ -626,7 +626,7 @@ export default {
   },
   mounted() {
     
-    this.dmFn();
+    // this.dmFn();
   },
 
   methods: {
@@ -643,12 +643,10 @@ export default {
       
       if(qs.indexOf(undefined)!==-1) {return}
       if(linkPop !== 'InvLetter'){return}
-
       let userId = this.$store.state.loginInfo.userInfo.user_id;
       userId = +userId
       share_user = +share_user
       if(share_user == userId) { return }
-
       let posterReturn = await this.$axios.post(this.$api.invLetterActivity,{
             new_user:userId,
             share_user:share_user,
@@ -657,7 +655,7 @@ export default {
 
       }).
       then(res=>{
-        localStorage.setItem('invLetterActivity','true');
+          localStorage.setItem('invLetterActivity','true');
       })
     },
 
@@ -890,8 +888,16 @@ export default {
       return "height:" + window.innerHeight + "px";
     }
   },
+  activated(){
+    this.dmFn();
+  },
+  deactivated(){
+    clearTimeout(this.dmSetTime1._id);
+    clearTimeout(this.dmSetTime2._id);
+    clearTimeout(this.dmSetTime1);
+    clearTimeout(this.dmSetTime2);
 
-  
+  },
 
   beforeDestroy() {
     clearTimeout(this.dmSetTime1._id);

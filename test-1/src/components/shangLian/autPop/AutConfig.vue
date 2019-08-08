@@ -31,7 +31,8 @@
           <span>认证费用</span>
           <span>
             <span class="marker">￥</span>
-            <span class="money">200元/年</span>
+            <span class="money">599元/年 &nbsp;</span>
+            <del class="old_money">￥2000</del>
           </span>
         </div>
         <div class="auth-list">
@@ -73,7 +74,7 @@
               class="item"
               @click="selectItem(value,key,index)"
               v-if="['统一社会信用代码','kind'].indexOf(key) == -1"
-              :key="index"
+              :key="key"
             >
               <span class="itemText"><span class="red">*</span> {{key}}</span>
               <!-- <input
@@ -116,6 +117,9 @@
                 class="inputText"
                 :placeholder="inputPlaceholder[index]"
               >
+            </li>
+            <li v-show="index ==2 && noMod==true" class="err_tips" :key="index">
+              （如归属有误请认证后修改）
             </li>
           </template>
         </ul>
@@ -168,7 +172,8 @@
           >
             <span>一年仅需 </span>
             <span class="text-mark">￥</span>
-            <span class="text-num">200元</span>
+            <span class="text-num">599元</span>
+            <del class="old_money_num">￥2000</del>
           </span>
           <span
             class="btn-pay"
@@ -465,7 +470,9 @@ export default {
         "公司22222222222",
         "公司33333333333333",
         "公司44444444444444"
-      ]
+      ],
+
+      noMod:false,
     };
   },
 
@@ -496,6 +503,9 @@ export default {
     this.getUserIdentityAndPayStatus();
     
   },
+  destroyed() {
+    this.bus.$off("changeCompany", this.getCompany);
+  },
   beforeMount() {
     this.$axios.get(this.$api.selectArea).then(res => {
       console.log(res);
@@ -522,23 +532,23 @@ export default {
 
       this.comName = res.data.company_name;
 
-      this.pay_status = pay_status;
-      this.identity_status = status;
+      this.pay_status = pay_status; //支付状态 0未支付 1已支付
+      this.identity_status = status; //用户状态 0未认证 1待支付 2已认证 3待提交
 
       if (pay_status === 0 && status === 0) {
-        this.numComState = 0;
+        this.numComState = 0; //未认证
       }
       if (pay_status === 0 && status === 1) {
-        this.numComState = 1;
+        this.numComState = 1; //待支付
       }
       if (pay_status === 1 && status === 1) {
-        this.numComState = 3;
+        this.numComState = 3; //待审核
       }
       if (status === 2) {
-        this.numComState = 2;
+        this.numComState = 2; //已认证
       }
       if (status === 3) {
-        this.numComState = 4;
+        this.numComState = 4; //待提交
       }
 
 
@@ -570,6 +580,8 @@ export default {
       this.companyInfo["联系人"] = res.data[0].contacts;
       this.companyInfo["联系人电话"] = res.data[0].phone;
       this.postedAvartar = res.data[0].avatar;
+
+      
 
       let company_id = res.data[0].company_id;
       let industryid = res.data[0].industryid;
@@ -856,15 +868,28 @@ export default {
     },
 
     async isExistCompany(inputComName){
+      // 检查该企业是否存在 存在则使用数据库数据
+      // 不存在则自定义数据
+      // 触发时机 搜素框点击对应公司及按确认时搜索到对应企业
       let results = await this.$axios.get(this.$api.indexSearch,{
         params:{
           company_name:inputComName,
           page_size:10
         }
       }).then(res=>res.data.results)
-      
-      return ((results.findIndex(ele=>ele.company_name == inputComName ?true:false)) !== -1 ? true : false );
 
+      let resultsIndex = results.findIndex(ele=>ele.company_name == inputComName ?true:false);
+      
+      if(resultsIndex == -1){ return false};
+
+      let {
+        company_id,
+        company_name,
+        industriesid,
+      } = results[resultsIndex];
+
+      this.getCompany(company_id,company_name,industriesid);
+      return true;
     },
     async getExistInfo(enterpriseName,industriesId){
       let {count,number} = await this.$axios.get(this.$api.searchCompany,{
@@ -895,7 +920,8 @@ export default {
         industryid: this.companyInfo["归属行业"].id,
         industry: this.companyInfo["归属行业"].label,
         avatars: this.postedAvartar!==''?this.postedAvartar:undefined,
-        mysql: (this.noMod||await this.isExistCompany(this.inputComName))?'是':'否' ,
+        // mysql: (await this.isExistCompany(this.inputComName))?'是':'否' ,
+        mysql: this.noMod?'是':'否',
       };
       if(data.mysql=='是'){
         let { count:access, number:recommended } =  await this.getExistInfo(data.name,data.industryid);
@@ -967,8 +993,11 @@ export default {
           return rej;
         });
     },
-    nameConfirm() {
-      this.noMod = false;
+    async nameConfirm() {
+      
+      this.noMod = await this.isExistCompany(this.inputComName);
+      
+      // this.noMod = false;de
     }
   },
   destroyed() {
@@ -1050,6 +1079,9 @@ export default {
         .money
           font-size 0.48rem
           font-weight 600
+        .old_money
+          font-size 0.48rem
+          font-weight normal
       .auth-list
         text-align center
         .auth-title
@@ -1082,6 +1114,7 @@ export default {
               margin-top 0.2rem
               font-weight 800
               font-size 0.26rem
+
     .com-info
       width 100% 
       background-color #fff
@@ -1103,6 +1136,12 @@ export default {
           .inputText
             width 60%
             border none
+
+        .err_tips
+            color:red;
+            font-size:0.2rem;
+            text-align:right;
+            // justify-content flex-end;
 
       .select-itemstyle
         font-size 0.26rem
@@ -1178,10 +1217,14 @@ export default {
           color #666
           .text-mark
             color #d62222
-            font-size 0.28rem
+            font-size 0.24rem
           .text-num
             color #d62222
-            font-size 0.48rem  
+            font-size 0.44rem
+          .old_money_num
+            display inline
+            color #999
+            font-size 0.3rem
         .btn-pay
           display inline-block
           width 40%

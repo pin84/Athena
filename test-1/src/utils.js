@@ -47,9 +47,19 @@ myModule={
         // +h+m+s;
     },
     
-    
+    StrDateFormat(strDate,dataForm){
+        if( strDate == undefined ){
+            return
+        }
+        let strDateAry = strDate.split('T');
+        let date = strDateAry[0];
+        date = myModule.formatTime(new Date(date),dataForm);
+        let hmsDate = strDateAry[1].slice(0,8)
+        return date + ' ' + hmsDate
+    },
 
     formatTime (date,dataForm){
+        
         const year = date.getFullYear()
         const month = date.getMonth() + 1
         const day = date.getDate()
@@ -68,6 +78,9 @@ myModule={
             break;
             case 2:
                 return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute, second].map(formatNumber).join(':')
+            break;
+            case 3:
+                return `${year}年${month}月${day}日 ${[hour, minute, second].map(formatNumber).join(':')}`;
             break;
             default:
                 return [year, month, day].map(formatNumber).join('/') + ' ' + [hour, minute, second].map(formatNumber).join(':')
@@ -366,6 +379,34 @@ myModule={
         }
     },
 
+    // 标签转换
+    businessScope(scope) {
+        debugger
+        if( Array.isArray(scope) ){return scope}
+        if (typeof scope == "string" && scope.length > 0 && scope !== "\r") {
+            // console.log('ok ',scope)
+            let checkArr = ['\r',' '];
+            if(scope.indexOf('|')==-1 ){
+                if( checkArr.find(checkItem=>scope.indexOf(checkItem)!==-1) !== undefined ){
+                    return [];
+                }else{
+                    return [scope]
+                }
+            }
+            let spliteStrArray = scope.split("|");
+            let setSpliteStrArray  = new Set(spliteStrArray);
+            setSpliteStrArray.forEach((ele,index,arr)=>{
+                checkArr.forEach(checkItem=>{
+                    if( ele == checkItem ){
+                        setSpliteStrArray.delete(ele)
+                    }
+                })
+            })
+            return Array.from(setSpliteStrArray);
+        } else {
+            return [];
+        }
+    },
 }
 
 

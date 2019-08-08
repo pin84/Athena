@@ -7,7 +7,7 @@
       <h3 class="title">上下链企业认证</h3>
       <h4 class="com-name">{{comName}}</h4>
       <div class="expiryDate">
-        年审时间：上下链企业认证有效期为一年，当前企业账号的企业认证到期时间是{{expires.year }}年{{expires.month }}月{{expires.day }}日，请在{{dateArr[0] }}年{{dateArr[1] }}月{{dateArr[2] }}日至{{expires.year }}年{{expires.month }}月{{expires.day }}日完成年审。
+        年审时间：上下链企业认证有效期为一年，当前企业账号的企业认证到期时间是{{expires.year }}年{{expires.month }}月{{expires.day }}日，请在{{a }}年{{b }}月{{c }}日至{{expires.year }}年{{expires.month }}月{{expires.day }}日完成年审。
       </div>
       <span
         class="btn review"
@@ -35,7 +35,10 @@
             <span class="item-h">到期时间</span>
           </div>
           <div class="item-part right">
-            <span class="title-r">{{item.status}}</span>
+            <span
+              class="title-r"
+              ref="stateSpan"
+            >{{item.status}}</span>
             <span class="item-h r line">{{item.orderNum}}</span>
             <span class="item-h r">{{item.money}} 元</span>
             <span class="item-h r">{{item.expire}}</span>
@@ -51,6 +54,9 @@
 export default {
   data() {
     return {
+      a: "",
+      b: "",
+      c: "",
       dateArr: [], //保存认证到期两人个月之前的日期
       comName: "", //公司名字,传给认证页面
       comID: "", //公司id,传给认证页面
@@ -79,7 +85,6 @@ export default {
         //   status: "审核完成"
         // }
       ],
-      allLi: null, //认证结果列表。
       token: "",
       itemHeight: "2.8rem"
     };
@@ -112,35 +117,21 @@ export default {
     }
   },
   methods: {
-    // async test() {
-    //   let data = {
-    //     token: this.token,
-    //     identity_status: 2,
-    //     pay_status: 1
-    //   };
-
-    //   let res = await this.$axios.get(this.$api.reCertification, {
-    //     params: data
-    //   });
-    //   console.log(`===你没res====`, res);
-    // },
     async initData() {
       let pData = {
         token: this.token
       };
-      console.log(`===pData====`, pData);
       let { data } = await this.$axios.get(this.$api.certificationYears, {
         params: pData
       });
 
-      console.log(`=======`, data);
-
       let endDate = data.endtime.split("T")[0];
       let d = new Date(endDate).getTime();
       this.endDate = new Date(d - 86400000 * 60);
-      this.dateArr = this.endDate.toLocaleDateString().split("/");
 
-      console.log(`====data===`, endDate);
+      this.a = this.endDate.getFullYear();
+      this.b = this.endDate.getMonth() + 1;
+      this.c = this.endDate.getDate();
 
       this.expires.year = endDate.split("-")[0];
       this.expires.month = endDate.split("-")[1];
@@ -159,16 +150,15 @@ export default {
         status: stste[data.identity_status - 1]
       };
       this.order.push(order);
-
-      console.log(`===resfsfd====`, data);
     },
     showAll(index) {
-      this.allLi = this.$refs.li;
-
-      let height = this.allLi[index].style.height;
+      let allLi = this.$refs.li;
+      let stateSpan = this.$refs.stateSpan;
+      stateSpan[index].classList.toggle("active");
+      let height = allLi[index].style.height;
       height === this.itemHeight
-        ? (this.allLi[index].style.height = "0.8rem")
-        : (this.allLi[index].style.height = this.itemHeight);
+        ? (allLi[index].style.height = "0.8rem")
+        : (allLi[index].style.height = this.itemHeight);
     },
 
     touchstart_review() {
@@ -278,6 +268,21 @@ export default {
           .title-r
             color #09a2a3
             text-align right
+            &::after
+              display inline-block
+              content ''
+              width 0.2rem
+              height 0.2rem
+              background url(../../assets/icon/userCenter/arrow_drop_down.png) no-repeat center 
+              background-size contain
+              margin-left 0.1rem
+              transition 0.3s
+              transform rotate(0deg)
+          .active
+            width 100%
+            &::after 
+              transform rotate(180deg)     
+
           .line
             border-top 1px solid #f3f3f3  
           .item-h

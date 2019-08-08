@@ -144,7 +144,7 @@ export default {
       j: 0,
       isShowDel: false, //是否显示删除的标志
       classList: ["a", "b", "c", "d", "e", "f"],
-      classListNum:[],
+      classListNum: [],
       personExamples: [
         "从业软件销售10年",
         "优秀销售人员",
@@ -171,7 +171,7 @@ export default {
       personTags: [],
       timer: undefined,
       botNum: 0,
-      picType: "",
+      picType: ""
     };
   },
 
@@ -205,10 +205,16 @@ export default {
     addTag(type) {
       // this.classListNum.push(Math.floor(Math.random()*6))
       // console.log(`=======`, this.classListNum);
+
       if (type === "person") {
         if (!this.personTag.trim()) {
           this.personTag = "";
           this.$toast("请输入标签");
+          return;
+        }
+
+        if (this.personTag.indexOf("|") !== -1) {
+          this.$toast("请输入正确的标签");
           return;
         }
         this.personTags.unshift(this.personTag);
@@ -219,6 +225,10 @@ export default {
         if (!this.companyTag.trim()) {
           this.companyTag = "";
           this.$toast("请输入标签");
+          return;
+        }
+        if (this.companyTag.indexOf("|") !== -1) {
+          this.$toast("请输入正确的标签");
           return;
         }
         this.comTags.unshift(this.companyTag);
@@ -247,10 +257,6 @@ export default {
           token,
           lndividual_labels: personTags
         });
-
-
-
-
       } else {
         if (Object.keys(comTags).length === 0) {
           comTags = null;
@@ -271,9 +277,8 @@ export default {
       let instance = this.$toast("保存成功");
       setTimeout(() => {
         instance.close();
-        this.$router.go(-1)
+        this.$router.go(-1);
       }, 1000);
-
     },
 
     async initData() {
@@ -290,11 +295,14 @@ export default {
         }
       });
 
-      for(let i =0 ; i<50;i++){
-        this.classListNum.push(Math.floor(Math.random()*6))
+      let j = 0;
+      for (let i = 0; i < 50; i++) {
+        if (j > this.classList.length -1) {
+          j = 0;
+        }
+        this.classListNum.push(j);
+        j++;
       }
-
-
 
       // let resComTags = await this.$axios.get(`${this.$api.accuracySearch}`, {
       //   params: {
@@ -357,7 +365,6 @@ export default {
   position relative
   width: 100%
   min-height: 100%
-  padding-bottom 1rem
   box-sizing: border-box;
   background-color: #fff
   // background-color: #fff;
@@ -367,7 +374,7 @@ export default {
   // -webkit-box-orient: vertical;
   user-select: none
   font-size 0.28rem
-  overflow-y auto
+  
   .main-body
     position relative
     background-color #fff
@@ -377,10 +384,10 @@ export default {
     // flex-direction column
     // justify-content space-between
     .content
-      padding 0.2rem
+      padding 0.1rem
       box-sizing border-box
       h1  
-        margin-top 0.1rem
+        // margin-top 0.1rem
         color #333
         font-size 0.6rem
       h3
@@ -407,25 +414,23 @@ export default {
             margin-right 0.1rem
       .example
         width 100%
-        // height 2.1rem
-        padding 0.1rem
+        // padding 0.1rem
         box-sizing border-box
         overflow-y auto
         span 
           display inline-block 
           padding 0.15rem 0.3rem
           background-color #f3f3f3
-          // opacity 0.05 
           color #666 
           border-radius 0.6rem
           margin-right 0.2rem
-          margin-top 0.2rem
+          margin-top 0.1rem
           font-size 0.28rem
       .list
         max-height 4.5rem
         box-sizing border-box
         overflow-y auto
-        margin-top 0.2rem
+        margin-top 0.1rem
         font-size 0.28rem
         .item
           position relative
@@ -439,32 +444,32 @@ export default {
             color #fff
             font-size 0.28rem
             font-weight 200
-          &.item-person::before
-            display inline-block
-            width 0.2rem
-            height 0.2rem
-            content ''
-            background url(../../../assets/icon/userCenter/person-tag.png)
-            background-size contain
+          // &.item-person::before
+          //   display inline-block
+          //   width 0.2rem
+          //   height 0.2rem
+          //   content ''
+          //   background url(../../../assets/icon/userCenter/person-tag.png)
+          //   background-size contain
           // &.item-company
           //   background   #ed7f14  
           &.a
             color #fff
             background-color #ed8014
           &.b
-            color #1362ee
-            background-color #f2f9fe
+            color #fff
+            background-color #1F85DE
           &.c
-            color #09a4a3
-            background-color #f2fbf9
+            color #fff
+            background-color #194133
           &.d
-            color #ec8011
-            background-color #fbf9f3
+            color #fff
+            background-color #1D96A7
           &.e
             color #ffffff
-            background-color  #4EA2EC 
+            background-color  #D93A14 
           &.f
-            background-color #333
+            background-color #611DA7
             color #fff   
           .del
             position absolute
@@ -477,7 +482,7 @@ export default {
       .btn
         width 100%
         position relative  
-        margin-top 0.4rem 
+        margin-top 0.2rem 
         .input-text,.btn-add
           width 100%
           height 1rem

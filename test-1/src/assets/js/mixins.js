@@ -34,6 +34,10 @@ export let commonFnMixin = {
             }
         },
 
+        businessScope(scope){
+            return this.$commonFn.businessScope(scope);
+        },
+
     },
 
 }

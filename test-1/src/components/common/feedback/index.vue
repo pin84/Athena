@@ -39,7 +39,7 @@
           id="textarea"
           rows="6"
           placeholder="请输入描述文字(必填)或截图描述"
-          v-model="postData.detail"
+          v-model="postData.content"
         ></textarea>
 
         <div class="img-list">
@@ -95,7 +95,7 @@
           :placeholder="placeholder.name"
           @focus="onFocus('name')"
           @blur='onBlur("name")'
-          v-model="postData.name"
+          v-model="postData.contact_name"
         >
       </div>
       <div class="input-info">
@@ -109,7 +109,7 @@
           :placeholder="placeholder.phone"
           @focus="onFocus"
           @blur="onBlur"
-          v-model="postData.phone"
+          v-model="postData.mobile"
         >
       </div>
     </section>
@@ -159,16 +159,31 @@ export default {
       ],
       showImg: [],
       postData: {
-        fnArea: "",
-        type: "",
+        functional_areas: "",
+        types: "",
         token: "",
-        imgList: [
+        media_id: [
           // "2hb0uIyI9awzM-Z3uqoFnp2tJN5MsnGVglBzgFxGPPpYNJhCSkOSk0tdZZsHuCPA"
         ],
-        detail: "",
-        name: "",
-        phone: ""
+        content: "",
+        contact_name: "",
+        mobile: "",
+        wx_username: this.$store.state.loginInfo.userInfo.username,
+        wx_headimgUrl: this.$store.state.loginInfo.userInfo.headimgUrl
       }
+      // postData: {
+      //   fnArea: "",
+      //   type: "",
+      //   token: "",
+      //   media_id: [
+      //     // "2hb0uIyI9awzM-Z3uqoFnp2tJN5MsnGVglBzgFxGPPpYNJhCSkOSk0tdZZsHuCPA"
+      //   ],
+      //   detail: "",
+      //   name: "",
+      //   phone: "",
+      //   wx_username:this.$store.state.loginInfo.userInfo.username,
+      //   wx_headimgUrl:this.$store.state.loginInfo.userInfo.headimgUrl
+      // }
     };
   },
   components: {
@@ -176,20 +191,20 @@ export default {
   },
 
   created() {
-    //  this.postData.imgList.length = 3
     let userinfo = this.$store.state.loginInfo.userInfo;
     this.postData.token = userinfo.token;
+
   },
 
   methods: {
+ 
+
     selectFnArea(item) {
       if (item.active) {
         this.$delete(item, "active");
       } else {
         this.$set(item, "active", true);
       }
-
-      console.log(`=======`, item);
     },
     resetData() {
       let feedback = this.$refs.feedback;
@@ -205,14 +220,14 @@ export default {
         }
       });
       this.showImg = [];
-      this.postData.detail = '';
-      this.postData.name = '';
-      this.postData.phone = '';
-      this.postData.imgList = [];
+      this.postData.content = "";
+      this.postData.contact_name = "";
+      this.postData.mobile = "";
+      this.postData.media_id = [];
     },
 
     delImg(index) {
-      this.postData.imgList.splice(index, 1);
+      this.postData.media_id.splice(index, 1);
       this.showImg.splice(index, 1);
     },
     toHistory() {
@@ -258,7 +273,7 @@ export default {
           success: res => {
             let serverId = res.serverId; // 返回图片的服务器端ID
             console.log(`====serverId===`, serverId);
-            this.postData.imgList.push(serverId);
+            this.postData.media_id.push(serverId);
             this.downloadImage(serverId);
           },
           fail: rej => {
@@ -288,7 +303,7 @@ export default {
       } else {
         this.$set(item, "active", true);
 
-        this.postData.type = item.type;
+        this.postData.types = item.type;
       }
     },
     async submit() {
@@ -298,41 +313,32 @@ export default {
           fnAreaTem.push(item.type);
         }
       });
-      this.postData.fnArea = fnAreaTem.join();
+      this.postData.functional_areas = fnAreaTem.join();
       let typeTem = [];
       this.type.forEach(item => {
         if (item.active) {
           typeTem.push(item.type);
         }
       });
-      this.postData.area = typeTem.join();
+      this.postData.types = typeTem.join();
 
-      let data = {
-        token: this.postData.token,
-        functional_areas: this.postData.fnArea,
-        types: this.postData.area,
-        content: this.postData.detail,
-        contact_name: this.postData.name,
-        mobile: this.postData.phone,
-        media_id: this.postData.imgList
-      };
-
-      if (data.contact_name === "") {
-        delete data.contact_name;
+      if (this.postData.contact_name === "") {
+        delete this.postData.contact_name;
       }
-      if (data.mobile === "") {
-        delete data.mobile;
+      if (this.postData.mobile === "") {
+        delete this.postData.mobile;
       }
-      if (data.content === "") {
-        delete data.content;
+      if (this.postData.content === "") {
+        delete this.postData.content;
       }
-
       if (!this.check()) return;
 
+      console.log(`===1====`, this.postData);
 
-      let res = await this.$axios.post(this.$api.feedback, data);
 
-      console.log(`===resss====`, res);
+      let res = await this.$axios.post(this.$api.feedback, this.postData);
+
+      console.log(`===2====`, res);
 
       if (res.data.code === 0) {
         let tipsContent =
@@ -341,15 +347,15 @@ export default {
         let feedback = this.$refs.feedback;
         feedback.classList.add("add-mask");
       } else {
-        this.$toast('提交出错，请重新提交')
+        this.$toast("提交出错，请重新提交");
       }
     },
 
     check() {
-      if (this.postData.phone !== "") {
-        console.log(`==testphone=====`, this.postData.phone);
+      if (this.postData.mobile) {
+        console.log(`==testphone=====`, this.postData);
         let reg = /^1(3|4|5|6|7|8|9)\d{9}$/;
-        if (!reg.test(this.postData.phone)) {
+        if (!reg.test(this.postData.mobile)) {
           this.$toast("手机号码输入不正确");
           return false;
         } else {
@@ -359,11 +365,11 @@ export default {
 
 
       let flags = [
-        this.postData.fnArea !== "",
-        this.postData.type !== "",
-        this.postData.detail !== "" || this.postData.imgList.length !== 0,
-        // this.postData.name !== "",
-        // reg.test(this.postData.phone)
+        this.postData.functional_areas !== "",
+        this.postData.types !== "",
+        this.postData.content  || this.postData.media_id.length !== 0
+        // this.postData.contact_name !== "",
+        // reg.test(this.postData.mobile)
       ];
 
       let toast = [
@@ -400,7 +406,7 @@ export default {
 #feedback
   width 100%
   min-height 100vh
-  padding 0.2rem 0.2rem 1.5rem 0.2rem
+  padding 0.01rem 0.1rem 1.5rem 0.1rem
   box-sizing border-box
   background-color #fff
   font-size 0.28rem
@@ -412,18 +418,19 @@ export default {
     overflow: hidden;
   .select-type
     width 100%
-    margin-top 0.2rem
+    margin 0.2rem 0
     padding-bottom 0.1rem
     border-bottom 1px solid #ccc
     .list
       display flex
       flex-wrap wrap
+      margin-top 0.2rem
       .item
         background-color #f1f1f1
         padding 0.1rem 0.3rem
         border-radius 0.3rem
         margin-right 0.2rem 
-        margin-top 0.1rem 
+        margin-bottom 0.1rem 
         &.active
           color #09a3a3
           background-color rgba(9,163,163,0.2)
@@ -436,6 +443,8 @@ export default {
       position relative
       background-color #f3f3f3
       border-radius 0.1rem
+      margin-top 0.2rem
+      margin-bottom 0.2rem
       overflow hidden
       #textarea
         width 100%
@@ -445,7 +454,7 @@ export default {
         border 0 
         font-size 0.32rem
         &::placeholder
-          font-size 0.32rem
+          font-size 0.28rem
       .img-list
         width 100%  
         margin-bottom 0.1rem
@@ -537,10 +546,10 @@ export default {
 
 p.title
   color #333
-  height 0.6rem
+  // height 0.6rem
   font-size 0.32rem
   font-weight 600
-  line-height 0.6rem
+  // line-height 0.6rem
 
         
 </style>

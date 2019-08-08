@@ -171,22 +171,26 @@ export default {
 
   async created(){
     this.linkShow();
-
-    this.bus.$on('labelShowCall',this.labelCall);
     
   },
 
   mounted(){
     this.labelMountedInit();
   },
+  activated(){
+    this.bus.$on('labelShowCall',this.labelCall);
+  },
+  deactivated(){
+    this.bus.$off('labelShowCall');
+  },
   
   methods:{
 
-    labelCall(enterpriseid,enterprise,industryid,path='/'){
-      if(path == this.$route.path){
-        this.getCompany(enterpriseid,enterprise, industryid);
+    labelCall(enterpriseid,enterprise,industryid, hadCompanyInfo,/*,path='/'*/){
+      // if(path == this.$route.path){
+        this.getCompany(enterpriseid,enterprise, industryid , hadCompanyInfo);
         this.labelShow.isShow = true;
-      }
+      // }
     },
 
     linkShow(){
@@ -212,19 +216,25 @@ export default {
 
     },
     
-    async getCompany(companyId,companyName, industriesId){
-      let companyOtherInfo = await this.$axios.get(this.$api.searchCompany,{
-          params:{
-            enterpriseid:companyName,
-            industryid:+industriesId,
-          }
-      }).then(res=>res.data).catch(rej=>rej)
+    async getCompany(companyId,companyName, industriesId,hadCompanyInfo){
+      let companyOtherInfo;
+      if(hadCompanyInfo){
+        companyOtherInfo = hadCompanyInfo;
+      }else{
+        companyOtherInfo = await this.$axios.get(this.$api.searchCompany,{
+            params:{
+              enterpriseid:companyName,
+              industryid:+industriesId,
+            }
+        }).then(res=>res.data).catch(rej=>rej)
+      }
       console.log(companyOtherInfo)
+      
       let {kind} = companyOtherInfo;
 
       this.indexGetInfo = {
         companyName,
-        companyTags:this.businessScope(kind),
+        companyTags:this.$commonFn.businessScope(kind),
         enterprisesid:companyId,
         industryid:industriesId,
       }
@@ -235,23 +245,6 @@ export default {
       this.showSearch = true;
       this.isShowToPoster =false;
 
-    },
-
-    //
-    businessScope(scope) {
-      if (typeof scope == "string" && scope.length > 0 && scope !== "\r") {
-        // console.log('ok ',scope)
-        let spliteStrArray = scope.split("|");
-        let setSpliteStrArray  = new Set(spliteStrArray);
-        console.log(setSpliteStrArray,spliteStrArray)
-        if (spliteStrArray.length > 2) {
-          spliteStrArray.splice(0, 1);
-        }
-
-        return spliteStrArray;
-      } else {
-        return [];
-      }
     },
 
     labelMountedInit(){
@@ -403,7 +396,7 @@ export default {
       this.$d3.selectAll('.svg-tag').select('g').remove();
 
       console.log(newVal.companyTags)
-      let companyTags = newVal.companyTags;
+      let companyTags = this.$commonFn.businessScope(newVal.companyTags);
       if(!companyTags.length){
         this.$toast({
           message:'该企业暂无主营标签',

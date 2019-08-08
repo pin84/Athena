@@ -129,7 +129,6 @@ export default {
       console.log(`===1====`, res);
 
       if (!res) {
-        this.$toast("没有更多数据了");
         return;
       }
 
@@ -160,7 +159,6 @@ export default {
       let res = await this.getData(this.$api.recommanInitData, this.searchData);
 
       if (!res) {
-        this.$toast("没有更多数据了");
         return;
       }
 
@@ -172,14 +170,22 @@ export default {
     },
 
     async getData(url, data) {
-      console.log(`===0====`,data);
+      console.log(`===0====`, data);
       let res = await this.$axios.get(url, { params: data });
-      console.log(`=====2==`,res);
-      
-      if (res.data.end) {
+      console.log(`=====2==`, res);
+
+      if (res.data.message === "该企业没有主营信息") {
+        this.$toast("该企业没有主营信息");
         this.loading = true;
         return;
       }
+
+      if (res.data.end) {
+        this.$toast("没有更多数据了");
+        this.loading = true;
+        return;
+      }
+
       let d = res.data.data;
       let count = res.data.count;
 
@@ -191,6 +197,7 @@ export default {
       }
 
       let now = new Date();
+
       d.forEach((item, index) => {
         if (now > new Date(item.EndDate)) {
           item.status = "1";

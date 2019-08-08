@@ -5,7 +5,6 @@
         <div class="m-search_page-beside_btn_g">
             
             <div>
-                <i></i>
             </div>
             <div @click="cutState(0)" :class="$route.name!=='searchCompany'?'btn_unactive':''" class="u-btn_search_company" >
                 <div class="btn_content">
@@ -69,7 +68,7 @@ export default {
     },
 
     watch:{
-        $route(to, from) {  
+        $route(to, from) {
             // const toDepth = to.path.split("/")[1].length;
             // const fromDepth = from.path.split("/")[1].length;
             // const toDepth = to.path.split("/")[1].length;

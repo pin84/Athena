@@ -47,7 +47,7 @@
     </ul>
     <ul
       id="list"
-      v-if="isShowStateList"
+      v-show="isShowStateList"
     >
       <li
         class="item"
@@ -55,6 +55,7 @@
         :key='index'
         :class="{'active':item.active}"
         @click="selectStateItem(item)"
+        @touchstart='itemTouchstart'
       >
         {{item.question}}
       </li>
@@ -114,7 +115,7 @@ export default {
       ],
       listState: [
         {
-          question: "待定"
+          question: "全部"
         },
         {
           question: "未回复"
@@ -128,14 +129,17 @@ export default {
       eleState: null
     };
   },
+  created() {
+    this.$set(this.listArea[0], "active", true);
+    this.$set(this.listType[0], "active", true);
+    this.$set(this.listState[0], "active", true);
+  },
   mounted() {
     this.eleArea = this.$refs.area.classList;
     this.eleType = this.$refs.type.classList;
     this.eleState = this.$refs.state.classList;
   },
   methods: {
-
-    
     selectAreaItem(item) {
       this.isShowAreaList = false;
       this.comSelect(item, this.listArea);
@@ -188,9 +192,6 @@ export default {
       }
     },
 
-
-
-
     comSelect(data, list) {
       list.forEach(type => {
         if (type.active) {
@@ -198,6 +199,9 @@ export default {
         }
       });
       this.$set(data, "active", true);
+    },
+    itemTouchstart() {
+      console.log(`====1===`);
     },
 
     reset(ele) {
@@ -234,16 +238,24 @@ export default {
         &::after
           transform rotate(180deg)
   #list
-    padding 0 0.3rem
+    display flex
+    justify-content flex-start
+    align-items flex-start
+    flex-wrap wrap
+    min-height 2rem
+    padding 0.1rem
+    box-sizing border-box
     transition 0.2s
-    background-color #999
-    transform-origin 0 0
-    // transform scaleY(0)
+    background-color rgba(0,0,0,0.4)
     .item
-      height 0.5rem
-      line-height 0.5rem
+      padding 0 0.2rem
+      background-color #222
+      border-radius 0.2rem
+      margin 0.05rem 0.1rem
+      color #ccc
       &.active
-       color #0da4a4
+       color #fff
+       background-color #1783E2
     
 </style>
 

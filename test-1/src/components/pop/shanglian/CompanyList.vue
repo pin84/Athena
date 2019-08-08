@@ -38,7 +38,7 @@
                 <span
                   class="main-label"
                   :style="labelColor()"
-                  v-for="(kindItme) in businessScope(companyItem.kind)"
+                  v-for="(kindItme) in $commonFn.businessScope(companyItem.kind)"
                   :key="kindItme"
                 >{{kindItme}}</span>
                 <!-- <span class="main-label" v-for="(item,index) in businessScope(item.kind)" :key="item.kind"> {{item}}</span> -->
@@ -187,22 +187,6 @@ export default {
         ...colorItem
       };
     },
-    //
-    businessScope(scope) {
-      if (typeof scope == "string" && scope.length > 0 && scope !== "\r") {
-        // console.log('ok ',scope)
-        let spliteStrArray = scope.split("|");
-        let setSpliteStrArray  = new Set(spliteStrArray);
-        console.log(setSpliteStrArray,spliteStrArray)
-        if (spliteStrArray.length > 2) {
-          spliteStrArray.splice(0, 1);
-        }
-
-        return spliteStrArray;
-      } else {
-        return [];
-      }
-    },
 
     // 获取弹窗传值 该方法仅限用于饼图传值
     getParams() {
@@ -294,11 +278,11 @@ export default {
     selectCompany(index, companyItem) {
       this.num = index;
       this.labelShow.isShow = true;
-
+      
       let companyName = companyItem.enterprises;
-      let companyTags = this.businessScope(companyItem.kind);
+      let companyTags = this.$commonFn.businessScope(companyItem.kind);
       let enterprisesid = companyItem.enterprisesid;
-
+      
       this.chooseCompany = {
         companyName,
         companyTags,
@@ -363,12 +347,12 @@ export default {
         }).then(res=>res.data).catch(rej=>rej);
 
         let { count , enterprises_data } = companyLsData;
-
+        
         this.companyList = enterprises_data; 
         this.total = count; //所有企业统计数
         this.hasPhoneTotal = count; //用于 短信推送 显示含有手机号码的统计数
         this.hasPhoneCompanyList = enterprises_data; //含有手机号码的企业数
-      
+        
       }
       // -------------此为当直接进入省份换一批获得的数据 e
 

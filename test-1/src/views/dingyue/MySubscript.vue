@@ -110,7 +110,7 @@ export default {
   directives: { InfiniteScroll },
   data() {
     return {
-      isImmediateCheck: true,
+      isImmediateCheck: false,
       loading: undefined,
       count: [], //当日匹配的数据总数
       content: "", //详情页面的内容
@@ -137,7 +137,7 @@ export default {
       dataFromAreaOrKeyword: [],
       newPostData: {},
       isHasKeyword: true,
-      i: 0,//做为是否滚动到顶部的标记
+      i: 0 //做为是否滚动到顶部的标记
       // keywords: ""
     };
   },
@@ -193,6 +193,7 @@ export default {
         token: this.token,
         set_time: data.data_dict.remind_long_time
       };
+
       this.savedKeyword = d;
 
       setTimeout(async () => {
@@ -208,39 +209,37 @@ export default {
       this.newPostData = {
         token: this.token,
         page: "1",
+        // Title: "",
         Title: this.savedKeyword.Title,
         BidsAreaID: this.savedKeyword.BidsAreaID
       };
-      console.log(`====11===`, this.newPostData);
       let res = await this.fetchData(this.$api.postToken, this.newPostData);
-
-      console.log(`===2====`, res);
 
       if (!res) {
         this.dataFrom = "";
         return;
       }
 
-      let d = Object.entries(res.d);
-      let c = Object.entries(res.count);
-      this.sortDate(d, "0");
+      console.log(`===2====`, res);
 
-      d.forEach(item => {
-        this.sortDate(item[1], "EndDate");
-        this.mergeData.push(item);
+      this.sortDate(res.dataArr, "0");
+      // this.sortDate(res.countArr, "0");
+      res.dataArr.forEach(item => {
+        if (item[1].length > 1) {
+          this.sortDate(item[1], "EndDate");
+        }
       });
 
-      c.forEach(item => {
-        this.count.push(item);
-      });
-      this.sortDate(this.count, "0");
+      this.mergeData = res.dataArr;
+      // this.count = res.countArr;
     },
 
     async fetchData(url, data) {
       let res = await this.$axios.get(url, {
         params: data
       });
-      console.log(`===fetchData====`, res);
+
+      console.log(`===fetchData====`, res.data);
 
       if (res.data.message === "没有数据") {
         return;
@@ -251,20 +250,37 @@ export default {
       }
 
       let d = res.data.data;
+      let countArr = Object.entries(res.data.datetime_count);
+      let dataArr = [];
+
+      for (let key in d) {
+        let tem = [];
+        tem[0] = key;
+        tem[1] = d[key];
+        dataArr.push(tem);
+      }
+
       let now = new Date();
-      Object.values(d).forEach(item => {
-        item.forEach(obj => {
+      dataArr.forEach(item => {
+        item[1].forEach(obj => {
           if (new Date(obj.EndDate) < now) {
             obj.status = "1";
           }
         });
       });
-      let count = res.data.time_count;
 
-      return { d, count };
+      console.log(`==couht=====`, countArr);
+      this.count = [];
+      this.count = countArr;
+      this.sortDate(this.count, "0");
+      return { dataArr };
     },
 
     async loadMore() {
+      let a =  this.$refs.wrapper
+        console.log(`======aaaaaa=`,a.scrollTop);
+      a.addEventListener('scroll',()=>{
+      })
       this.loading = true;
       this.newPostData.page++;
       console.log(
@@ -279,51 +295,33 @@ export default {
         this.loading = true;
         return;
       }
-      console.log(`===more====`, tem, res.count);
-
-      let tem = res.d;
-      let c = res.count;
-      let obj = {};
-      this.count.forEach(item => {
-        obj[item[0]] = item[1];
-      });
-
-      for (let key in c) {
-        obj[key] = c[key];
-      }
-
-      let obj1 = {};
+      this.sortDate(res.dataArr, "0");
+      let tem = [];
       this.mergeData.forEach(item => {
-        obj1[item[0]] = item[1];
+        tem.push(item[0]);
       });
 
-      for (let key in tem) {
-        if (obj1[key]) {
-          obj1[key] = obj1[key].concat(tem[key]);
+      res.dataArr.forEach(item => {
+        if (tem.indexOf(item[0]) !== -1) {
+          this.mergeData[tem.indexOf(item[0])][1] = this.mergeData[
+            tem.indexOf(item[0])
+          ][1].concat(item[1]);
         } else {
-          obj1[key] = tem[key];
+          this.mergeData.push(item);
         }
-      }
+      });
 
-      this.mergeData = Object.entries(obj1);
+      this.mergeData.push([]);
+      this.mergeData.pop();
+
       this.mergeData.forEach(item => {
         this.sortDate(item[1], "EndDate");
       });
-      this.count = Object.entries(obj);
 
-      console.log(`====more 3===`, this.mergeData);
-
-      // let ab = [];
-      // this.mergeData.forEach(a => {
-      //   a[1].forEach(b => {
-      //     ab.push(b.id);
-      //   });
-      // });
-      // console.log(`=======`, ab.length, new Set(ab));
-      // console.log(`====more2===`, this.mergeData);
+      console.log(`====1===`, this.mergeData);
 
       this.loading = false;
-      this.$refs.wrapper.scrollTop = nowScrollTop - 100;
+      // this.$refs.wrapper.scrollTop = nowScrollTop - 100;
     },
 
     async keySearch(keyword) {
@@ -332,28 +330,26 @@ export default {
       this.newPostData.page = 1;
       this.newPostData.Title = keyword;
 
-      console.log(`==keySearch=====`, this.newPostData.Title);
       let res = await this.fetchData(this.$api.postToken, this.newPostData);
+      console.log(`==1=====`, res);
+      this.isShowAreaOrKeyword = "";
 
       if (!res) {
         this.mergeData = [];
         this.isShowAreaOrKeyword = "";
         return;
       }
-      if (res.d.length === 0) {
-        this.dataFrom = "";
-        this.isShowAreaOrKeyword = "";
-        return;
-      }
 
-      this.mergeData = Object.entries(res.d);
-      this.sortDate(this.mergeData, "0");
+      this.sortDate(res.dataArr, "0");
+      this.mergeData = res.dataArr;
+
       this.mergeData.forEach(item => {
-        this.sortDate(item[1], "EndDate");
+        if (item[1].length > 1) {
+          this.sortDate(item[1], "EndDate");
+        }
       });
-      this.count = Object.entries(res.count);
-      this.sortDate(this.count, "0");
-      this.isShowAreaOrKeyword = "";
+
+      console.log(`==keySearch=====`, this.mergeData);
     },
 
     sortDate(d, sortProperty) {
@@ -375,10 +371,11 @@ export default {
         this.newPostData.BidsAreaID = idArr.join();
       }
       this.newPostData.page = "1";
-      console.log(`====areaSearch===`, this.newPostData.BidsAreaID);
+      console.log(`====areaSearch= 1==`, this.newPostData);
 
       let res = await this.fetchData(this.$api.postToken, this.newPostData);
-      console.log(`=areaSearch======`, res);
+      console.log(`=areaSearch== 2====`, res);
+      this.isShowAreaOrKeyword = "";
 
       if (!res) {
         console.log(`=====没有数据==`);
@@ -387,97 +384,16 @@ export default {
         return;
       }
 
-      if (res.d.length === 0) {
-        console.log(`=====没有数据==`);
-        this.dataFrom = "";
-        this.isShowAreaOrKeyword = "";
-        return;
-      }
-      this.mergeData = [];
-      this.count = [];
+      this.sortDate(res.dataArr, "0");
 
-      this.mergeData = Object.entries(res.d);
-      this.sortDate(this.mergeData, "0");
-      this.mergeData.forEach(item => {
-        this.sortDate(item[1], "EndDate");
-      });
-      this.count = Object.entries(res.count);
-      this.sortDate(this.count, "0");
+      this.mergeData = res.dataArr;
       this.isShowAreaOrKeyword = "";
-    },
 
-    async firstFetch(url, data) {
-      if (data.BidsAreaID) {
-        let tem0 = data.BidsAreaID.split(",");
-        // if (tem0[0] === "0") {
-        //   tem0.shift();
-        // }
-        data.BidsAreaID = tem0.join();
-      }
-
-      if (!data.Title) {
-        delete data.Title;
-      }
-      if (data.BidsAreaID === "0" || !data.BidsAreaID) {
-        // delete data.BidsAreaID;
-        data.BidsAreaID = "";
-      }
-
-      let res = await this.$axios.get(url, {
-        params: data
+      this.mergeData.forEach(item => {
+        if (item[1].length > 1) {
+          this.sortDate(item[1], "EndDate");
+        }
       });
-
-      // if (res.data.message === false) {
-      //   return;
-      // }
-
-      // if (res.data.state === false) {
-      //   return;
-      // }
-
-      // let originData = Object.entries(res.data.content);
-      // let originNum = Object.entries(res.data.num);
-
-      // let toArr = [];
-      // let countTem = [];
-
-      // let cd = new Date(this.createdTime);
-      // let create_time = cd.getTime() - 1000 * 60 * 60 * 24;
-      // originData.forEach(item => {
-      //   if (new Date(item[0]) > new Date(create_time)) {
-      //     toArr.push(item);
-      //   }
-      // });
-
-      // originNum.forEach(item => {
-      //   if (new Date(item[0]) > new Date(create_time)) {
-      //     countTem.push(item);
-      //   }
-      // });
-
-      // toArr.sort((a, b) => {
-      //   return new Date(b[0]) - new Date(a[0]);
-      // });
-      // countTem.sort((a, b) => {
-      //   return new Date(b[0]) - new Date(a[0]);
-      // });
-
-      // let count = [];
-      // countTem.forEach(item => {
-      //   count.push(item[1]);
-      // });
-
-      // let now = new Date();
-      // toArr.forEach(item => {
-      //   item[1].forEach(obj => {
-      //     if (new Date(obj.EndDate) < now) {
-      //       obj.status = "1";
-      //     }
-      //   });
-      // });
-
-      // let d = toArr;
-      // return { d, count };
     },
 
     /**
@@ -487,6 +403,7 @@ export default {
      * 等后台接口
      */
     showDetail(item) {
+      console.log(`=======`,item);
       this.detailData = item;
       this.$axios
         .get(`${this.$api.detailContent}${item.id}/`, {
@@ -530,8 +447,11 @@ export default {
   width 100%
   height 100%
   background-color #f3f3f3
+  // padding-bottom 2rem
+  box-sizing border-box
   position relative
   .search
+    height 1rem
     width 100%
     .search-list
       width 100%
@@ -556,9 +476,10 @@ export default {
       right 0
       z-index 3
   .main-body
-    height 8.7rem
+    height 75%
     // overflow-y auto  
-    // padding-bottom 0.5rem 
+    padding-bottom 0.5rem
+    box-sizing border-box
     // border 1px solid red
     #mySubscript
       width 100%

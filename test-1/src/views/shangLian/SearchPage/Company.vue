@@ -126,7 +126,12 @@ export default {
     },
 
     created(){
+    },
+    activated(){
         this.bus.$on('changeCompany',this.getCompanyInfo)
+    },
+    deactivated(){
+        this.bus.$off('changeCompany')
     },
     methods:{
         toAuto(){
@@ -200,10 +205,11 @@ export default {
             
         },
 
-        async getCompanyInfo(companyId,companyName,industryId){
-            let companyInfo = await this.searchNewCompanyInfo(companyId,companyName,industryId);
+        async getCompanyInfo(companyId,companyName,industryId,hadCompanyInfo){
+            let companyInfo = hadCompanyInfo;
+            // let companyInfo = await this.searchNewCompanyInfo(companyId,companyName,industryId);
             this.$store.commit('indexInfo',companyInfo)
-            let baseInfo = await this.getInfo(companyId,companyName,industryId)
+            let baseInfo = await this.getInfo(companyId,companyName,industryId) // from mixins BaseInfo
             this.userinfo = baseInfo.data.userinfo;
             
         },
@@ -261,7 +267,7 @@ export default {
         
                     let chooseCompany = {
                         companyName,
-                        companyTags:this.businessScope(kind),
+                        companyTags:kind,
                         enterprisesid,
                         industryid,
                     }
@@ -286,7 +292,7 @@ export default {
                 case 'myDraw':
                     this.chooseCompany = {
                         companyName,
-                        companyTags: this.businessScope(kind),
+                        companyTags: kind,
                         enterprisesid: enterprisesid,
                         industryid: industryid
                     }
@@ -295,22 +301,6 @@ export default {
                     // this.bus.$emit('labelShowCall', enterprisesid,companyName,industryid );
                 break;
 
-            }
-        },
-
-        businessScope(scope) {
-            if (typeof scope == "string" && scope.length > 0 && scope !== "\r") {
-                // console.log('ok ',scope)
-                let spliteStrArray = scope.split("|");
-                let setSpliteStrArray  = new Set(spliteStrArray);
-                console.log(setSpliteStrArray,spliteStrArray)
-                if (spliteStrArray.length > 2) {
-                spliteStrArray.splice(0, 1);
-                }
-
-                return spliteStrArray;
-            } else {
-                return [];
             }
         },
 
@@ -479,11 +469,9 @@ export default {
     .link_group{
         position: absolute;
         right:0.1rem;
-        bottom:0.5rem;
+        bottom:1rem;
         width: 1rem;
-        height: 6rem;
         
-        // font-size:
         color:white;
         background: transparent;
 

@@ -276,7 +276,7 @@ let pythonApi = {
       * @params
       * page,token
       */
-     postToken:pyBaseUrl+'subscribe/time/node/info/',
+     postToken: pyBaseUrl + 'subscribe/time/node/info/',
      /**
       * 随便逛逛一开始随机获取数据
       *  page: 1,page_size: 8
@@ -425,7 +425,7 @@ let pythonApi = {
       * @param
       * token
       */
-     certificationYears:pyBaseUrl+'center/certification/years/pay',
+     certificationYears: pyBaseUrl + 'center/certification/years/pay',
 
 
      /**
@@ -472,10 +472,10 @@ let pythonApi = {
       * 用户离开记录
       */
      leaveRecord: pyBaseUrl + 'monitor/log/user/leave/url',
-     
+
      // 精准短信触客  provinces，industryid，business ，token
      chukeMsgInfo: pyBaseUrl + 'contact/balance/info',
-     
+
      // [POST] 精准短信触客 短信发送 token，provinces，industryid，business，template_name,
      chukeMsgSend: pyBaseUrl + 'contact/sms/',
 
@@ -493,7 +493,7 @@ let pythonApi = {
       * 反馈获取图片
       * avatar
       */
-     feedbackGetImg: pyBaseUrl+'center/getfeedbackinfo/image',
+     feedbackGetImg: pyBaseUrl + 'center/getfeedbackinfo/image',
 
      /**
       * 反馈后台，初始化获取数据
@@ -503,7 +503,7 @@ let pythonApi = {
       * functional_areas
       * audit_state
       */
-     feedbackBakInitData:pyBaseUrl+'center/feedback/infos/audit/',
+     feedbackBakInitData: pyBaseUrl + 'center/feedback/infos/audit/',
 
      /**
       * 反馈后台提交回复
@@ -512,24 +512,30 @@ let pythonApi = {
       * id
       * audit_content
       */
-     feedbackResponse:pyBaseUrl+'center/audit/',
+     feedbackResponse: pyBaseUrl + 'center/audit/',
 
 
      //  获取退款信息 @method [GET] @params [none]
      refundInfo: pyBaseUrl + 'center/refund/audit/',
-     
+
      // 退款接口 @method [POST] [company_name]企业名称 [main_order_id]单号  [token]
      refundAudit: pyBaseUrl + 'center/refund/audit/',
-     
+
      // 心灵鸡汤
      inspirationalText: pyBaseUrl + 'center/text',
 
      // @method [POST] [new_user]新受邀用户id, [share_user]分享者id, [type]活动类型， [company_id]企业id , [compangy_name]企业名称
      posterActivity: pyBaseUrl + 'oauth/back', //海报奖励
-     
+
      // @method [POST] [new_user]新受邀用户id, [share_user]分享者id, [type]活动类型，[custom_field]自定义字段
      invLetterActivity: pyBaseUrl + 'oauth/invitation', //邀请函
-     
+
+     // 邀请码后台看板
+     invitationInfo: pyBaseUrl + 'oauth/get/invitation/info',
+
+     // 邀请码后台看板按月份查询信息 [token] [month]月份
+     invitationMonthInfo: pyBaseUrl + 'oauth/month/',
+
 }
 
 let mockApi = {

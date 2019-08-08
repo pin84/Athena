@@ -23,6 +23,10 @@ export default {
     });
 
   },
+  destroyed() {
+    this.bus.$on('shareMaskShow');
+    
+  },
   data(){
     return{
       showShare:false,
