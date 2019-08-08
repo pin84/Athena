@@ -146,11 +146,12 @@
         class="index-serNote-title fl"
         @click="openServiceTrans(1)"
       >
-        <span>上</span>
-        <span>下</span>
-        <span>链</span>
-        <span>服</span>
-        <span>务</span>
+        <span>我</span>
+        <span>要</span>
+        <span>认</span>
+        <span>证</span>
+        <span>开</span>
+        <span>通</span>
         <i class="iconfont">&#xe601;</i>
       </p>
       <div class="index-serNote-con fr">
@@ -286,34 +287,34 @@
       <base-info></base-info>
       <!-- 基本信息 e-->
 
-      <!-- 股东信息 s-->
-      <shareholder-info></shareholder-info>
-      <!-- 股东信息 e-->
+        <!-- 股东信息 s-->
+        <!-- <shareholder-info></shareholder-info> -->
+        <!-- 股东信息 e-->
 
-      <!-- 主要人员信息 s-->
-      <key-person></key-person>
-      <!-- 主要人员信息 e-->
+        <!-- 主要人员信息 s-->
+        <!-- <key-person></key-person> -->
+        <!-- 主要人员信息 e-->
 
-      <!-- 对外投资 s -->
-      <foreign-investment></foreign-investment>
-      <!-- 对外投资 e -->
+        <!-- 对外投资 s -->
+        <!-- <foreign-investment></foreign-investment> -->
+        <!-- 对外投资 e -->
 
-      <!-- 企业认证提示 s -->
-      <set-enterprise-tips></set-enterprise-tips>
-      <!-- 企业认证提示 e -->
+        <!-- 企业认证提示 s -->
+        <!-- <set-enterprise-tips></set-enterprise-tips> -->
+        <!-- 企业认证提示 e -->
 
-      <!-- 设置企业认证 s -->
-      <set-enterprise></set-enterprise>
-      <!-- 设置企业认证 e -->
-      <BaseInfo_dwtz />
-      <BaseInfo_cgxq />
-      <BaseInfo_zycp />
-      <BaseInfo_swxy />
-      <BaseInfo_sbxx />
-      <BaseInfo_zlxx />
-      <BaseInfo_zsxx />
-      <BaseInfo_zpzzq />
-      <BaseInfo_rjzzq />
+        <!-- 设置企业认证 s -->
+        <!-- <set-enterprise></set-enterprise> -->
+        <!-- 设置企业认证 e -->
+        <!-- <BaseInfo_dwtz />
+        <BaseInfo_cgxq />
+        <BaseInfo_zycp />
+        <BaseInfo_swxy />
+        <BaseInfo_sbxx />
+        <BaseInfo_zlxx />
+        <BaseInfo_zsxx />
+        <BaseInfo_zpzzq />
+        <BaseInfo_rjzzq /> -->
 
       <CompanyList /> <!-- 企业列表 -->
       <push-msg /> <!-- 推送短信 -->
@@ -357,77 +358,79 @@ import SelfInfoPop from "@/components/pop/selfPic/InfoPop";
 import ManageBtn from "@/components/pop/manageBtn/ManageBtn";
 
 import GroupManage from "@/components/pop/manageBtn/GroupManage";
-
-// 主按钮弹窗s
-const BaseInfo_rjzzq = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_rjzzq").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_zpzzq = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_zpzzq").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_zsxx = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_zsxx").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_zlxx = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_zlxx").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_sbxx = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_sbxx").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_swxy = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_swxy").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_zycp = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_zycp").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_cgxq = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_cgxq").then(module => {
-    resolve(module);
-  });
-};
-const BaseInfo_dwtz = resolve => {
-  import("@/components/shangLian/dimenPop/BaseInfo_dwtz").then(module => {
-    resolve(module);
-  });
-};
 // 基本信息
 const BaseInfo = resolve => {
   import("@/components/shangLian/dimenPop/BaseInfo").then(module => {
     resolve(module);
   });
 };
-// 股东信息
-const ShareholderInfo = resolve => {
-  import("@/components/shangLian/dimenPop/ShareholderInfo").then(module => {
-    resolve(module);
-  });
-};
-// 主要人员信息
-const KeyPerson = resolve => {
-  import("@/components/shangLian/dimenPop/KeyPerson").then(module => {
-    resolve(module);
-  });
-};
-// 对外投资
-const ForeignInvestment = resolve => {
-  import("@/components/shangLian/dimenPop/ForeignInvestment").then(module => {
-    resolve(module);
-  });
-};
+/*
+  // 主按钮弹窗s
+  const BaseInfo_rjzzq = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_rjzzq").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_zpzzq = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_zpzzq").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_zsxx = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_zsxx").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_zlxx = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_zlxx").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_sbxx = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_sbxx").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_swxy = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_swxy").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_zycp = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_zycp").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_cgxq = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_cgxq").then(module => {
+      resolve(module);
+    });
+  };
+  const BaseInfo_dwtz = resolve => {
+    import("@/components/shangLian/dimenPop/BaseInfo_dwtz").then(module => {
+      resolve(module);
+    });
+  };
+
+  // 股东信息
+  const ShareholderInfo = resolve => {
+    import("@/components/shangLian/dimenPop/ShareholderInfo").then(module => {
+      resolve(module);
+    });
+  };
+  // 主要人员信息
+  const KeyPerson = resolve => {
+    import("@/components/shangLian/dimenPop/KeyPerson").then(module => {
+      resolve(module);
+    });
+  };
+  // 对外投资
+  const ForeignInvestment = resolve => {
+    import("@/components/shangLian/dimenPop/ForeignInvestment").then(module => {
+      resolve(module);
+    });
+  };
+*/
 // 设置企业认证提示
 const SetEnterpriseTips = resolve => {
   import("@/components/pop/certification/setEnterpriseTips").then(module => {
@@ -461,20 +464,23 @@ export default {
 
     // pop s
     BaseInfo, //基本信息弹窗
-    ShareholderInfo, //股东信息弹窗
-    KeyPerson, //主要人员信息
-    ForeignInvestment, //对外投资
-    SetEnterpriseTips, //企业认证
-    SetEnterprise, //设置企业认证
-    BaseInfo_dwtz,
-    BaseInfo_cgxq,
-    BaseInfo_zycp,
-    BaseInfo_swxy,
-    BaseInfo_sbxx,
-    BaseInfo_zlxx,
-    BaseInfo_zsxx,
-    BaseInfo_zpzzq,
-    BaseInfo_rjzzq,
+    /*
+      ShareholderInfo, //股东信息弹窗
+      KeyPerson, //主要人员信息
+      ForeignInvestment, //对外投资
+      SetEnterpriseTips, //企业认证
+      SetEnterprise, //设置企业认证
+      BaseInfo_dwtz,
+      BaseInfo_cgxq,
+      BaseInfo_zycp,
+      BaseInfo_swxy,
+      BaseInfo_sbxx,
+      BaseInfo_zlxx,
+      BaseInfo_zsxx,
+      BaseInfo_zpzzq,
+      BaseInfo_rjzzq,
+    */
+
     CompanyList, // 公司列表 （显示各省份的数据）
 
     PushMsg,

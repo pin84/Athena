@@ -235,11 +235,11 @@
           </div>
         </div>
     </div>
-    <div class="fresh-btn" @click="freshIndustry">
+    <!-- <div class="fresh-btn" @click="freshIndustry">
       <div class="fresh-center-circle">
-        <!-- <i class="fresh-btn-icon iconfont">&#xe6a7;</i> -->
       </div>
-    </div>
+    </div> -->
+    <!-- <i class="fresh-btn-icon iconfont">&#xe6a7;</i> -->
 
     <div v-show="isShowChooseBtns" class="industry-choose-btnG" :style="'height:auto;'">
       <ul>
@@ -480,36 +480,14 @@ export default {
     })
     
     let companyInfo = await this.popHrefBaseInfo();
-    this.companyInfo = companyInfo ? companyInfo:this.$store.state.company.indexInfo;
-
-    this.companyInfo ? null :this.companyInfo = await this.$axios.get(this.$api.companyInfo,{
-      params:{
-        token:this.$store.state.loginInfo.userInfo.token
-      }
-    }).then(res=>res.data)
-    .catch(rej=>{console.log(rej)
-      this.$toast({
-          message:'公司数据加载失败,请重新加载',
-      })
-      return rej;
-    });
     
-    // console.log('newChart,获取公司的基本信息。并存到store',this.companyInfo);
-    this.$store.commit('indexInfo',this.companyInfo);
-    
-    localStorage.setItem('com-indexinfo',JSON.stringify(this.companyInfo))
-
-    let newJson = this.json2forceData(downData,upData);
-    this.$nextTick()
-        .then(this.sizeSet())//屏幕自适应
-        .then(this.colorIcon())
-        .then(this.initAtlasPie()) //初始化饼图
-        .then(this.simulation = this.init(newJson)) //初始化 主要是初始化图谱
-        .then(this.initBotInfoPie(this.companyInfo)) //初始化 底部饼图
-        .then(this.initBotInfoSide(this.companyInfo)) //初始化底部黑边 以及底部百分比半圆环
-        .then(this.createHrefPie(this.simulation)) //对应分享信息 假如存在对应信息 则打开对应图谱
-        // .then(this.popHrefBaseInfo())
-        // this.bus.$on('changeCompany',this.changeCompany)
+    let getCompanyCreate = function(){};
+    getCompanyCreate = this.$watch('$store.state.company.indexInfo',()=>{
+      this.companyInfo = companyInfo ? companyInfo:this.$store.state.company.indexInfo;
+       if(this.createInit(downData,upData)){
+         getCompanyCreate();
+       }
+    },{ immediate:true })
     
   },
 
@@ -523,6 +501,38 @@ export default {
   },
   methods: {
     
+    async createInit(downData,upData){
+      if(this.companyInfo == null){return false}
+      /*
+      this.companyInfo ? null :this.companyInfo = await this.$axios.get(this.$api.companyInfo,{
+        params:{
+          token:this.$store.state.loginInfo.userInfo.token
+        }
+      }).then(res=>res.data)
+      .catch(rej=>{console.log(rej)
+        this.$toast({
+            message:'公司数据加载失败,请重新加载',
+        })
+        return rej;
+      });*/
+      
+      // console.log('newChart,获取公司的基本信息。并存到store',this.companyInfo);
+      this.$store.commit('indexInfo',this.companyInfo);
+      
+      localStorage.setItem('com-indexinfo',JSON.stringify(this.companyInfo))
+
+      let newJson = this.json2forceData(downData,upData);
+      this.$nextTick()
+          .then(this.sizeSet())//屏幕自适应
+          .then(this.colorIcon())
+          .then(this.initAtlasPie()) //初始化饼图
+          .then(this.simulation = this.init(newJson)) //初始化 主要是初始化图谱
+          .then(this.initBotInfoPie(this.companyInfo)) //初始化 底部饼图
+          .then(this.initBotInfoSide(this.companyInfo)) //初始化底部黑边 以及底部百分比半圆环
+          .then(this.createHrefPie(this.simulation)) //对应分享信息 假如存在对应信息 则打开对应图谱
+      return true;
+    },
+
     // 弹出分享时出现的公司弹窗
     popHrefBaseInfo(){
       // enterprise companyName 均是企业名称 只是参数不同 表现不同

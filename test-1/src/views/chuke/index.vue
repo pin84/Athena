@@ -12,7 +12,7 @@
       >
         <section
           class="item"
-          :class="{'bg1':index===0,'bg2':index===1,'bg3':index===2}"
+          :class="'bg'+(index+1)"
         >
           <section
             class="left"
@@ -29,8 +29,8 @@
 
                 <li
                   class="avtar-box"
-                  :class='{a:idx === 0,b:idx === 1,c:idx === 2,d:idx === 3,}'
                   v-for='(url,idx) in item.urls'
+                  :class="['a','b','c','d'][idx]"
                   :key='idx'
                 >
                   <img
@@ -42,13 +42,13 @@
               <span class="user-num"> <span>{{content[index]['useNum']}}</span> 人在使用</span>
               <span
                 class="status"
-                :class="{'text-color-1':index===0,'text-color-2':index===1,'text-color-3':index===2, 'text-color-used':content[index]['status']}"
+                :class=" ('text-color-'+(index+1)) +' '+ (content[index]['status']?'text-color-used':'') "
               >{{content[index]['status'] ?'您正在使用' :'您尚未使用' }}</span>
             </div>
           </section>
           <aside
             class="right"
-            :class="{'right-bg-1':index===0,'right-bg-2':index===1,'right-bg-3':index===2}"
+            :class="'right-bg-'+(index+1)"
           ></aside>
         </section>
         <aside class="hot">
@@ -80,6 +80,20 @@ export default {
           status: undefined
         },
 
+        {
+          h2: "潜在客户池订阅",
+          span: "（认证企业免费）",
+          p:
+            "上下链每天向订阅用户推荐动态潜在客户池，平台根据用户设置的行业、省份、目标客户群、主营标签等，精准算法匹配并推荐用户触客。",
+          urls: [
+            require("../../assets/icon/shang.png"),
+            require("../../assets/icon/msg.png"),
+            require("../../assets/icon/shang.png"),
+            require("../../assets/icon/msg.png")
+          ],
+          useNum: "",
+          status: undefined
+        },
         {
           h2: "采购招标公告订阅",
           span: "（认证企业免费）",
@@ -151,14 +165,18 @@ export default {
           // }
           this.$router.push("chuke-msg");
           // this.$toast("此功能维护中，即将开放，敬请期待");
-
-          break;
         case "1":
-          this.$router.push("mySubscript");
+          // this.$router.push("chuke-msg");        
+          this.$toast("此功能暂未开放哦，敬请期待");  
           break;
         case "2":
+          this.$router.push("mySubscript");
+          break;
+        case "3":
           this.$toast("此功能暂未开放哦，敬请期待");
-
+          break;
+        default:
+          this.$toast("此功能暂未开放哦，敬请期待");
           break;
       }
     }
@@ -176,15 +194,18 @@ export default {
 </script>
 <style lang="stylus" scoped>
 #chuke-wrapper
-  height 100%
+  position absolute
+  // height 100%
   width 100%
-  padding 0.1rem 0.1rem 1rem 
+  top 0
+  bottom 0.98rem
+  overflow scroll
+  padding 0.1rem 0.1rem 0
   box-sizing border-box
   text-align center
   color #f1f1f1
   font-family '苹方'
   font-size 0.24rem
-  position relative
   .title
     // font-size 0.4rem
     // font-family 'SSZH'
@@ -217,9 +238,11 @@ export default {
         &.bg1
           background-image linear-gradient(-90deg,#b7c4e0 0%,#a3afc7 100%)
         &.bg2
-          background-image  linear-gradient(-90deg, #f3ce8d 0%, 	#dab87b 100%)
+          background-image  linear-gradient(-90deg, #61b5b3 0%, 	#5db2b0 100%)
         &.bg3
-          background-image linear-gradient(-90deg, #f88883 0%, #fd7670 100%);
+          background-image  linear-gradient(-90deg, #f3ce8d 0%, 	#dab87b 100%)
+        &.bg4
+          background-image linear-gradient(-90deg, #f88883 0%, #fd7670 100%)
         .left
           width 100%
           .item-title
@@ -289,6 +312,9 @@ export default {
             background-size contain
           &.right-bg-3
             background url(../../assets/icon/chuke/pic-3.png) center no-repeat
+            background-size contain
+          &.right-bg-4
+            background url(../../assets/icon/chuke/pic-4.png) center no-repeat
             background-size contain
 
   .hot

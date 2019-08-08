@@ -78,12 +78,40 @@ export default {
     // }
     // this.autoLogin();
     // await this.getUserCompany();
-    const getUserCompanyWatch = this.$watch('$store.state.loginInfo.userInfo', (newVal, oldVal) => {
-      this.$nextTick(()=>{
-        this.getUserCompany();
+    
+    
+    
+    const getUserCompanyWatch = this.$watch('$store.state.loginInfo.userInfo', async(newVal, oldVal) => {
+        await this.getUserCompany();
         getUserCompanyWatch();
-      })
     })
+
+    
+    function pushHistory() {
+      var state = {
+        title: "title",
+        url: location.href.split(location.host)[1],
+      };
+      window.history.pushState(state, "title", location.href.split(location.host)[1]);
+      
+      
+    }
+
+    window.addEventListener("popstate", (e)=> {
+      if(!e.state){
+          this.$toast({
+            message:'再按一次退出程序',
+          })
+          setTimeout(()=>{
+            pushHistory();  
+          },4000)  
+      }
+      
+    }, false);
+
+
+    pushHistory();
+
 
   },
   beforeMount(){
@@ -136,7 +164,7 @@ export default {
       } else {
         this.$store.commit("authComInfo", false);
       }
-        this.$store.commit('indexInfo',companyInfo);
+      this.$store.commit('indexInfo',companyInfo);
     },
 
     login() {

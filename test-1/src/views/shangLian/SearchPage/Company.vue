@@ -5,7 +5,7 @@
         <div v-show="infoList.length!==0" class="company_content">
 
             <div class="m-content">
-                <com-head :showHeadShare="true" :shareFunc="headShareFunc"/>
+                <com-head :showHeadShare="true" :shareFunc="headShareFunc" :detailInfo="detailInfo"/>
                 <com-content-layout
                 :get-info-list="infoList"
                 get-info-title="工商信息"
@@ -122,6 +122,7 @@ export default {
                 industryid: 0
             },
             userinfo:[],
+            detailInfo:{},
         }
     },
 

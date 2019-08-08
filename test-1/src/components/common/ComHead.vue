@@ -56,25 +56,36 @@ export default {
       default:()=>{},
       
     },
-    // company: {
-    //   type: Object,
-    //   default: () => ({
-    //     name: "",
-    //     LegalReprese: "",
-    //     CreationTime: "",
-    //     Capital: ""
-    //   })
-    // }
+    propGet:{
+      type:Boolean,
+      default:false,
+      
+    },
+    detailInfo:{
+      type:Object,
+      default:function(){
+        return{}
+      },
+    },
+    
   },
   data() {
     return {
       comInfo: undefined,
-      company: {}
+      company: {},
+      unwatchDetailInfo:null,
+      
     };
   },
   created() {
+    
     let com = this.$store.state.loginInfo;
     this.comInfo = com[0];
+    
+  },
+
+  destroyed(){
+    
   },
 
   methods: {
@@ -85,27 +96,38 @@ export default {
       
     },
 
+    detailInfoWatch(newVal){
+      
+      let company = newVal;
+      this.company = {
+        enterprise: company["企业名称"],
+        OperaState: company["经营状态"],
+        LegalReprese: company["法定代表人"],
+        CreationTime: company["成立日期"],
+        Capital: company["注册资本"],
+        Phone: company["电话"],
+        count:this.$store.state.company.indexInfo.count,
+        isAuth:company.isAuth,
+      };
+      console.log(`===this.company====`, this.$store.state.company.indexInfo.count);
+    },
 
   },
 
+  
   watch: {
-    "$store.state.company.detailInfo": {
-      handler() {
-        let company = this.$store.state.company.detailInfo;
-        this.company = {
-          enterprise: company["企业名称"],
-          OperaState: company["经营状态"],
-          LegalReprese: company["法定代表人"],
-          CreationTime: company["成立日期"],
-          Capital: company["注册资本"],
-          Phone: company["电话"],
-          count:this.$store.state.company.indexInfo.count,
-          isAuth:company.isAuth,
-        };
-        console.log(`===this.company====`, this.$store.state.company.indexInfo.count);
-      }
-    }
+    
+   detailInfo:{
+     handler(newVal){
+       this.detailInfoWatch(newVal);
+
+     },
+    
+   }
+ 
   },
+  
+  
 };
 </script>
 

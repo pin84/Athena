@@ -275,14 +275,18 @@ const chuKe = [
       main:'触客',
     }
   },
+  
+];
+
+const customerPool = [
   {
-    path: '/chuke-msg2',
-    name: 'chuck-msg',
-    component: () => import('./views/chuke/Chuke-msg2.vue'),
+    path: '/customerpool',
+    name: 'customerpool',
+    component: () => import('./views/customerPool/CustomerPool.vue'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'短信触客',
-      main:'触客',
+      remark:'潜在客户池订阅首页',
+      main:'潜在客户池订阅',
     }
   },
 ];
@@ -405,7 +409,6 @@ const userFeedBack = [
 
 ]
 
-
 // 审核界面
 const auditPage = [
   {
@@ -489,6 +492,7 @@ routes = routes.concat(
   index,
   dingYue,
   chuKe,
+  customerPool,
   liqnQuan,
   userCenter,
   userFeedBack,
@@ -709,32 +713,6 @@ function isHasManageAuth(to){
   return store.state.loginInfo.Administrator==0?true:false;
 
 }
-
-function pushHistory() {
-  var state = {
-    title: "title",  
-    url: location.href.split(location.host)[1],
-  };
-  window.history.pushState(state, "title", location.href.split(location.host)[1]);
-  
-  
-}
-
-window.addEventListener("popstate", function(e) {
-  if(!e.state){
-      Toast({
-        message:'再按一次退出程序',
-      })
-      setTimeout(()=>{
-        pushHistory();  
-      },4000)  
-  }
-  
-}, false);
-
-
-pushHistory();
-
 
 // 用于用户授权登录验证
 async function userAuth(to, form, next) {

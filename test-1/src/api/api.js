@@ -536,6 +536,9 @@ let pythonApi = {
      // 邀请码后台看板按月份查询信息 [token] [month]月份
      invitationMonthInfo: pyBaseUrl + 'oauth/month/',
 
+     // 参数 token
+     otherUserInfo: pyBaseUrl + 'oauth/wx',
+
 }
 
 let mockApi = {

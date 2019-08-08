@@ -48,7 +48,7 @@
             {{chooseCompany.companyName}}
           </div>
           <div class="tags"> 
-            主营:<template v-for="tag in chooseCompany.companyTags" >{{tag}}、</template>
+            主营:<template v-for="tag in $commonFn.businessScope(chooseCompany.companyTags)" >{{tag}}、</template>
           </div>
         </div>
 

@@ -6,7 +6,7 @@
     <template v-slot:pop-content>
       <!-- 这里是中间内容插槽 -->
       <!-- main-header s -->
-      <com-head></com-head>
+      <com-head :detailInfo="detailInfo"></com-head>
       <!-- main-header e -->
 
       <!-- gs-info s -->
@@ -65,7 +65,9 @@ export default {
   data() {
     return {
       infoList: [],
-      comIndexInfo: {} //保存watch store中的indexInfo后传值
+      comIndexInfo: {}, //保存watch store中的indexInfo后传值
+      detailInfo:{},
+
     };
   },
   created() {
@@ -202,8 +204,8 @@ export default {
               }
             ];
             
-            this.$store.commit("detailInfo", Object.assign(infoList[0],{isAuth:result.data.states}));
-            
+            this.detailInfo = Object.assign(infoList[0],{isAuth:result.data.states})
+            this.$store.commit("detailInfo", this.detailInfo);
             this.$set(this, "infoList", infoList);
             return result
           }
