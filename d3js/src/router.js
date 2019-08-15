@@ -81,5 +81,10 @@ export default new Router({
       name: '07-worldMap-1',
       component: () => import( './views/07-worldMap-1')
     },
+    {
+      path: '/100-test',
+      name: '100-test',
+      component: () => import( './views/100-test')
+    },
   ]
 })

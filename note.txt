@@ -1,3 +1,5 @@
 https://github.com/mqyqingfeng/Blog/issues/33
 
 isArray的实现
+
+双重循环跳出内循环继续从外循环开始

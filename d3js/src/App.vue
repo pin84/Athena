@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div id="nav">
+    <div id="nav" v-show="false">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">01-Face</router-link>
       <router-link to="/barchart">02-Barchart</router-link>
@@ -34,6 +34,8 @@
   -moz-osx-font-smoothing: grayscale;
   /* text-align: center; */
   color: #2c3e50;
+  height:100vh;
+  border:1px solid red;
 }
  #nav {
   padding: 20px;

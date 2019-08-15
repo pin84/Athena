@@ -22,27 +22,29 @@ export default {
       };
 
       const makeFruit = type => ({ type ,id:Math.random()});
-      let  fruits = range(5).map(() => makeFruit("apple"));
+      let  fruits = range(1).map(() => makeFruit("apple"));
 
       render();
 
       //Eat an apple
-      setTimeout(() => {
-        fruits.pop();
-        render();
-      }, 1000);
+      // setTimeout(() => {
+      //   fruits.pop();
+      //   render();
+      // }, 1000);
+
+
 
       //Replacing an apple with a lemon
-      setTimeout(() => {
-        fruits[2].type = "lemon";
-        render();
-      }, 2000);
+      // setTimeout(() => {
+      //   fruits[2].type = "lemon";
+      //   render();
+      // }, 2000);
 
-       //Eat an apple
-      setTimeout(() => {
-        fruits = fruits.filter((d,i) => i !== 1)
-        render();
-      }, 3000);
+      //  //Eat an apple
+      // setTimeout(() => {
+      //   fruits = fruits.filter((d,i) => i !== 1)
+      //   render();
+      // }, 3000);
     }
   }
 };
