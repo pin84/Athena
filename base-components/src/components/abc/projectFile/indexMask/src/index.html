@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="en-us" class="no-js">
+<!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>精准检索</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="Keywords" content="上下链-首页" />
+  <meta name="Description" content="上下链-首页" />
+  <!--iPhone 手机上设置手机号码不被显示为拨号链接）-->
+  <meta content="telephone=no, address=no" name="format-detection" />
+  <!--IOS私有属性，可以添加到主屏幕-->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <!-- uc强制竖屏 -->
+  <meta name="screen-orientation" content="portrait" />
+  <!-- QQ强制竖屏 -->
+  <meta name="x5-orientation" content="portrait" />
+  <!-- windows phone 点击无高光 -->
+  <meta name="msapplication-tap-highlight" content="no" />
+
+  <!-- 引入样式 -->
+  <!-- 引入 font-awesome -->
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/mint-ui@1/lib/style.css">
+  <!-- 引入weui -->
+  <link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/1.1.3/weui.min.css">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/index.css">
+  <!-- resize -->
+  <script>
+    (function (doc, win) { var docEl = doc.documentElement; var resizeEvt = "orientationchange" in window ? "orientationchange" : "resize"; var recalc = function () { var clientWidth = docEl.clientWidth; if (!clientWidth) { return } if (clientWidth >= 750) { clientWidth = 750 } docEl.style.fontSize = 100 * (clientWidth / 750) + "px"; docEl.dataset.percent = 100 * (clientWidth / 750) }; recalc(); doc.documentElement.classList.add("iosx" + win.devicePixelRatio); if (typeof doc.addEventListener != "function") { return } win.addEventListener(resizeEvt, recalc, false) })(document, window);
+  </script>
+</head>
+
+
+<body>
+  <!--  company info                     
+            {{company.ID}} 
+            {{company.Name}}
+            {{company.OldName}}
+            {{company.IsHeightNew}}
+            {{company.Code}} //统一社会信用代码
+            {{company.Capital}} //注册资本
+            {{company.OperaState}} //经营状态
+            {{company.LegalReprese}} //法定代表人
+            {{company.Registration}} //登记机关
+            {{company.creationTime}} //成立日期
+            {{company.ComparryType}} //类型
+            {{company.BLindustry}} //所属行业
+            {{company.StaffSize}} //人员规模
+            {{company.Phone}}
+            {{company.Email}}
+            {{company.Website}}
+            {{company.EnAddress}} //企业地址
+            {{company.Scope}}  //经营范围
+        -->
+  <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+  <!-- this is search -->
+  <div id="app" v-cloak>
+    <button @click="$store.commit('infoPop',{self:'self'})">企业自画像弹窗</button>
+    <button @click="popIsShow('cert')">企业认证</button>
+    <button @click="popIsShow('cert')">我要开通</button>
+    <button @click="popIsShow('sms-push')">短信推送</button>
+    <button @click="popIsShow('summary-data')">推送汇总数据</button>
+    <button @click="popIsShow('record')">推送记录</button>
+    <button @click="popIsShow('platform-msg')">平台消息</button>
+    <button @click="popIsShow('main-bussiness')">主营</button>
+    <button @click="popIsShow('set-assort')">需求配套</button>
+    <button @click="tipsPopIsShow">提示框</button>
+    <button @click="search">搜索框</button>
+    <!-- 列表弹窗 自画像 s -->
+    <div class="info-poplist" :class="{'pop-show':popShow.self}">
+
+      <!-- 弹窗左侧按钮 s -->
+      <!-- <div class="pop-btn" @click="infoPop">
+                    企业基本信息
+                    <div class="arrows-icon">
+                        <i class="iconfont-mask">&#xe600;</i>
+                    </div>
+                </div> -->
+      <!-- 弹窗左侧按钮 e -->
+
+      <!-- 背景蒙版 s -->
+
+      <div class="info-mask">
+      </div>
+      <!-- 背景蒙版 e -->
+
+      <!-- 右侧弹窗内容 s -->
+      <div class="pop-content">
+        <!-- 内容主标题 -->
+        <div class="content-title">
+          企业基本信息 <img @click="infoPop('self')" class="u-close" src="./asset/icon/11.png">
+        </div>
+        <!-- popIsShow('self-'+index) 这是调用弹窗的方法 -->
+        <!-- 企业自画像 列表内容s -->
+        <div class="content-list">
+          <!-- 列表副标题 -->
+          <div class="list-subtitle">基础信息:</div>
+          <!-- 列表s -->
+          <a v-for="(item,index) in baseInfo" @click="popIsShow('self-'+index)" class="weui-cell weui-cell_access">
+            <!-- maskShow(item), -->
+
+            <div class="weui-cell__hd cell-imgblock">
+              <img class="icon" :src="'./asset/icon/'+ parseInt(index+1) +'.png'">
+            </div>
+            <div class="weui-cell__bd">
+              <p>{{item.name}}</p>
+            </div>
+            <div class="weui-cell__ft"></div>
+
+            <!-- gs- 工商信息 s -->
+            <!-- <com-pop v-if="index==0" :is-show="item.isShow" @close="maskShow(item)" :class="{fullscreen:item.isFull,'g-pop-show':item.isShow}" @closefull="fullScreen(item)"> -->
+            <com-pop v-if="index==0" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+                <!-- 这里是中间内容插槽 -->
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-list="infoList" :get-info-title="item.name" :my-index="'self-'+index">
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <template v-slot:flex-left>
+                <!-- <com-foot @fs="fullScreen(item)"> -->
+                <!-- </com-foot> -->
+              </template>
+              <template v-slot:flex-right>
+              </template>
+            </com-pop>
+
+            <!-- 工商信息 e -->
+
+            <!-- gd- 股东信息 s -->
+            <com-pop v-if="index==1" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-title="item" :my-index="'self-'+index">
+                  <template v-slot:layout-content>
+                    <div class="gd-content info-list" v-for="gditem in getGdList">
+                      <div class="item-single sp">
+                        {{gditem.Name}}
+                      </div>
+                      <div class="info-item item-single">
+                        <div class="item-name">
+                          持股比例
+                        </div>
+                        <div class="item-value">
+                          {{gditem.Stake}}%
+                        </div>
+                      </div>
+
+                      <div class="info-item item-single">
+                        <div class="item-name">
+                          认缴率（万元）
+                        </div>
+                        <div class="item-value">
+                          <!-- {{gditem.Stake}} -->
+                          {{gditem.SpandingMoney}}万元
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </com-content-layout>
+
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 股东信息 e -->
+
+            <!-- zr- 主要人员信息 s -->
+            <com-pop v-if="index==2" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+                <!-- gs-info s -->
+                <com-content-layout :get-info-list="infoList" :get-info-title="item.name" :my-index="'self-'+index">
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 主要人员信息信息 e -->
+
+            <!-- xg- 行政许可（工商局）信息 s -->
+            <com-pop v-if="index==3" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-title="item" :my-index="'self-'+index">
+                  <template v-slot:layout-content>
+                    <div class="info-list" v-for="gsitem of gslist">
+                      <div class="info-item">
+                        <div class="item-name">
+                          许可文件编号
+                        </div>
+                        <div class="item-value">
+                          {{gsitem.LicenseNo}}
+                        </div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="item-name">
+                          许可文件名称
+                        </div>
+                        <div class="item-value">
+                          {{gsitem.LicenseName}}
+                        </div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="item-name">
+                          有效期自
+                        </div>
+                        <div class="item-value">
+                          {{gsitem.StartTime}}
+                        </div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="item-name">
+                          有效期至
+                        </div>
+                        <div class="item-value">
+                          {{gsitem.EndTime}}
+                        </div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="item-name">
+                          许可机关
+                        </div>
+                        <div class="item-value">
+                          {{gsitem.PerAgency}}
+                        </div>
+                      </div>
+
+                      <div class="info-item">
+                        <div class="item-name">
+                          许可内容
+                        </div>
+                        <div class="item-value">
+                          {{gsitem.PerContent}}
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 行政许可（工商局）信息 e -->
+
+            <!-- xx- 行政许可（信用中国）信息 s -->
+            <com-pop v-if="index==4" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+
+                <!-- main-header s -->
+                <!-- <com-head-empty :get-company="company" v-if="company == null"></com-head-empty> -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-list="infoList" :get-info-title="item.name" :my-index="'self-'+index">
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 行政许可（信用中国）信息 e -->
+
+            <!-- xc- 行政处罚信息 s -->
+            <com-pop v-if="index==5" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-list="infoList" :get-info-title="item.name" :my-index="'self-'+index">
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 行政处罚信息 e -->
+
+            <!-- sw- 税务信用 s -->
+            <com-pop v-if="index==6" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-list="infoList" :get-info-title="item.name" :my-index="'self-'+index">
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 税务信用 e -->
+
+            <!-- yc- 列入经营异常名录信息 s -->
+            <com-pop v-if="index==7" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-list="infoList" :get-info-title="item.name" :my-index="'self-'+index">
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 列入经营异常名录信息 e -->
+
+            <!-- bl- 黑名单 s -->
+
+            <com-pop v-if="index==8" :my-index="'self-'+index">
+              <!-- @close="maskShow(item)" -->
+              <template v-slot:pop-content>
+
+                <!-- main-header s -->
+                <com-head :get-company="company"></com-head>
+                <!-- main-header e -->
+
+                <!-- gs-info s -->
+                <com-content-layout :get-info-list="infoList" :get-info-title="item.name" :my-index="'self-'+index">
+                </com-content-layout>
+                <!-- gs-info e -->
+              </template>
+
+              <!-- <template v-slot:pop-footer> -->
+              <!-- 这里是尾部内容插槽 -->
+              <!-- <com-foot @fs="fullScreen(item)"> -->
+              <!-- </com-foot> -->
+              <!-- </template> -->
+            </com-pop>
+
+            <!-- 黑名单 e -->
+
+          </a>
+
+
+          <!-- 列表容器e -->
+
+          <!-- 下箭头s -->
+          <div class="down-arrow">
+            <div class="arrow-block">
+              <i class="iconfont-mask">&#xe600;</i>
+            </div>
+          </div>
+          <!-- 下箭头e -->
+
+        </div>
+        <!-- 列表内容e -->
+
+      </div>
+      <!-- 右侧弹窗内容 e -->
+
+    </div>
+    <!-- 列表弹窗 自画像 e -->
+
+
+    <!-- 这是企业认证提示的页面 s -->
+    <com-pop :my-index="'cert'">
+      <!-- @close="maskShow(item)" -->
+      <template v-slot:pop-content>
+        <!-- 这里是中间内容插槽 -->
+        <div class="con-title">企业认证</div>
+
+        <div class="con-content cert-content">
+          <div class="cert-tips">设为我的企业需要认证</div>
+          <div class="cert-sub">认证后可获得功能：</div>
+          <p class="cert-des">
+            1、入驻成为供应商家（上链），面向几千万企业资源，
+            通过算法获得推荐。<br>
+            2、每天新发布几万条采购招标信息，精准匹配免费推
+            送到手机微信。<br>
+            3、系统辅助算法可进行精准营销推送，包括邮件、短
+            信。<br>
+            4、不限量浏览上下链企业自画像。<br>
+            5、发布企业动态、关注重点企业为链圈。<br>
+            6、发布采购选型报价公告。<br>
+            7、邀请同事同步管理。<br>
+          </p>
+        </div>
+      </template>
+      <template v-slot:flex-left>
+      </template>
+      <template v-slot:flex-right>
+        <foot-btn>
+          <div class="radiusBtn" @click="popIsShow('cert'),popIsShow('cert-ing')">
+            去认证
+          </div>
+        </foot-btn>
+      </template>
+    </com-pop>
+    <!-- 这是企业认证提示的页面 e -->
+
+    <!-- 这是企业认证中的页面 s -->
+    <com-pop :my-index="'cert-ing'" class="certing">
+      <!-- @close="maskShow(item)" -->
+      <template v-slot:pop-content>
+        <!-- 这里是中间内容插槽 -->
+        <div class="con-title" v-if="false">企业认证</div>
+        <div class="con-title" v-else>添加并认证我的企业</div>
+        <form class="con-content certing-content">
+          <div class="con-group">
+            <div class="con-name">企业名称:</div>
+            <input class="con-val" name="" type="text" v-model="certingVal.name" />
+          </div>
+          <div class="con-group">
+            <div class="con-name">统一社会信用代码:</div>
+            <input class="con-val" name="" type="text" v-model="certingVal.code" />
+          </div>
+          <div class="con-group">
+            <div class="con-name">上传营业执照:(文件大小不超过2MB)</div>
+            <!-- <input class="val" type="text" v-model="certingVal.code"/> -->
+            <!-- 文件上传 s -->
+            <div class="weui-cells weui-cells_form" id="uploader">
+              <div class="weui-cell">
+                <div class="weui-cell__bd">
+                  <div class="weui-uploader">
+                    <div class="weui-uploader__hd">
+                      <!-- <p class="weui-uploader__title">图片上传</p> -->
+                      <div class="weui-uploader__info"><span id="uploadCount">0</span>/5</div>
+                    </div>
+                    <div class="weui-uploader__bd">
+                      <ul class="weui-uploader__files" id="uploaderFiles"></ul>
+                      <div class="weui-uploader__input-box">
+                        <input id="uploaderInput" class="weui-uploader__input" name="" type="file" accept="image/*"
+                          capture="camera" multiple="" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 文件上传 e -->
+          </div>
+          <div class="con-group">
+            <div class="con-name">联系人:</div>
+            <input class="con-val" name="" type="text" v-model="certingVal.linkman" placeholder="请输入联系人名称" />
+          </div>
+          <div class="con-group">
+            <div class="con-name">联系电话:</div>
+            <input class="con-val" name="" type="text" v-model="certingVal.linkphone" placeholder="请输入联系电话" />
+          </div>
+          <div class="con-group">
+            <div class="con-name">认证费用:<span class="cost">200年/年</span></div>
+            <div class="des">上下链的认证审核时间为1-2个工作日，请耐心等待。</div>
+          </div>
+        </form>
+      </template>
+      <template v-slot:flex-left>
+      </template>
+      <template v-slot:flex-right>
+        <foot-btn>
+          <div class="radiusBtn" @click="">
+            提交
+          </div>
+        </foot-btn>
+      </template>
+    </com-pop>
+    <!-- 这是企业认证中的页面 e -->
+
+
+    <!-- 这是推送短信的页面 s -->
+
+    <com-pop :my-index="'sms-push'">
+      <template v-slot:pop-content>
+        <div class="con-title">推送短信</div>
+        <form class="con-content sms-push">
+          <div class="sms-companylist">
+            <ul class="list">
+              <li class="list-item signalLine">1、广东粤宝汽车销售服务有限公司[1361111****]</li>
+              <li class="list-item signalLine">2、广东粤宝汽车销售服务有限公司[1361111****]</li>
+              <li class="list-item signalLine">3、广东粤宝汽车销售服务有限公司[1361111****]</li>
+              <li class="list-item signalLine">4、广东粤宝汽车销售服务有限公司[1361111****]</li>
+            </ul>
+            <div class="count">
+              共234家公司
+            </div>
+          </div>
+
+          <div class="con-group con-single sms-choose">
+            <div class="con-name">选择模板</div>
+            <div class="template">模板一 ></div>
+          </div>
+
+          <textarea class="con-group con-single sms-textarea " name="">
+                        </textarea>
+
+          <div class="con-group con-single sms-phonearea">
+            <div class="con-name sms-phonedes">插入我的号码体验</div>
+            <input type="number" v-model="smspush.phone" placeholder="请输入号码" name="" class="con-val sms-phone"></input>
+          </div>
+        </form>
+      </template>
+
+      <!-- 按钮插槽 s -->
+      <template v-slot:flex-left>
+        <div class="m-item">
+          <span class="item-text">暂存</span>
+        </div>
+      </template>
+      <template v-slot:flex-right>
+        <foot-btn>
+          <div class="radiusBtn" @click="">
+            发送
+          </div>
+        </foot-btn>
+      </template>
+      <!-- 按钮插槽 e -->
+    </com-pop>
+
+    <!-- 这是推送短信的页面 e -->
+
+    <!-- 这是推送汇总记录的页面 s -->
+
+    <com-pop :my-index="'summary-data'" class="summary-data">
+      <template v-slot:pop-content>
+        <div class="con-title">推送数据汇总</div>
+        <div class="con-content">
+          <summary-data title="今日推送" :summary-data="summaryTest"></summary-data>
+          <summary-data title="昨日推送" :summary-data="summaryTest"></summary-data>
+          <summary-data title="一周推送" :summary-data="summaryTest"></summary-data>
+          <summary-data title="月推送" :summary-data="summaryTest"></summary-data>
+          <summary-data title="累计推送" :summary-data="summaryTest"></summary-data>
+        </div>
+      </template>
+
+      <!-- 按钮插槽 s -->
+      <template v-slot:flex-left>
+      </template>
+      <template v-slot:flex-right>
+        <span></span>
+      </template>
+      <!-- 按钮插槽 e -->
+    </com-pop>
+
+    <!-- 这是推送汇总的页面 e -->
+
+    <!-- 这是明细记录的页面 s -->
+
+    <com-pop :my-index="'record'" class="record">
+      <template v-slot:pop-content>
+        <div class="con-title">明细记录</div>
+        <div class="con-content">
+          <record-detail-list v-for="(item,index) of recordItemInfoTest" :key="item.id" :record-item-info="item"
+            :record="index"></record-detail-list>
+        </div>
+      </template>
+
+      <!-- 按钮插槽 s -->
+      <template v-slot:flex-left>
+      </template>
+      <template v-slot:flex-right>
+        <span></span>
+      </template>
+      <!-- 按钮插槽 e -->
+    </com-pop>
+
+    <!-- 这是明细记录的页面 e -->
+
+
+    <!-- 这是platform-msg 平台消息的页面 s -->
+
+    <com-pop my-index="platform-msg" class="platform">
+      <template v-slot:pop-content>
+        <div class="con-title">平台消息</div>
+        <div class="con-content">
+          <!-- 你的发票已经寄出去，请留意一下你的发票已经寄出去，请留意一下你的发票已经寄出去，请留意一下你的发票已经寄出去，请留意一下 -->
+          <platform-item v-for="item of platForm" :platform-info="item"></platform-item>
+        </div>
+      </template>
+
+      <!-- 按钮插槽 s -->
+      <template v-slot:flex-left>
+      </template>
+      <template v-slot:flex-right>
+        <span></span>
+      </template>
+      <!-- 按钮插槽 e -->
+    </com-pop>
+
+    <!-- 这是platform-msg 平台消息的页面 e -->
+
+    <!-- 主营产品 s -->
+    <com-pop my-index="main-bussiness">
+      <template v-slot:pop-content>
+        <div class="con-title">公司主营产品、服务列表</div>
+        <div class="con-content">
+          <com-add-del set-place-holder="请输入产品、服务名称" set-add-val="添加产品、服务名称"></com-add-del>
+        </div>
+      </template>
+
+      <!-- 按钮插槽 s -->
+      <template v-slot:flex-left>
+      </template>
+      <template v-slot:flex-right>
+        <foot-btn>
+          <div class="radiusBtn">
+            保存
+          </div>
+        </foot-btn>
+      </template>
+      <!-- 按钮插槽 e -->
+    </com-pop>
+    <!-- 主营产品 e -->
+
+
+    <!-- 配套需求表 s -->
+    <com-pop my-index="set-assort">
+      <template v-slot:pop-content>
+        <div class="con-title">配套需求表(企业生产经营配套服务、原料)</div>
+        <div class="con-content">
+          <com-add-del set-place-holder="请输入配套标题" set-add-val="添加配套"></com-add-del>
+        </div>
+      </template>
+
+      <!-- 按钮插槽 s -->
+      <template v-slot:flex-left>
+      </template>
+      <template v-slot:flex-right>
+        <foot-btn>
+          <div class="radiusBtn">
+            保存
+          </div>
+        </foot-btn>
+      </template>
+      <!-- 按钮插槽 e -->
+    </com-pop>
+    <!-- 配套需求表 e -->
+
+    <tips-pop>
+      <template>
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+        su66邀请你加入广东兴锐汽车销售有限公
+        司上下链，共享企业资源
+      </template>
+    </tips-pop>
+
+    <!-- 链圈搜索框 -->
+    <!-- <div class="lian-search">
+                <div class="search-input">
+                    <input class="input iconfont-mask" type="text" placeholder="&#xe604; 输入要关注的企业名称">
+                    <div class="cancel">取消</div>
+                </div>
+
+                <div class="search-tips">
+
+                </div>
+            </div> -->
+
+  </div>
+  <!-- 引入组件库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.9/vue.js"></script>
+  <script src="https://unpkg.com/vuex@3.1.0/dist/vuex.js"></script>
+  <script src="https://unpkg.com/mint-ui@1/lib/index.js"></script>
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/vConsole/3.2.2/vconsole.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://unpkg.com/better-scroll@1.14.1/dist/bscroll.min.js"></script>
+  <!-- 引入weui -->
+  <script type="text/javascript" src="https://res.wx.qq.com/open/libs/weuijs/1.1.4/weui.min.js"></script>
+  <script src="./js/store.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/myCommon.js"></script>
+  <script src="./js/index.js"></script>
+  <script>
+        // init vConsole
+        // var vConsole = new VConsole();
+        // console.log('Hello world');
+  </script>
+</body>
+
+</html>

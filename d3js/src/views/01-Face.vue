@@ -21,6 +21,7 @@ export default {
         .append("g")
         .attr("transform", `translate(${width / 2},${height / 2})`);
 
+
       const circle = g
         .append("circle")
         .attr("r", height / 2)
