@@ -1,5 +1,6 @@
 import axios from 'axios';
 import api from './api';
+import specialInfo from '@/assets/js/specialInfo.json';
 // import util from '../utils';
 
 /**
@@ -7,88 +8,143 @@ import api from './api';
  */
 let ajax = {};
 
-// 获取链圈数据
-ajax.getLian = function (params) {
-    let data = axios.get(api.lian)
-        .then(res => res.data.data.json)
-        .catch(rej => rej)
-    return data;
-}
+const ShangLian = {
+    // 获取链圈数据
+    getLian(params) {
+        let data = axios.get(api.lian)
+            .then(res => res.data.data.json)
+            .catch(rej => rej)
+        return data;
+    },
 
-// 获取下链数据
-ajax.getDownData = function(){
-    // let {industryId} = params;
-    // if(params==undefined || industryId ==undefined ){
-    //     return 'no params';
-    // }
-    let data = axios.get(api.downData)
-                .then(res=>res.data)
-                .catch(rej=>rej)
-    return data;
-}
 
-// 
-ajax.getListData = function(params){
-    let {industryId,provinces} = params;
-    if(params==undefined || industryId ==undefined || provinces ==undefined){
-        return 'no params';
-    }
-    let data = axios.get(api.listData+industryId,{
-        params:{
-            provinces
+    // 获取下链数据
+    getDownData() {
+        // let {industryId} = params;
+        // if(params==undefined || industryId ==undefined ){
+        //     return 'no params';
+        // }
+        let data = axios.get(api.downData)
+            .then(res => res.data)
+            .catch(rej => rej)
+        return data;
+    },
+
+    getListData(params) {
+        let { industryId, provinces } = params;
+        if (params == undefined || industryId == undefined || provinces == undefined) {
+            return 'no params';
         }
-    })
-    .then(res=>res.data)
-    .catch(rej=>rej)
-    return data;
-}
+        let data = axios.get(api.listData + industryId, {
+            params: {
+                provinces
+            }
+        })
+            .then(res => res.data)
+            .catch(rej => rej)
+        return data;
+    },
 
-// 列表 换一批
-ajax.getNextGroup = function(){
-    let data = axios.get(api.nextGroup)
-                .then(res=>res.data)
-                .catch(rej=>rej)
-    return data;
-}
+    // 列表 换一批
+    getNextGroup() {
+        let data = axios.get(api.nextGroup)
+            .then(res => res.data)
+            .catch(rej => rej)
+        return data;
+    },
 
-// 自画像信息
-ajax.getSelfInfo = function(params){
-    let {enterpriseid} = params;
-    if(params==undefined || enterpriseid ==undefined){
-        return 'no params';
-    }
-    let data = axios.get(api.selfInfo,{
-        params:{
-            enterpriseid:params.enterpriseid
+    // 自画像信息
+    getSelfInfo(params) {
+        let { enterpriseid } = params;
+        if (params == undefined || enterpriseid == undefined) {
+            return 'no params';
         }
-    })
-    .then(res=>res.data)
-    .catch(rej=>rej)
-    return data;
-}
+        let data = axios.get(api.selfInfo, {
+            params: {
+                enterpriseid: params.enterpriseid
+            }
+        })
+            .then(res => res.data)
+            .catch(rej => rej)
+        return data;
+    },
 
-ajax.getCompanyListData = function(params){
-    let {
-        industryid,
-        provinces,
-        logo,
-        up_industry,
-    } = params;
-    
-    if(params==undefined){
-        return 'no params';
-    }
-    let data = axios.get(api.searchPrinceCom,{
-        params:{
+    getCompanyListData(params) {
+        let {
             industryid,
             provinces,
             logo,
-            up_industry:logo=='up'?up_industry:'',
+            up_industry,
+        } = params;
+
+        if (params == undefined) {
+            return 'no params';
         }
-    })
-    .then(res=>res.data)
-    .catch(rej=>rej)
-    return data;
-}
+        let data = axios.get(api.searchPrinceCom, {
+            params: {
+                industryid,
+                provinces,
+                logo,
+                up_industry: logo == 'up' ? up_industry : '',
+            }
+        })
+            .then(res => res.data)
+            .catch(rej => rej)
+        return data;
+    },
+
+    getSpecialIndustry(params){
+        if(params==false){ return 'no params'}
+        let spItemIndex = specialInfo.findIndex(ele=>{
+            return ele.name == params
+        });
+        if( spItemIndex == -1 ) { return 'no special industry' }
+
+        return axios.get(api.speciaIndustry,{
+            params:{
+                kind: specialInfo[spItemIndex].trueParams
+            }
+        }).then(res=>{
+            res.data[0].ClassName.Name = params
+            return res.data
+        }
+        )
+    },
+
+
+};
+
+const dingYue = {
+
+};
+
+const chuKe = {
+
+};
+
+const lianQuan = {
+
+};
+
+const common = {
+    async  getAllCity() {
+        let { data } = await axios.get(api.getCity)
+        return data.all_province_list
+
+    }
+};
+
+const other = {
+
+};
+
+ajax = {
+    ...ShangLian,
+    ...dingYue,
+    ...chuKe,
+    ...lianQuan,
+    ...common,
+    ...other,
+};
 
 export default ajax;

@@ -2,60 +2,67 @@
   <div id="LookAround">
     <div class="mainbody">
       <div class="search">
-        <span
-          class="qs"
-          @click="qs"
-        >快<br>搜</span>
-        <span class="new">最<br>新<br>采<br>招</span>
+        <span class="qs" @click="qs">
+          快
+          <br />搜
+        </span>
+        <span class="new">
+          最
+          <br />新
+          <br />采
+          <br />招
+        </span>
       </div>
 
       <div id="listWrapper">
-
         <ul
           v-infinite-scroll="loadMore"
           infinite-scroll-disabled="loading"
           infinite-scroll-distance="10"
         >
-          <li
+          <!-- <li
             class="item"
             v-for='(item,index) in resultList'
             :key="index"
-          >
-            <DataItem
-              :pData='item'
-              @showDetail='showDetail(item)'
-            />
+          >-->
+          <DataItem :pData="resultList" @showDetail="showDetail" />
 
-          </li>
-
+          <!-- </li> -->
         </ul>
-
       </div>
 
       <PopDetail
-        :content='content'
-        :detailData='detailData'
-        :isShow='isShowDetail'
-        @closePop='closePop'
+        :content="content"
+        :detailData="detailData"
+        :isShow="isShowDetail"
+        @closePop="closePop"
       />
     </div>
-    <FeedbackBtn />
+      <FeedbackBtn  class="fd" />
     <!-- <span
       class="toFeedback"
       @click="showFeedback"
       ref="feedback"
     >
       <span class="inner">意见反馈</span>
-    </span> -->
+    </span>-->
 
     <!-- <LimitTwoMsg  /> -->
+    <div class="subSetting" @click="$router.push('/setSub')">
+      <span class="bg">
+        <span class="bg-inner"></span>
+      </span>
+      <span class="sub_text">订阅设置</span>
+    </div>
   </div>
 </template>
+
+
 
 <script>
 import FeedbackBtn from "../../components/common/feedback/FeedbackBtn";
 import TopRouter from "./model/TopRouter";
-import DataItem from "./model/DataItem";
+import DataItem from "./model/DataItemT";
 import PopDetail from "./model/PopDetail";
 import { InfiniteScroll } from "mint-ui";
 import Commonjs from "./common";
@@ -91,8 +98,8 @@ export default {
     this.resultList = res.results;
 
     let { keyword, id } = this.$route.query;
-    console.log(this.$route.query);
-    
+    // console.log(this.$route.query);
+
     if (id) {
       this.showDetail(this.$route.query);
     }
@@ -179,11 +186,12 @@ export default {
     },
 
     async showDetail(item) {
-      
+      console.log(`====sdf===`, item);
       let res = await Commonjs.showDetail(item.id, this.token);
+
       if (res !== false) {
         this.detailData = item;
-        
+
         this.isShowDetail = "detail";
         this.content = res;
       } else {
@@ -208,34 +216,6 @@ export default {
   overflow hidden
   background-color #f3f3f3
   box-sizing border-box
-  // .toFeedback
-  //   position fixed
-  //   display inline-block
-  //   width 1rem
-  //   height 1rem
-  //   bottom 1.5rem
-  //   right 0.15rem
-  //   z-index 3
-  //   background-color #09a2a3
-  //   display flex
-  //   justify-content center
-  //   align-items center
-  //   border-radius 50%
-  //   box-shadow 0 0 0.2rem #222
-  //   transition 0.3s
-  //   transform translateX(80%)
-
-  //   .inner
-  //     display inline-block
-  //     background-color #ffffff
-  //     width 0.8rem
-  //     height 0.8rem
-  //     border-radius 50%
-  //     text-align center
-  //     font-size 0.28rem
-  //     line-height 0.3rem
-  //     padding-top 0.1rem
-  //     box-sizing border-box
   .mainbody
     height 93vh
     padding 0 0 1rem 0
@@ -295,5 +275,37 @@ export default {
         // display flex
         // flex-direction column 
         margin-bottom 0.1rem
+  .fd
+    // position absolute
+    // width 2rem
+    // height 2rem
+    bottom 2.1rem
+  .subSetting
+      position fixed 
+      right 0
+      bottom 1.2rem
+      width 1.9rem
+      height 0.8rem
+      background-color #09a2a3
+      border-radius 0.4rem 0rem 0rem 0.4rem
+      text-align right
+      padding-right 0.11rem
+      display flex
+      justify-content center
+      align-items center
+      z-index 1
+      .bg,.bg-inner
+        display inline-block
+        width 0.6rem
+        height 0.6rem
+        background-color #ffffff
+        border-radius 50%
+        &.bg-inner
+          background url(../../assets/icon/dingyue/gear@20.png) center no-repeat
+          background-size 0.37rem 0.37rem
+      .sub_text
+        color #ffffff
+        font-size 0.24rem
+        margin-left 5px    
 </style>
 

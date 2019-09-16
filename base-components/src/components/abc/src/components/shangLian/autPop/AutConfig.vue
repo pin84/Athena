@@ -2,51 +2,34 @@
   <div id="auth">
     <section class="userInfo">
       <span class="avatar">
-        <img
-          :src="userInfo.headimgUrl"
-          alt=""
-        >
-
+        <img :src="userInfo.headimgUrl" alt />
       </span>
       <dl class="user-name">
         <dt>{{userInfo.username}}</dt>
-        <dd v-if="comName">{{comName}}
-          <span
-            class="cancel"
-            v-show="numComState !== 2"
-          >{{comState[numComState]}}</span>
+        <dd v-if="comName">
+          {{comName}}
+          <span class="cancel" v-show="numComState !== 2">{{comState[numComState]}}</span>
         </dd>
-        <dd
-          class="state"
-          v-else
-        >未绑定认证企业</dd>
+        <dd class="state" v-else>未绑定认证企业</dd>
       </dl>
     </section>
 
     <section class="main-body">
       <section class="business">
-        <div
-          class="cost"
-        >
+        <div class="cost">
           <span>认证费用</span>
           <span>
             <span class="marker">￥</span>
-            <span class="money">200元/年</span>
+            <span class="money">599元/年 &nbsp;</span>
+            <del class="old_money">￥2000</del>
           </span>
         </div>
         <div class="auth-list">
           <h4 class="auth-title">开通认证企业六大特权</h4>
           <ul class="list">
-            <li
-              class="item"
-              v-for="(item,index) in typeStr"
-              :key="index"
-            >
+            <li class="item" v-for="(item,index) in typeStr" :key="index">
               <span class="img-box">
-                <img
-                  :src="require(`../../../assets/icon/shanglian/${index+1}.png`)"
-                  alt=""
-                >
+                <img :src="require(`../../../assets/icon/shanglian/${index+1}.png`)" alt />
               </span>
               <div class="auth-type">{{typeStr[index]}}</div>
             </li>
@@ -57,32 +40,37 @@
       <section class="com-info">
         <ul class="list">
           <li class="item">
-            <span class="itemText"> <span class="red">*</span> 企业全称</span>
-            <span>
+            <span class="itemText">
+              <span class="red">*</span> 企业全称
+            </span>
+            <span class="search-box-extend">
               <SearchBoxItem
-                @changeCompany='getCompany'
-                @inputText='inputText'
-                @searchEnter='searchEnter'
-                @nameConfirm='nameConfirm'
-                :waitPayMoneyComName='inputComName'
+                @changeCompany="getCompany"
+                @inputText="inputText"
+                @searchEnter="searchEnter"
+                @nameConfirm="nameConfirm"
+                :waitPayMoneyComName="inputComName"
               />
             </span>
           </li>
-          <template v-for="(value,key,index) in companyInfo" >
+          <template v-for="(value,key,index) in companyInfo">
             <li
               class="item"
               @click="selectItem(value,key,index)"
-              v-if="key !== '统一社会信用代码'"
-              :key="index"
+              v-if="['统一社会信用代码','kind'].indexOf(key) == -1"
+              :key="key"
             >
-              <span class="itemText"><span class="red">*</span> {{key}}</span>
+              <span class="itemText">
+                <span class="red">*</span>
+                {{key}}
+              </span>
               <!-- <input
                 v-if="index ==2 || index == 3"
                 :type="index === 2 ? 'number' : 'text'"
                 v-model="companyInfo[key]"
                 class="inputText"
                 :placeholder="inputPlaceholder[index]"
-              > -->
+              >-->
               <!-- <mt-picker v-if="index ==2 || index == 3" :slots="slots" @change="onValuesChange"></mt-picker> -->
               <!-- :title="'选择'+companyInfo[key]" -->
               <!-- <mt-cell v-if="index ==1 || index == 2"  is-link>
@@ -91,22 +79,16 @@
                     {{ (value.label=='') ?'请选择企业归属':''}}{{ (value.label=='' && index == 1) ?'省份':''}}{{ (value.label=='' && index == 2) ?'行业':''}}{{ (value.label=='') ?'':value.label}}
                     {{(value==''? ('请选择企业归属' + index==1?'省份':'行业') :value )}}
                   </span>
-              </mt-cell> -->
-              <mt-cell
-                v-if="index ==1"
-                is-link
-              >
-                <span class="select-itemstyle">
-                  {{value.label == '' || value.label == undefined ? '请选择企业归属省份' : value.label}}
-                </span>
+              </mt-cell>-->
+              <mt-cell v-if="index ==1" is-link>
+                <span
+                  class="select-itemstyle"
+                >{{value.label == '' || value.label == undefined ? '请选择企业归属省份' : value.label}}</span>
               </mt-cell>
-              <mt-cell
-                v-if="index ==2"
-                is-link
-              >
-                <span class="select-itemstyle">
-                  {{value.label == '' || value.label == undefined ? '请选择企业归属行业' : value.label}}
-                </span>
+              <mt-cell v-if="index ==2" is-link>
+                <span
+                  class="select-itemstyle"
+                >{{value.label == '' || value.label == undefined ? '请选择企业归属行业' : value.label}}</span>
               </mt-cell>
 
               <input
@@ -115,60 +97,65 @@
                 v-model="companyInfo[key]"
                 class="inputText"
                 :placeholder="inputPlaceholder[index]"
-              >
+              />
             </li>
+            <li v-if="index ==2 && noMod==true" class="err_tips" :key="index">（如归属有误请认证后修改）</li>
           </template>
         </ul>
       </section>
 
       <section class="upload">
-        <h2>上传营业执照</h2>
+        <h2>上传营业执照 <span class="subtext">或者执业许可证</span></h2>
         <!-- <div 
         @click="chooseMsg"
         >
         上传图片
-        </div> -->
+        </div>-->
         <!-- type="file"
           id="upload-input2"
           ref="sendImgTest"
-          accept="image/*" -->
-        <label
-          for="upload-input"
-          class="uploa-label"
-          @click="chooseMsg"
-        >
-          <div
-            class="upload-img"
-            v-if="postImg"
-          >
-            <img
-              :src="imgUrl"
-              ref="inputImg"
-            >
+        accept="image/*"-->
+        <label for="upload-input" class="uploa-label" @click="chooseMsg">
+          <div class="upload-img" v-if="postImg">
+            <img :src="imgUrl" ref="inputImg" />
           </div>
-          <div
-            class="upload-img"
-            v-else
-          >
+          <div class="upload-img" v-else>
             <span class="img-bg"></span>
             <span class="text">读取本地相册或拍照</span>
           </div>
         </label>
-
       </section>
+      <div
+        class="serviceWrap w h bs_bb p_l_20 p_r_20 p_t_20 p_b_20 main_bgcolor_ffffff pos_res"
+        v-show="isSure===true"
+      >
+        <section v-html="serviceCon"></section>
+        <button class="btn_110" @click="isSure=false">我已阅读</button>
+      </div>
+      <div class="weui-agree">
+        <input
+          id="weuiAgree"
+          type="checkbox"
+          class="weui-agree__checkbox"
+          style="width:0.32rem;height:0.32rem;top:0;vertical-align:middle"
+          v-model="isPick"
+        />
+        <span
+          class="weui-agree__text vm"
+          style="color:#499fa2;font-size:0.28rem;"
+          @click="isSure=true"
+        >阅读并同意《上下链用户服务协议》</span>
+      </div>
+
       <section class="pay">
-        <dir class="pay-tips">
-          上下链的认证审核时间为24小时内，请耐心等待
-        </dir>
+        <dir class="pay-tips">上下链的认证审核时间为24小时内，请耐心等待</dir>
 
         <div class="pay-topay">
-          <span
-            class="text"
-            v-show="identity_status !== 3"
-          >
-            <span>一年仅需 </span>
+          <span class="text" v-show="identity_status !== 3">
+            <span>一年仅需</span>
             <span class="text-mark">￥</span>
-            <span class="text-num">200元</span>
+            <span class="text-num">599元</span>
+            <del class="old_money_num">￥2000</del>
           </span>
           <span
             class="btn-pay"
@@ -176,15 +163,10 @@
             id="getBrandWCPayRequest"
           >{{identity_status === 3 ? '重新提交': '提交并支付'}}</span>
         </div>
-
       </section>
     </section>
 
-    <mt-popup
-      v-model="provincesVis"
-      position="bottom"
-      class="mint-popup"
-    >
+    <mt-popup v-model="provincesVis" position="bottom" class="mint-popup">
       <mt-picker
         :slots="dataListPro"
         @change="onDateChangePro"
@@ -194,11 +176,7 @@
         value-key="cName"
       ></mt-picker>
     </mt-popup>
-    <mt-popup
-      v-model="industryVis"
-      position="bottom"
-      class="mint-popup"
-    >
+    <mt-popup v-model="industryVis" position="bottom" class="mint-popup">
       <mt-picker
         :slots="dataListInd"
         @change="onDateChangeInd"
@@ -211,20 +189,24 @@
 
     <!-- <div style="position:fixed;left:0;bottom:50%;z-index:100000;background:yellow;" @click="companyChangeNext">调试用 下一家公司</div> -->
     <!-- <div style="position:fixed;left:0;bottom:50%;z-index:100000" @click="timeoutPay">调试用 开启定时器</div>
-    <div style="position:fixed;right:0;bottom:50%;z-index:100000" @click="clearToPay">调试用 关闭定时器</div> -->
-
+    <div style="position:fixed;right:0;bottom:50%;z-index:100000" @click="clearToPay">调试用 关闭定时器</div>-->
   </div>
-
 </template>
 
 <script>
 import SearchBoxItem from "../SearchBoxItem";
-import { clearInterval } from "timers";
+import {commonFnMixin} from "@/assets/js/mixins"
+import serviceCon from "@/assets/js/regitserAgreement.js";
 
 let vm = null;
 export default {
+  mixins:[commonFnMixin],
   data() {
     return {
+      serviceCon,
+      isPick: false,
+      isSure: null,
+
       comName: "", //已认证企业进入这个页面时会显示认证的企业名
       postedAvartar: "", //已保存服务器上的图片信息
       // 照片上传 读取完毕
@@ -309,7 +291,7 @@ export default {
       },
       payData: {}, //保存支付需要的信息
       inputComName: "", //保存搜索框输入的文字
-
+      inputCompanyID: "", //保存搜索框输入的企业id
       // 地区
       area: [
         {
@@ -465,7 +447,9 @@ export default {
         "公司22222222222",
         "公司33333333333333",
         "公司44444444444444"
-      ]
+      ],
+
+      noMod: false
     };
   },
 
@@ -473,29 +457,34 @@ export default {
     SearchBoxItem
   },
 
-  // beforeRouteEnter(to, from, next) {
-  //   next(async vm => {
-  //     let tokenb = vm.$store.state.loginInfo.userInfo.token;
-  //     let { data } = await vm.$axios.get(`${vm.$api.userCenterInfo}`, {
-  //       params: {
-  //         token: tokenb
-  //       }
-  //     });
-
-  //   });
-  // },
-
   beforeCreate() {
     vm = this;
   },
 
   created() {
+    // this.bus
+    this.wxSign(this.$route);
     this.userInfo = this.$store.state.loginInfo.userInfo;
-    this.bus.$on("changeCompany", this.getCompany);
+    // this.bus.$on("changeCompany", this.getCompany);
 
     this.getUserIdentityAndPayStatus();
-    
+
+    // setTimeout(()=>{
+    // alert('ok')
+    // },1000)
   },
+  mounted() {
+    let str = `#上下链# 企业认证注册`;
+    this.$store.commit("setShareInfo", {
+      title: str
+    });
+    this.$store.commit("setFriendNetInfo", {
+      title: str
+    });
+  },
+  // destroyed() {
+  //   this.bus.$off("changeCompany", this.getCompany);
+  // },
   beforeMount() {
     this.$axios.get(this.$api.selectArea).then(res => {
       console.log(res);
@@ -508,6 +497,12 @@ export default {
       this.industryList = data;
     });
   },
+
+
+
+
+  
+
 
   methods: {
     async getUserIdentityAndPayStatus() {
@@ -522,25 +517,24 @@ export default {
 
       this.comName = res.data.company_name;
 
-      this.pay_status = pay_status;
-      this.identity_status = status;
+      this.pay_status = pay_status; //支付状态 0未支付 1已支付
+      this.identity_status = status; //用户状态 0未认证 1待支付 2已认证 3待提交
 
       if (pay_status === 0 && status === 0) {
-        this.numComState = 0;
+        this.numComState = 0; //未认证
       }
       if (pay_status === 0 && status === 1) {
-        this.numComState = 1;
+        this.numComState = 1; //待支付
       }
       if (pay_status === 1 && status === 1) {
-        this.numComState = 3;
+        this.numComState = 3; //待审核
       }
       if (status === 2) {
-        this.numComState = 2;
+        this.numComState = 2; //已认证
       }
       if (status === 3) {
-        this.numComState = 4;
+        this.numComState = 4; //待提交
       }
-
 
       this.getUserPostInfo();
     },
@@ -566,7 +560,7 @@ export default {
       // this.companyInfo["统一社会信用代码"] = res.data[0].code;
       // this.companyInfo["归属省份"] = { label: res.data[0].province };
       // this.companyInfo["归属行业"] = { label: res.data[0].industry };
-      // this.inputComName = res.data[0].name;
+      this.inputComName = res.data[0].name;
       this.companyInfo["联系人"] = res.data[0].contacts;
       this.companyInfo["联系人电话"] = res.data[0].phone;
       this.postedAvartar = res.data[0].avatar;
@@ -574,15 +568,20 @@ export default {
       let company_id = res.data[0].company_id;
       let industryid = res.data[0].industryid;
       let comName = res.data[0].name;
-      
 
       this.imgUrl = `${this.$api.companyCertPicture}?token=${this.userInfo.token}&avatar=${this.postedAvartar}`;
       this.postImg = true;
 
-      this.getCompany(company_id, comName, industryid);
-
+      // this.getCompany(company_id, comName, industryid);
+      let isExist = await this.isExistCompany(comName);
+      if (isExist) {
+        this.noMod = true;
+      } else {
+        this.noMod = false;
+        this.companyInfo["归属省份"] = { label: res.data[0].province };
+        this.companyInfo["归属行业"] = { label: res.data[0].industry };
+      }
       //归属省份和归属行业不可修改
-      this.noMod = true;
     },
 
     // async getBusiness() {},
@@ -657,11 +656,13 @@ export default {
       //搜索框输入文字后，用这个方法传到本组件
       this.inputComName = text.searchText;
 
+      /*
       this.companyInfo["统一社会信用代码"] = "";
       this.companyInfo["归属省份"] = "";
       this.companyInfo["归属行业"] = "";
       this.companyInfo["联系人"] = "";
       this.companyInfo["联系人电话"] = "";
+      */
     },
 
     searchEnter(searchWord) {
@@ -670,28 +671,29 @@ export default {
 
     getCompany(companyId, company_name, industriesId) {
       console.log(`====11111111===`, companyId, company_name, industriesId);
-
+      
       //归属省份和归属行业不可修改
-      this.noMod = true;
+      // this.noMod = true;
       this.inputComName = company_name;
-
+      this.inputCompanyID = companyId;
       this.$axios
         .get(`${this.$api.comInfo}`, {
           params: {
-            enterpriseid: companyId,
+            enterpriseid: company_name,
             industryid: industriesId
           }
         })
         .then(res => {
           console.log(`====aaaaa===`, res);
           let {
-            unified_social_credit_code,
+            // unified_social_credit_code,
             province,
             industries,
-            industriesid
+            industriesid,
+            kind
           } = res.data.basic[0];
 
-          this.companyInfo["统一社会信用代码"] = unified_social_credit_code;
+          // this.companyInfo["统一社会信用代码"] = unified_social_credit_code;
           this.companyInfo["归属省份"] = {
             label: province
           };
@@ -700,8 +702,11 @@ export default {
             id: industriesid,
             label: industries
           };
+          this.companyInfo.kind = kind;
         });
     },
+
+
 
     // 微信选择图片
     chooseMsg() {
@@ -809,7 +814,8 @@ export default {
         !this.companyInfo["联系人"],
         !this.companyInfo["联系人电话"],
         !this.$commonFn.checkMobile(this.companyInfo["联系人电话"]),
-        !this.postImg
+        !this.postImg,
+        !this.isPick
       ];
 
       let tips = [
@@ -820,7 +826,8 @@ export default {
         "请输入联系人信息",
         "请输入联系人电话",
         "手机格式不正确，请重输。",
-        "请上传营业执照"
+        "请上传营业执照",
+        "请阅读上下链用户服务协议并同意该协议"
       ];
 
       let tipsIndex = condition.findIndex(ele => {
@@ -852,16 +859,45 @@ export default {
       this.testCompanyName.push(this.testCompanyName.shift());
     },
 
-    async isExistCompany(inputComName){
-      let results = await this.$axios.get(this.$api.indexSearch,{
-        params:{
-          company_name:inputComName,
-          page_size:10
-        }
-      }).then(res=>res.data.results)
-      
-      return ((results.findIndex(ele=>ele.company_name == inputComName ?true:false)) !== -1 ? true : false );
+    async isExistCompany(inputComName) {
+      // 检查该企业是否存在 存在则使用数据库数据
+      // 不存在则自定义数据
+      // 触发时机 搜素框点击对应公司及按确认时搜索到对应企业
+      let results = await this.$axios
+        .get(this.$api.indexSearch, {
+          params: {
+            company_name: inputComName,
+            page_size: 10
+          }
+        })
+        .then(res => res.data.results);
 
+      let resultsIndex = results.findIndex(ele =>
+        ele.company_name == inputComName ? true : false
+      );
+
+      if (resultsIndex == -1) {
+        return false;
+      }
+
+      let { company_id, company_name, industriesid } = results[resultsIndex];
+
+      this.getCompany(company_id, company_name, industriesid);
+      return true;
+    },
+    async getExistInfo(enterpriseName, industriesId) {
+      let { count, number } = await this.$axios
+        .get(this.$api.searchCompany, {
+          params: {
+            enterpriseid: enterpriseName,
+            industryid: +industriesId
+          }
+        })
+        .then(res => res.data);
+      return {
+        count,
+        number
+      };
     },
     async toPay() {
       if (!this.checkToPayInfo()) {
@@ -871,6 +907,7 @@ export default {
       let data = {
         name: this.inputComName,
         // code: this.companyInfo["统一社会信用代码"],
+        kind: this.noMod ? this.companyInfo.kind : undefined,
         contacts: this.companyInfo["联系人"],
         phone: this.companyInfo["联系人电话"],
         media_id: this.media_id,
@@ -878,15 +915,27 @@ export default {
         province: this.companyInfo["归属省份"].label,
         industryid: this.companyInfo["归属行业"].id,
         industry: this.companyInfo["归属行业"].label,
-        avatars: this.postedAvartar,
-        mysql: (this.noMod||await this.isExistCompany(this.inputComName))?'是':'否' ,
+        avatars: this.postedAvartar !== "" ? this.postedAvartar : undefined,
+        // mysql: (await this.isExistCompany(this.inputComName))?'是':'否' ,
+        mysql: this.noMod ? "是" : "否"
       };
+      if (data.mysql == "是") {
+        let { count: access, number: recommended } = await this.getExistInfo(
+          data.name,
+          data.industryid
+        );
+        data.recommended = recommended; //推荐数
+        data.access = access; //访问数
+      }
 
-      console.log(`====data===`, data);
-
+      console.log(`====data===`, this.companyInfo);
+      debugger
       this.$axios
-        .post(`${this.$api.certification}`, data)
+        .post(`${this.$api.certification}`, {
+          ...data
+        })
         .then(res => {
+          debugger
           let code = res.data.code;
           let message = res.data.message;
           let pay_info = res.data.pay_info;
@@ -913,49 +962,86 @@ export default {
             };
 
             //公众号支付
-            WeixinJSBridge.invoke(
-              "getBrandWCPayRequest",
-              this.payData,
-              function(res) {
-                if (res.err_msg == "get_brand_wcpay_request:ok") {
-                  window.location.href = "../?#/userCenter";
-                } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
-                  // alert("您已取消支付");
-                  this.$messageBox.confirm("您已取消支付");
+            WeixinJSBridge.invoke("getBrandWCPayRequest", this.payData, res => {
+              if (res.err_msg == "get_brand_wcpay_request:ok") {
+                sessionStorage.setItem("payJustNow", "true");
+                this.setCooperationAdmin(); //支付成功后设用户为该企业的管理员
+                window.location.href = "../?#/userCenter";
+              } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
+                // alert("您已取消支付");
+                this.$messageBox.confirm("您已取消支付");
 
-                  // window.location.href = "../?#/";
-                } else if (res.err_msg == "get_brand_wcpay_request:fail") {
-                  this.$messageBox.confirm("支付失败，请稍后再试");
-                }
+                // window.location.href = "../?#/";
+              } else if (res.err_msg == "get_brand_wcpay_request:fail") {
+                this.$messageBox.confirm("支付失败，请稍后再试");
               }
-            );
+            });
           } else if (message) {
-            // this.$toast({
-            //   message
-            // });
-            // alert(message)
             this.$messageBox.confirm(message);
           }
         })
         .catch(rej => {
           console.log("first step rej", rej);
+          // this.$toast({
+          //   message: rej
+          // });
+          debugger
+          // this.$axios.post(this.$api.errorApi,{
+          //   info:JSON.stringify({
+          //     ...this.$store.state.loginInfo.userInfo,
+          //     ...this.$store.state.company.indexInfo,
+          //     ...rej
+          //   }),
+          //   path: window.location.href,
+          // })
           this.$toast({
             message: "资料提交失败，请稍再重试"
           });
           return rej;
         });
     },
-    nameConfirm() {
-      this.noMod = false;
+
+    async setCooperationAdmin() {
+      let d = {
+        user_id: this.userInfo.user_id,
+        company_id: this.inputCompanyID
+      };
+      console.log(`===00====`, d);
+
+      let res = await this.$axios.get(this.$api.setComAdmin, {
+        params: d
+      });
+
+      console.log(`===res====`, res);
+    },
+    async nameConfirm(existItem) {
+      this.noMod = await this.isExistCompany(this.inputComName);
+
+      // this.noMod = false;de
     }
-  },
-  destroyed() {
-    this.bus.$off("changeCompany");
   }
+  // destroyed() {
+  //   this.bus.$off("changeCompany");
+  // }
 };
 </script>
 
 <style lang="stylus" scoped>
+.serviceWrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: scroll;
+    z-index: 100;
+    font-size:0.28rem;
+}
+    .serviceWrap button {
+        position: fixed;
+        z-index: 111;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
 
 #auth
   position relative
@@ -1028,6 +1114,9 @@ export default {
         .money
           font-size 0.48rem
           font-weight 600
+        .old_money
+          font-size 0.48rem
+          font-weight normal
       .auth-list
         text-align center
         .auth-title
@@ -1060,6 +1149,7 @@ export default {
               margin-top 0.2rem
               font-weight 800
               font-size 0.26rem
+
     .com-info
       width 100% 
       background-color #fff
@@ -1081,6 +1171,16 @@ export default {
           .inputText
             width 60%
             border none
+          .search-box-extend{
+            flex 1
+            
+          }
+
+        .err_tips
+            color:red;
+            font-size:0.2rem;
+            text-align:right;
+            // justify-content flex-end;
 
       .select-itemstyle
         font-size 0.26rem
@@ -1092,6 +1192,8 @@ export default {
       background-color #fff  
       padding 0.2rem
       box-sizing border-box
+      .subtext
+        font-size 0.26rem
       h2  
         font-size 0.32rem
       .uploa-label
@@ -1156,10 +1258,14 @@ export default {
           color #666
           .text-mark
             color #d62222
-            font-size 0.28rem
+            font-size 0.24rem
           .text-num
             color #d62222
-            font-size 0.48rem  
+            font-size 0.44rem
+          .old_money_num
+            display inline
+            color #999
+            font-size 0.3rem
         .btn-pay
           display inline-block
           width 40%

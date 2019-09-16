@@ -1,6 +1,7 @@
 <template>
   <div id="mysubWrapper">
-    <div class="search">
+
+    <!-- <div class="search">
       <ul class="search-list">
         <li
           class="search-item"
@@ -36,37 +37,46 @@
         class="searchBox"
         v-show="isShowAreaOrKeyword === 'keyword'"
       >
-        <KeywordSearch @keySearch='keySearch' />
+        <KeywordSearch @keySearch="keySearch" />
       </div>
-    </div>
+    </div> -->
+
+    <KeywordSearch
+      @submit='contentScreen'
+      :areaDataList='area'
+      :keyworDataList='keywordArr'
+    />
 
     <section class="main-body">
-      <!-- <div v-if="!resultData">您设置的关键词暂无采招信息，请更换关键词试试</div> -->
       <!-- <NoContent v-if="resArr.length === 0" /> -->
-
-      <div id="mySubscript">
+      <div
+        id="mySubscript"
+        ref="wrapper"
+      >
         <ul
           v-infinite-scroll="loadMore"
           infinite-scroll-disabled="loading"
           infinite-scroll-distance="10"
-          v-if="resultData !== undefined"
+          infinite-scroll-immediate-check='isImmediateCheck'
+          v-if="mergeData.length !== 0"
         >
           <div
-            v-for="(val,index) in resultData"
+            v-for="(val,index) in mergeData"
             :key="index"
           >
+
             <div class="title">
-              <span>推送时间：{{val[0]}}</span>
-              <span>当日匹配：{{count[index][1]}}</span>
+              <span> 推送时间：{{val[0]}}</span>
+              <span>当日匹配：{{count[index][1]}} </span>
             </div>
             <DataItem
               :pData='val[1]'
-              @showDetail='showDetail(item)'
+              @showDetail='showDetail'
             />
           </div>
         </ul>
         <ul v-else>
-          您的订阅关键词和区域暂无数据，请更换条件试试
+          您的订阅关键词和区域暂无数据，请去订阅设置更换条件试试
         </ul>
         <div
           class="subSetting"
@@ -85,354 +95,569 @@
       @closePop='closePop'
       :content='content'
     />
-
+    <follow-tip v-if="subscribe == 0" :openState="followPopState" @closeFollowTip="closeFollowTip"/>
   </div>
 </template>
 <script>
-import KeywordSearch from "./model/KeywordSearch";
-import SearchList from "./model/SearchList";
+import KeywordSearch from "./model/KeywordSearch-T";
+// import SearchList from "./model/SearchList";
 import DataItem from "./model/DataItemT";
 import PopDetail from "./model/PopDetail";
 import NoContent from "./pages/01_noContent";
 import { InfiniteScroll } from "mint-ui";
-import lodash from "lodash";
-import { TLSSocket } from "tls";
+// import SelectList from "@/components/common/SelectList";
+import CommonFn from "./common";
+import FollowTip from '@/components/common/FollowTip';
+
 export default {
   directives: { InfiniteScroll },
   data() {
     return {
+      userInfo:this.$store.state.loginInfo.userInfo,
+
+      subscribe:1,
+      followPopState:false,
+
+      isImmediateCheck: false,
       loading: undefined,
-      count: undefined, //当日匹配的数据总数
+      count: [], //当日匹配的数据总数
       content: "", //详情页面的内容
-      areaAndKeyword: {
-        areaid: "",
-        keyword: ""
-      }, //储存区域id和keyword
       isLimit: true, //用户是否达到2条查看限制
-      isHasSubContent: true, //是否有订阅的内容
       isShowAreaOrKeyword: "", //显示区域搜索或是关键搜索的标识
-      isShowKeyworSearch: false, //是否显示关键词搜索
-      isShowSearchList: false, //是否显示选择区域
       isShowDetail: "", //显示详情弹窗或是显示限制只读两条弹窗，'detail' / 'limit'
       detailData: {}, //传给详情弹窗的数据
-      isShowSearch: false, //是否显示选择区域
-      isShowSelectKeyword: false, //是否显不选择关键词
-      resultData: undefined, //
       savedKeyword: {}, //保存本页面拿到的设置的关键词
-      resKeyArr: []
+      // createdTime: "", //关键词设置的时间
+      token: "",
+      mergeData: [], 
+      mergeNum: [],
+      newPostData: {},
+      isHasKeyword: true,
+      i: 0, //做为是否滚动到顶部的标记
+      keywordArr: [{ label: "全部" }],
+      area: [
+        {
+          id: 0,
+          label: "全国"
+        },
+        {
+          id: 1,
+          label: "北京市"
+        },
+        {
+          id: 2,
+          label: "天津市"
+        },
+        {
+          id: 9,
+          label: "上海市"
+        },
+        {
+          id: 22,
+          label: "重庆市"
+        },
+        {
+          id: 3,
+          label: "河北省"
+        },
+        {
+          id: 4,
+          label: "山西省"
+        },
+        {
+          id: 6,
+          label: "辽宁省"
+        },
+        {
+          id: 7,
+          label: "吉林省"
+        },
+        {
+          id: 8,
+          label: "黑龙江省"
+        },
+        {
+          id: 10,
+          label: "江苏省"
+        },
+        {
+          id: 11,
+          label: "浙江省"
+        },
+        {
+          id: 12,
+          label: "安徽省"
+        },
+        {
+          id: 13,
+          label: "福建省"
+        },
+        {
+          id: 14,
+          label: "江西省"
+        },
+        {
+          id: 15,
+          label: "山东省"
+        },
+        {
+          id: 16,
+          label: "河南省"
+        },
+        {
+          id: 17,
+          label: "湖北省"
+        },
+        {
+          id: 18,
+          label: "湖南省"
+        },
+        {
+          id: 19,
+          label: "广东省"
+        },
+        {
+          id: 21,
+          label: "海南省"
+        },
+        {
+          id: 23,
+          label: "四川省"
+        },
+        {
+          id: 24,
+          label: "贵州省"
+        },
+        {
+          id: 25,
+          label: "云南省"
+        },
+        {
+          id: 27,
+          label: "陕西省"
+        },
+        {
+          id: 28,
+          label: "甘肃省"
+        },
+        {
+          id: 29,
+          label: "青海省"
+        },
+        {
+          id: 32,
+          label: "台湾省"
+        },
+        {
+          id: 5,
+          label: "内蒙古自治区"
+        },
+        {
+          id: 20,
+          label: "广西壮族自治区"
+        },
+        {
+          id: 26,
+          label: "西藏自治区"
+        },
+        {
+          id: 30,
+          label: "宁夏回族自治区"
+        },
+        {
+          id: 31,
+          label: "新疆维吾尔自治区"
+        }
+        // {
+        //   id: 33,
+        //   label: "澳门"
+        // },
+        // {
+        //   id: 34,
+        //   label: "香港"
+        // }
+      ]
     };
   },
   components: {
     DataItem,
     KeywordSearch,
     PopDetail,
-    SearchList,
-    NoContent
+    // SearchList,
+    NoContent,
+    // SelectList
+    FollowTip,
   },
 
-  created() {
-    this.initData();
+  async created() {
+    this.token = this.$store.state.loginInfo.userInfo.token;
+
+    
     let { id } = this.$route.query;
     if (id) {
       this.showDetail(this.$route.query);
     }
+    this.getSubKeyword();
+  },
+
+  updated: function() {
+    if (this.i === 0) {
+      this.$nextTick(() => {
+        this.$refs.wrapper.scrollTop = 0;
+        this.i++;
+      });
+    }
   },
 
   methods: {
-    async initData() {
-      let token = this.$store.state.loginInfo.userInfo.token;
-      let { data } = await this.$axios.get(`${this.$api.setSubKeyword}`, {
-        params: {
-          token
+
+    closeFollowTip(){
+      this.followPopState = false;
+    },
+
+    selectedData(d) {
+      console.log(`==selectedData=====`, d);
+    },
+    async contentScreen(obj) {
+      if (obj["area"]) {
+        let tem = [];
+        let i = 0;
+        for (let j = 0, len = this.area.length; j < len; j++) {
+          let flag = obj["area"].includes(this.area[j].label);
+
+          if (flag) {
+            tem.push(this.area[j].id);
+            i++;
+          }
+          if (i === obj["area"].length) {
+            break;
+          }
+        }
+
+        this.newPostData.BidsAreaID = tem.join() === "" ? "" : tem.join();
+      } else {
+        this.newPostData.Title =
+          obj["keyword"].join() === "" ? "" : obj["keyword"].join();
+      }
+
+      this.i = 0;
+      this.loading = false;
+      this.newPostData.page = 1;
+
+      let res = await this.fetchData(this.$api.postToken, this.newPostData);
+      this.isShowAreaOrKeyword = "";
+
+      if (!res) {
+        this.mergeData = [];
+        this.isShowAreaOrKeyword = "";
+        return;
+      }
+
+      this.sortDate(res.dataArr, "0");
+      this.mergeData = res.dataArr;
+
+      this.mergeData.forEach(item => {
+        if (item[1].length > 1) {
+          this.sortDate(item[1], "EndDate");
         }
       });
 
+      console.log(`==keySearch=====`, this.mergeData);
+    },
+
+    async getSubKeyword() {
+      let { data } = await this.$axios.get(`${this.$api.setSubKeyword}`, {
+        params: {
+          token: this.token
+        }
+      });
+
+      if (data.message === false) {
+        this.isHasKeyword = false;
+        return;
+      }
+
+      // this.createdTime = data.data_dict.create_time;
+      data.area.forEach(a => {
+        this.area.forEach(b => {
+          if (a.id === b.id) {
+            b["active"] = true;
+          }
+        });
+      });
+
+      let keyword = data.data_dict.keywords_array;
+      if (keyword) {
+        let arrKeyword = keyword.split(",");
+        arrKeyword.forEach((item, index) => {
+          let obj = {};
+          obj["label"] = item;
+          obj["active"] = true;
+          this.keywordArr.push(obj);
+        });
+      }
+
       let d = {
-        BidsAreaID: data.data_dict.areas_id,
+        BidsAreaID:
+          data.data_dict.areas_id === "0" ? "" : data.data_dict.areas_id,
         Title: data.data_dict.keywords_array,
         page: "1",
-        page_size: 24
+        page_size: 24,
+        token: this.token,
+        set_time: data.data_dict.remind_long_time
       };
 
       this.savedKeyword = d;
-      let url = `${this.$api.mySubscript}`;
-      let res = await this.fetchData(url, this.savedKeyword);
 
-      console.log(`=======`, res);
-      this.resultData = res.contentArr;
-      this.count = res.numArr;
+      setTimeout(async () => {
+        this.initData();
+      }, 200);
     },
 
-    async loadMore() {
-      this.loading = true;
-      let url = `${this.$api.mySubscript}`;
-      this.savedKeyword.page++;
-      let res = await this.fetchData(url, this.savedKeyword);
-      if (!res) {
-        this.loading = true;
+    async initData() {
+      if (!this.isHasKeyword) {
         return;
       }
-      let first = res.contentArr[0];
-      let last = this.resultData[this.resultData.length - 1];
 
-      if (first[0] === last[0]) {
-        res.contentArr.shift();
-        last[1] = last[1].concat(first[1]);
+      this.newPostData = {
+        token: this.token,
+        page: "1",
+        // Title: "",
+        Title: this.savedKeyword.Title,
+        BidsAreaID: this.savedKeyword.BidsAreaID
+      };
+      let res = await this.fetchData(this.$api.postToken, this.newPostData);
 
-        last[1].sort((a, b) => {
-          return new Date(b.EndDate) - new Date(a.EndDate);
-        });
-        this.$set(this.resultData[this.resultData.length - 1], "", last);
-        res.numArr.shift();
+      if (!res) {
+        return;
       }
-      res.numArr.forEach(num => {
-        this.count.push(num);
-      });
 
-      res.contentArr.forEach(item => {
-        this.resultData.push(item);
-      });
-
-      this.loading = false;
-      // let resFisr = res.contentArr[0];
-      // let resultDataLast = this.resultData[this.resultData.length - 1];
-      // let resFirstKey = Object.keys(resFisr)[0];
-      // let resultDataLastKey = Object.keys(resultDataLast)[0];
-
-      // let obj = {};
-      // let tem = [];
-      // let numRest = [];
-      // if (resFirstKey === resultDataLastKey) {
-      //   tem = resFisr[resFirstKey].concat(resultDataLast[resultDataLastKey]);
-      //   let tem_0 = [];
-      //   let tem_1 = [];
-      //   let now = new Date();
-      //   tem.forEach(con => {
-      //     if (now > new Date(con.EndDate)) {
-      //       tem_1.push(con);
-      //     } else {
-      //       tem_0.push(con);
-      //     }
-      //   });
-      //   tem = tem_0.concat(tem_1);
-
-      //   obj[resFirstKey] = tem;
-      //   numRest = res.numArr.slice(1);
-      // }
-
-      // // this.resultData[this.resultData.length - 1] = obj;
-
-      // this.resultData.pop();
-      // this.resultData.push(obj);
-
-      // // this.resultData = JSON.parse(JSON.stringify(this.resultData));
-      // let rest = res.contentArr.slice(1);
-
-      // rest.forEach(item => {
-      //   this.resultData.push(item);
-      // });
-
-      // numRest.forEach(i => {
-      //   this.count.push(i);
-      // });
-
-      // this.loading = false;
-    },
-
-    async keySearch(keyword) {
-      this.savedKeyword.page = 1;
-      // this.$refs.list.scrollIntoView();
-      let arr = [];
-      let tem = [];
-
-      keyword.forEach((item, index) => {
-        if (item.kw !== "全部") {
-          tem.push(item.kw);
-        }
-        if (item.active) {
-          arr.push(item.kw);
+      this.sortDate(res.dataArr, "0");
+      // this.sortDate(res.countArr, "0");
+      res.dataArr.forEach(item => {
+        if (item[1].length > 1) {
+          this.sortDate(item[1], "EndDate");
         }
       });
 
-      if (arr[0] === "全部") {
-        this.savedKeyword.Title = tem.join();
-      } else {
-        this.savedKeyword.Title = arr.join();
-      }
-      let url = `${this.$api.mySubscript}`;
-
-      let res = await this.fetchData(url, this.savedKeyword);
-
-      if (!res) {
-        this.isShowAreaOrKeyword = "";
-        return this.$toast("所选的关键词和区域没有相关数据，请更换条件试试");
-      }
-
-      this.resultData = res.contentArr;
-      this.count = res.numArr;
-      this.isShowAreaOrKeyword = "";
-    },
-
-    async areaSearch(area) {
-      this.savedKeyword.page = 1;
-      // this.$refs.list.scrollIntoView();
-      let arr = [];
-      Object.values(area).forEach(item => {
-        arr.push(item.id);
-      });
-
-      this.savedKeyword.BidsAreaID = arr.join();
-      let url = `${this.$api.mySubscript}`;
-
-      let res = await this.fetchData(url, this.savedKeyword);
-      if (!res) {
-        this.isShowAreaOrKeyword = "";
-        return this.$toast("所选的关键词和区域没有相关数据，请更换条件试试");
-      }
-
-      this.resultData = res.contentArr;
-
-      this.count = res.numArr;
-      this.isShowAreaOrKeyword = "";
+      this.mergeData = res.dataArr;
+      // this.count = res.countArr;
     },
 
     async fetchData(url, data) {
-      if (!data.Title) {
-        delete data.Title;
-      }
-      if (data.BidsAreaID === "0" || !data.BidsAreaID) {
-        delete data.BidsAreaID;
-      }
-
-      let res = await this.$axios.get(`${this.$api.mySubscript}`, {
+      let res = await this.$axios.get(url, {
         params: data
       });
 
-      if (res.data.message === false) {
+      if (res.data.message === "没有数据") {
         return;
       }
 
-      if (res.data.state === false) {
-        this.$toast("没有更多数据了");
+      if (res.data.end) {
         return;
       }
 
-      let content = res.data.content;
-      let num = res.data.num;
+      let d = res.data.data;
+      let countArr = Object.entries(res.data.datetime_count);
+      let dataArr = [];
 
-      let contentArr = Object.entries(content);
-      let numArr = Object.entries(num);
-      contentArr.sort((a, b) => {
-        return new Date(b[0]) - new Date(a[0]);
-      });
-      numArr.sort((a, b) => {
-        return new Date(b[0]) - new Date(a[0]);
-      });
+      for (let key in d) {
+        let tem = [];
+        tem[0] = key;
+        tem[1] = d[key];
+        dataArr.push(tem);
+      }
 
       let now = new Date();
-      contentArr.forEach(item => {
+      dataArr.forEach(item => {
         item[1].forEach(obj => {
           if (new Date(obj.EndDate) < now) {
             obj.status = "1";
           }
         });
-        if (item[1].length !== 1) {
-          item[1].sort((a, b) => {
-            return new Date(b.EndDate) - new Date(a.EndDate);
-          });
+      });
+
+      this.count = [];
+      this.count = countArr;
+      this.sortDate(this.count, "0");
+      return { dataArr };
+    },
+
+    async loadMore() {
+      this.loading = true;
+      this.newPostData.page++;
+      // let nowScrollTop = this.$refs.wrapper.scrollTop;
+      let res = await this.fetchData(this.$api.postToken, this.newPostData);
+
+      if (!res) {
+        this.loading = true;
+        return;
+      }
+      this.sortDate(res.dataArr, "0");
+      let tem = [];
+      this.mergeData.forEach(item => {
+        tem.push(item[0]);
+      });
+
+      res.dataArr.forEach(item => {
+        if (tem.indexOf(item[0]) !== -1) {
+          this.mergeData[tem.indexOf(item[0])][1] = this.mergeData[
+            tem.indexOf(item[0])
+          ][1].concat(item[1]);
+        } else {
+          this.mergeData.push(item);
         }
       });
 
-      return { contentArr, numArr };
+      this.mergeData.push([]);
+      this.mergeData.pop();
 
-      // let numArr = [];
-      // let dateArr = Object.keys(num).sort((a, b) => {
-      //   return new Date(b) - new Date(a);
-      // });
-      // let contentArr = [];
-      // let now = new Date();
+      this.mergeData.forEach(item => {
+        this.sortDate(item[1], "EndDate");
+      });
 
-      // dateArr.forEach(item => {
-      //   numArr.push(num[item]);
-      //   if (content[item].length === 1) {
-      //     let obj = {};
-      //     obj[item] = content[item];
-      //     contentArr.push(obj);
-      //   } else {
-      //     let tem = [];
-      //     let temObj = {};
-      //     let tem_0 = [];
-      //     let tem_1 = [];
-      //     content[item].forEach(con => {
-      //       if (now > new Date(con.EndDate)) {
-      //         con.status = "1";
-      //         tem_1.push(con);
-      //       } else {
-      //         tem_0.push(con);
-      //       }
-      //     });
-      //     tem = tem_0.concat(tem_1);
-      //     temObj[item] = tem;
-      //     contentArr.push(temObj);
-      //   }
-      // });
-
-      // return { numArr, contentArr };
+      this.loading = false;
+      // this.$refs.wrapper.scrollTop = nowScrollTop - 100;
     },
 
-    /**
-     * 这个方法要先判断用户是否有认证企业，如果没有要限制只读两条
-     * this.isShowDetail = 'limit'; 显示限制信息
-     * this.isShowDetail = 'detail'; 显示内容详情
-     * 等后台接口
-     */
-    showDetail(item) {
-      this.detailData = item;
-      let token = this.$store.state.loginInfo.userInfo.token;
+    // async keySearch(keyword) {
+    //   this.i = 0;
+    //   this.loading = false;
+    //   this.newPostData.page = 1;
+    //   this.newPostData.Title = keyword;
 
-      this.$axios
-        .get(`${this.$api.detailContent}${item.id}/`, {
-          params: {
-            token
-          }
-        })
-        .then(res => {
-          if (res.data.message === false) {
-            this.isShowDetail = "limit";
-          } else {
-            this.isShowDetail = "detail";
-            this.detailData = item;
-            let reg = /class=".*?"|id=".*?"/g;
-            this.content = res.data.BidsContent[0].replace(reg, "");
-            // this.content = res.data.BidsContent[0];
-          }
-        });
+    //   let res = await this.fetchData(this.$api.postToken, this.newPostData);
+    //   console.log(`==1=====`, res);
+    //   this.isShowAreaOrKeyword = "";
+
+    //   if (!res) {
+    //     this.mergeData = [];
+    //     this.isShowAreaOrKeyword = "";
+    //     return;
+    //   }
+
+    //   this.sortDate(res.dataArr, "0");
+    //   this.mergeData = res.dataArr;
+
+    //   this.mergeData.forEach(item => {
+    //     if (item[1].length > 1) {
+    //       this.sortDate(item[1], "EndDate");
+    //     }
+    //   });
+
+    //   console.log(`==keySearch=====`, this.mergeData);
+    // },
+
+    // async areaSearch(areaIds) {
+    //   this.i = 0;
+    //   this.loading = false;
+    //   let idArr = [];
+    //   areaIds.forEach(item => {
+    //     idArr.push(item.id);
+    //   });
+    //   if (idArr.length === 33) {
+    //     this.newPostData.BidsAreaID = "";
+    //   } else {
+    //     this.newPostData.BidsAreaID = idArr.join();
+    //   }
+    //   this.newPostData.page = "1";
+    //   console.log(`====areaSearch= 1==`, this.newPostData);
+
+    //   let res = await this.fetchData(this.$api.postToken, this.newPostData);
+    //   console.log(`=areaSearch== 2====`, res);
+    //   this.isShowAreaOrKeyword = "";
+
+    //   if (!res) {
+    //     console.log(`=====没有数据==`);
+    //     this.mergeData = [];
+    //     this.isShowAreaOrKeyword = "";
+    //     return;
+    //   }
+
+    //   this.sortDate(res.dataArr, "0");
+
+    //   this.mergeData = res.dataArr;
+    //   this.isShowAreaOrKeyword = "";
+
+    //   this.mergeData.forEach(item => {
+    //     if (item[1].length > 1) {
+    //       this.sortDate(item[1], "EndDate");
+    //     }
+    //   });
+    // },
+
+    sortDate(d, sortProperty) {
+      return d.sort((a, b) => {
+        return new Date(b[sortProperty]) - new Date(a[sortProperty]);
+      });
     },
+
+    async showDetail(item) {
+
+      let detailContent = await CommonFn.showDetail(item.id, this.token);
+      if (detailContent) {
+        this.isShowDetail = "detail";
+        this.content = detailContent;
+        this.detailData = item;
+      } else {
+        this.isShowDetail = "limit";
+      }
+
+      // console.log(`=======`, item);
+      // this.detailData = item;
+      // this.$axios
+      //   .get(`${this.$api.detailContent}${item.id}/`, {
+      //     params: {
+      //       token: this.token
+      //     }
+      //   })
+      //   .then(res => {
+      //     if (res.data.message === false) {
+      //       this.isShowDetail = "limit";
+      //     } else {
+      //       this.isShowDetail = "detail";
+      //       console.log(`==sdfsdf=====`, item);
+      //       this.detailData = item;
+      //       let reg = /class=".*?"|id=".*?"/g;
+      //       this.content = res.data.BidsContent[0].replace(reg, "");
+      //       // this.content = res.data.BidsContent[0];
+      //     }
+      //   });
+    },
+
     closePop() {
       this.isShowDetail = "";
-    },
-    showSelectArea() {
-      this.isShowAreaOrKeyword === "area"
-        ? (this.isShowAreaOrKeyword = "")
-        : (this.isShowAreaOrKeyword = "area");
-    },
-    showSelectKeyword() {
-      this.isShowAreaOrKeyword === "keyword"
-        ? (this.isShowAreaOrKeyword = "")
-        : (this.isShowAreaOrKeyword = "keyword");
     }
+    // showSelectArea() {
+    //   this.isShowAreaOrKeyword === "area"
+    //     ? (this.isShowAreaOrKeyword = "")
+    //     : (this.isShowAreaOrKeyword = "area");
+    // },
+    // showSelectKeyword() {
+    //   this.isShowAreaOrKeyword === "keyword"
+    //     ? (this.isShowAreaOrKeyword = "")
+    //     : (this.isShowAreaOrKeyword = "keyword");
+    // }
   }
 };
 </script>
 
+
 <style lang="stylus" scoped>
 #mysubWrapper
   width 100%
-  height 100%
+  height 100vh
   background-color #f3f3f3
+  padding 0 0.1rem 2rem 0.1rem
+  box-sizing border-box
   position relative
+  overflow hidden
   .search
+    position absolute 
     width 100%
+    top 0
+    left 0
+    height 1rem
     .search-list
       width 100%
       display flex
@@ -456,16 +681,18 @@ export default {
       right 0
       z-index 3
   .main-body
-    height 76vh
-    // overflow-y auto    
+    height 100%
+    overflow hidden
+    padding-top 1.2rem
+    box-sizing border-box
     #mySubscript
       width 100%
-      height 76vh
+      height 100%
       background-color #f3f3f3
-      padding 0.2rem  0.2rem 0rem 0.2rem
       overflow-y scroll 
       -webkit-overflow-scrolling touch
       box-sizing border-box
+      
       .title  
         display flex
         justify-content space-between

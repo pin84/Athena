@@ -237,6 +237,9 @@ export default {
               // user:this.userInfo.username,
       };
       // let params = qs.stringify(data);
+
+      console.log(`==dssf=====`,data);
+
       let {data:addSmsTemRes} = await this.$axios.post(this.$api.addSmsTem,data,
       {
         headers: {'Content-Type': 'application/json'}
@@ -245,7 +248,9 @@ export default {
         this.$indicator.close();
         return rej
       })
-      
+
+
+      console.log(`=======`,addSmsTemRes);
       
       if(addSmsTemRes){
 

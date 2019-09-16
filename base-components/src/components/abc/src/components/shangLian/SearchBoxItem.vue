@@ -8,34 +8,22 @@
           v-model="index_search"
           ref="sbox"
           @blur="showPlaceHolder(1)"
-          @input="searchCompany"
           id="sbox"
           @compositionstart="fnCompositionstart"
           @compositionend="fnCompositionend"
           @keydown="searchEnter"
         />
-        <p
-          class="index-search-wrapper"
-          v-show="isShowPlaceHolder"
-          @click="showPlaceHolder(0)"
-        ><i class="iconfont mar_10 input-icon">&#xe600; </i>输入企业名称</p>
-        <div
-          v-show="isShowResult"
-          @click="nameConfirm"
-          class="search-confirm"
-        >确认</div>
+        <p class="index-search-wrapper" v-show="isShowPlaceHolder" @click="showPlaceHolder(0)">
+          <i class="iconfont mar_10 input-icon">&#xe600;</i>输入企业名称
+        </p>
+        <div v-show="isShowResult" @click="nameConfirm" class="search-confirm">确认</div>
       </div>
     </div>
 
     <!-- 搜索框搜索后获取相关搜索结果 -->
-    <div
-      class="accurateSearchBox-s2-res search-res"
-      ref="wrapper"
-      v-show="isShowResult"
-      v-cloak
-    >
+    <div class="accurateSearchBox-s2-res search-res" ref="wrapper" v-show="isShowResult" v-cloak>
       <!-- :style='changeHeight' -->
-      <ul class="w accurateSearchBox-s2-res.-wrapper search-res-bg" >
+      <ul class="w accurateSearchBox-s2-res.-wrapper search-res-bg">
         <li
           class="res-item"
           v-for="(item) of searchResultList"
@@ -45,29 +33,15 @@
           <p>{{item.company_name}}</p>
         </li>
       </ul>
-      <div
-        class="loading"
-        v-show="isShowLoading"
-      >
+      <div class="loading" v-show="isShowLoading">
         <span class="main_color_ffffff mar_r_20">数据</span>
         <p style="width:0.6rem;height:0.6rem">
-
-          <img
-            src="../../assets/icon/ajax-loader.gif"
-            class="w"
-          />
+          <img src="../../assets/icon/ajax-loader.gif" class="w" />
         </p>
         <span class="main_color_ffffff mar_l_20">中...</span>
       </div>
-      <div
-        class="unData"
-        v-if="isEmptyData"
-        v-cloak
-      >
-        <p
-          class="iconfont main_color_ffffff"
-          style="font-size:64px"
-        >&#xe626; </p>
+      <div class="unData" v-if="isEmptyData" v-cloak>
+        <p class="iconfont main_color_ffffff" style="font-size:64px">&#xe626;</p>
         <p class="main_color_ffffff mar_r_20">暂无数据，建议换个关键词搜索</p>
       </div>
     </div>
@@ -78,7 +52,7 @@
 <script>
 import BScroll from "better-scroll";
 import axios from "axios";
-import { debug } from "util";
+
 /* eslint-disable */
 export default {
   props: {
@@ -108,22 +82,20 @@ export default {
     cPostText() {
       if (!this.waitPayMoneyComName) {
         this.isShowPlaceHolder = true;
-        console.log(`=====ssssssssssssssss==`);
         return;
       }
       this.isShowPlaceHolder = false;
       this.index_search = this.waitPayMoneyComName;
       return;
     },
-    
-    changeHeight(){
+
+    changeHeight() {
       let height = `3rem`;
       // if()
-      return{
+      return {
         height
-      }
-    },
-
+      };
+    }
   },
 
   created() {
@@ -133,6 +105,27 @@ export default {
     // }
   },
 
+  mounted() {
+    var _this = this;
+    // this.scrollFn();
+    this.$root.bus.$on("focusSearch", function() {
+      _this.$refs.sbox.focus();
+
+      _this.isShowPlaceHolder = false;
+    });
+    _this.$refs.sbox.addEventListener(
+      "input",
+      this.debounce(this.searchCompany)
+    );
+
+    //     document.getElementById('sbox').onKeydown = function(e){
+    // 　　　　if(e.keyCode == 13){
+    //         alert('13')
+    //   　　 　　 e.preventDefault();//禁止键盘默认事件
+    //   //  　　　　 bindSearchFn()
+    // 　　　　}
+    // 　　}
+  },
   methods: {
     getAjaxResponse(obj, fn1, fn2) {
       var _this = this;
@@ -146,7 +139,6 @@ export default {
         })
         .catch(function(error) {
           fn2(error);
-          console.log(error);
         });
     },
 
@@ -183,11 +175,13 @@ export default {
             }
           })
           .then(res => {
-
             let result = res.data.results;
             this.searchResultList = result;
 
-            if (this.searchResultList.length !== 0 && this.index_search.length!==0) {
+            if (
+              this.searchResultList.length !== 0 &&
+              this.index_search.length !== 0
+            ) {
               this.isShowResult = true;
             } else {
               this.isShowResult = false;
@@ -209,10 +203,25 @@ export default {
       }); //在AutConfig组件接收
     },
 
+    debounce(fn) {
+      let timer = null;
+      return function() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          fn.apply(this, arguments);
+        }, 1000);
+      };
+    },
+
     // 公司名称搜索确认 假如已输入完毕 还显示搜索结果 则按确认以关闭搜索
     nameConfirm() {
+      this.searchResultList;
+      this.index_search;
+      let searchItem = this.searchResultList.findIndex(ele => {
+        return ele.company_name === this.index_search;
+      });
       this.isShowResult = false;
-      this.$emit('nameConfirm')
+      this.$emit("nameConfirm", this.searchResultList[searchItem]);
     },
 
     //获取首页上链数据
@@ -224,17 +233,84 @@ export default {
     },
 
     // 点击不同公司后 改变公司
-    changeCompany(companyId, companyName, industriesId) {
-      console.log(companyId, companyName, industriesId);
+    async changeCompany(companyId, companyName, industriesId) {
       this.index_search = companyName;
-      // debugger;
       // this.companyInfo = companyInfo;
-      
-      this.bus.$emit("changeCompany", companyId,companyName, industriesId);
+      let companyInfo = await this.searchNewCompanyInfo(
+        companyId,
+        companyName,
+        industriesId
+      );
+      this.$store.commit("indexInfo", companyInfo);
+
+      this.$store.commit("searchCompany", {
+        params: [companyId, companyName, industriesId, companyInfo]
+      });
+
+      this.bus.$emit(
+        "changeCompany",
+        companyId,
+        companyName,
+        industriesId,
+        companyInfo
+      ); //改变首页公司使用
+
+      this.$emit(
+        "changeCompany",
+        companyId,
+        companyName,
+        industriesId,
+        companyInfo
+      );
       // this.$emit("inputText", { searchText: companyName, resultState: true });
       this.isShowResult = false;
 
       // this.index_search = name;
+    },
+    async searchNewCompanyInfo(enterpriseid, enterprise, industriesId) {
+      let companyOtherInfo = await this.$axios
+        .get(this.$api.searchCompany, {
+          params: {
+            enterpriseid: enterprise,
+            industryid: +industriesId
+          }
+        })
+        .then(res => res.data)
+        .catch(rej => rej);
+      let {
+        code,
+        count,
+        identity_status,
+        kind,
+        kind_count,
+        number,
+        province
+      } = companyOtherInfo;
+
+      let authComInfo = this.$store.state.company.authComInfo;
+
+      if (authComInfo) {
+        let { enterprise: authCompany, enterpriseid: authId } = authComInfo;
+
+        if (authCompany == enterprise && authId == enterpriseid) {
+          identity_status = true;
+        }
+      }
+
+      let companyInfo = {
+        code,
+        count, //访问数
+        enterprise: enterprise,
+        enterpriseid: enterpriseid,
+        industryid: industriesId,
+        number, //推荐数
+        kind,
+        kind_count,
+        identity_status,
+        province
+      };
+
+      return companyInfo;
     },
 
     //加载更多
@@ -278,7 +354,6 @@ export default {
             var page =
               Math.floor(res.total / res.PageSize) +
               (res.total % res.PageSize !== 0 ? 1 : 0);
-            console.log(page);
             if (res.PageIndex < page || res.total <= _this.PageSize) {
               _this.isLoadMore = true;
             }
@@ -318,12 +393,10 @@ export default {
         this.scroll.on("touchEnd", pos => {
           // 下拉动作
           if (pos.y > 100) {
-            console.log("下拉刷新成功");
             //  this.dropDown = false
           }
           //上拉加载 总高度>下拉的高度-100 触发加载更多
           if (this.scroll.maxScrollY > pos.y - 100) {
-            console.log("加载更多");
             //使用refresh 方法 来更新scroll  解决无法滚动的问题
             if (_this.isLoadMore) {
               _this.loadMoreData();
@@ -345,32 +418,13 @@ export default {
                 "上下链大数据暂未收录到该企业信息 ,可查询其他企业或添加并认证为我的企业。",
               confirmText: "添加并认证为我的企业",
               confirm: () => {
-                this.$store.commit("showPop", {
-                  popName: "AutConfig"
-                });
+                this.$router.push("/autConfig");
               }
             }
           });
         }
       }
     }
-  },
-  mounted() {
-    var _this = this;
-    // this.scrollFn();
-    this.$root.bus.$on("focusSearch", function() {
-      _this.$refs.sbox.focus();
-
-      _this.isShowPlaceHolder = false;
-    });
-
-    //     document.getElementById('sbox').onKeydown = function(e){
-    // 　　　　if(e.keyCode == 13){
-    //         alert('13')
-    //   　　 　　 e.preventDefault();//禁止键盘默认事件
-    //   //  　　　　 bindSearchFn()
-    // 　　　　}
-    // 　　}
   }
 };
 </script>

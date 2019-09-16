@@ -10,8 +10,48 @@
     <!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
     <!-- 引入组件库 -->
     <!-- <script src="https://unpkg.com/element-ui/lib/index.js"></script> -->
+    <style>
+    .demo{
+     margin:0;padding:0;
+     text-align:justify;
+     text-align-last:justify;/*解决IE的支持*/
+     line-height:0;/*解决标准浏览器容器底部多余的空白*/
+    }
+    @media all and (-webkit-min-device-pixel-ratio:0){
+        .demo{
+            font-size:0;/*webkit清除元素中使用[换行符]或[空格符]后，最后元素多余的空白*/
+        }
+    }
+    .demo:after{/*text-align-last:justify只有IE支持，标准浏览器需要使用 .demo:after 伪类模拟类似效果*/
+        display:inline-block;
+        overflow:hidden;
+        width:100%;
+        height:0;
+        content:'';
+        vertical-align:top;/*opera浏览器解决底部多余的空白*/
+    }
+    .demo div{
+        width:20%;
+        display:inline-block;
+        text-align:center;/*取消上层元素的影响*/
+        text-align-last:center;
+        font-size:12px;
+    }
+    </style>
 </head>
 <body>
+
+    <div class="box">
+        <div class="demo">
+            <div style="line-height: 1;">
+                <div style="display: block;">1</div>
+                <div style="display: block;">2</div>
+            </div>
+            <div>2</div> 
+            <div>3</div>
+        </div>
+    </div>
+
     <script>
     let xAndy = (x,y)=>x+y;
     let zCount = xAndy=>z => xAndy + z;

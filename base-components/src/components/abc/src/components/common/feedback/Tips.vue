@@ -1,10 +1,9 @@
 <template>
   <div
     id="tips"
-    v-if="$store.state.tips.isShowTips.type"
+    v-if="$store.state.tips.isShowTips.isShow"
   >
     <div class='main-body'>
-
       <section class="tip-content">
         <div>
           {{$store.state.tips.isShowTips.content}}
@@ -19,8 +18,8 @@
         <span
           class="submit"
           @click="tipsPopSubmit"
-          v-if="rightTest"
-        >{{rightTest}}</span>
+          v-if="rightText"
+        >{{rightText}}</span>
       </section>
     </div>
   </div>
@@ -29,19 +28,27 @@
 export default {
   props: {
     leftText: "",
-    rightTest: ""
+    rightText: ""
   },
   data() {
     return {};
   },
-  created() {},
+  created() {
+    console.log(`====tips===`,this.$store.state.tips);
+  },
+
+  mounted(){
+    console.log(`====tips===`,this.$store.state.tips);
+    
+  },
   methods: {
     tipsPopSubmit() {
+      this.$emit("btnEvent",true);
       this.$store.commit("isShowTips", false);
-      this.$emit("tipsPopSubmit");
+
     },
     closeTips() {
-      this.$emit("closeTips");
+      this.$emit("btnEvent",false);
       this.$store.commit("isShowTips", false);
     }
   }
@@ -93,6 +100,8 @@ export default {
         height 1rem
         line-height 1rem
         width 100%
+      .close
+        color #666  
       .submit
         border-left 1px solid #ccc
 

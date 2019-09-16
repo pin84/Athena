@@ -58,6 +58,7 @@
 
     <!-- <FootSearch /> -->
 
+
   </div>
 </template>
 <script>
@@ -104,6 +105,9 @@ export default {
 
     //     this.hotOrHistory = false;
     //   });
+  },
+  destroyed() {
+    this.bus.$on("addHistorySearchKw")
   },
   components: {
     FootSearch

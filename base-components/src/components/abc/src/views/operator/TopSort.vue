@@ -29,11 +29,15 @@ export default {
 </script>
 <style lang="stylus" scoped>
 #linkWrapper
+  position absolute
+  top 0
+  left 0
   width 100%
   height 1rem
   background-color #ffffff
   font-size 0.3rem
   border-bottom 1px solid #ccc
+  z-index 100
   #mlinks
     width 100%
     display flex

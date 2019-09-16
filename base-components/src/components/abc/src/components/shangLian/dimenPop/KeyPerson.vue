@@ -103,10 +103,6 @@ export default {
     };
   },
 
-  mounted(){
-
-    console.log(`=======`,this.$store.state);
-  },
 
   // watch: {
   //   // 当我的showingCId 发生改变时 重新调用接口信息

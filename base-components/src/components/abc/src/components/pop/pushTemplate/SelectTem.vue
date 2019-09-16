@@ -3,13 +3,16 @@
     @comPopShow="comPopIsShow"
     my-index="selectTem"
   >
-  
+
     <!-- class="top_0" -->
     <template v-slot:pop-content>
       <div class="pushTemplateList">
-        <h3>推送模板列表(请选择推送内容)</h3>
+        <h3>短信模板列表(请选择推送内容)</h3>
         <ul class="list">
-          <li class="item" v-if="isEmpty" >
+          <li
+            class="item"
+            v-if="isEmpty"
+          >
             您尚未添加模板，请选择'添加模板'添加
             <!-- <span class="item-span">您尚未添加模板，请选择</span>
             <span  class="item-span" style="color:green;display:inline"></span>
@@ -30,7 +33,10 @@
               <span class="title">
                 {{key}}
               </span>
-              <span :style="auditState(v,key)">
+              <span
+                :style="auditState(v,key)"
+                class="right"
+              >
                 {{v}}
               </span>
             </p>
@@ -68,7 +74,7 @@
 
 </template>
 <script>
-import '@/assets/scss/compop/comPopTemList.styl';
+import "@/assets/scss/compop/comPopTemList.styl";
 
 const ComPop = resolve => {
   import("@/components/common/ComPop").then(module => {
@@ -79,141 +85,176 @@ const ComPop = resolve => {
 export default {
   data() {
     return {
-      getTemResult:[],
       templates: [],
       status: ["审核中", "审核通过", "审核失败"],
-      userInfo:this.$store.state.loginInfo.userInfo,
-      isEmpty:true,
+      userInfo: this.$store.state.loginInfo.userInfo,
+      isEmpty: true
     };
   },
   components: {
     ComPop
   },
-  
+
   methods: {
     // 审核状态
-    auditState(val,key){
-      
-      let auditStyle 
-      if(key === '审核状态'){
-        if(val === '审核不通过'){
+    auditState(val, key) {
+      let auditStyle;
+      if (key === "审核状态") {
+        if (val === "审核不通过") {
           auditStyle = {
-            color:'red'
-          }
-        }
-
-        else if(val === '审核通过'){
+            color: "red"
+          };
+        } else if (val === "审核通过") {
           auditStyle = {
-            color:'green'
-          }
+            color: "green"
+          };
         }
 
         return auditStyle;
-      
       }
-      
     },
 
-    chooseTem(index){
-      let chooseItem = this.getTemResult[index];
+    chooseTem(index) {
+      let chooseItem = this.templates[index];
 
-      if(chooseItem.state == 2){
-        this.$store.commit('showPop',{
-          popName:'pushMsg',
-          params:{
-            saveParams:true,
-            getTem:{...chooseItem}
+      let tem = {
+        template_name: chooseItem["模板名称"],
+        content: chooseItem["模板内容"]
+      };
+
+      console.log(`=======`, chooseItem);
+
+      if (chooseItem["审核状态"] === "审核通过") {
+        this.$store.state.pop.params
+        this.$store.commit("showPop", {
+          popName: "pushMsg",
+          params: {
+            saveParams: true,
+            getTem: { ...tem }
           }
-        })
-      }else if(chooseItem.state == 1){
+        });
+        
+      } else if (chooseItem["审核状态"] === "待审核") {
         this.$toast({
-          message:'该模板待审核，请等待模板审核成功后再做选择',
-        })
-      }else if(chooseItem.state == 3){
+          message: "该模板待审核，请等待模板审核成功后再做选择"
+        });
+      } else if (chooseItem["审核状态"] === "审核不通过") {
         this.$toast({
-          message:'该模板审核不通过，无法选择',
-        })
+          message: "该模板审核不通过，无法选择"
+        });
       }
-
     },
-    async comPopIsShow(isShow){
-      if(isShow){
-        let {data} = await this.$axios.get(this.$api.selectTemplate,{
-          params:{
-            token:this.userInfo.token,
+    async comPopIsShow(isShow) {
+      if (isShow) {
+        this.$store.state.pop.params
+        
+        let { data } = await this.$axios.get(this.$api.selectTemplate, {
+          params: {
+            token: this.userInfo.token
           }
         })
         // .then(res=>res.data)
         // .catch(rej=>rej)
-        let {template:temList} = data;
-        console.log(data,temList)
-        if(temList == undefined || temList.length==0 || data.length==0){
+
+        console.log(`=======`,data);
+
+        let { template: temList } = data;
+        if (temList == undefined || temList.length == 0 || data.length == 0) {
           this.isEmpty = true;
-          return
-        }else{
-          this.isEmpty =false;
+          return;
+        } else {
+          this.isEmpty = false;
         }
+
         
-        this.getTemResult = temList;
+
 
         let showTemList = [];
-          // 模板内容循环渲染
-          temList.forEach((ele,index) => {
-            let {id,template_name,sms_type,content,data_time,username,state} =  ele;
-            let stateText;
-            switch(state){
-
-              case 1:
-                stateText = '待审核';
+        // 模板内容循环渲染
+        temList.forEach((ele, index) => {
+          let {
+            id,
+            template_name,
+            sms_type,
+            content,
+            data_time,
+            username,
+            state
+          } = ele;
+          data_time = data_time.split("+")[0].replace("T", " ");
+          let stateText;
+          switch (state) {
+            case 1:
+              stateText = "待审核";
               break;
 
-              case 2:
-                stateText = '审核通过';
+            case 2:
+              stateText = "审核通过";
               break;
 
-              case 3:
-                stateText = '审核不通过';
+            case 3:
+              stateText = "审核不通过";
               break;
-            }
-            
-            let item = {
-              id :id,
-              "模板名称":template_name,
-              "模板类型":sms_type,
-              "模板内容":content,
-              "申请日期":data_time,
-              "申请人":username,
-              "审核状态":stateText,
+          }
 
-            }
-            showTemList.push(item)
-          });
+          let item = {
+            id: id,
+            模板名称: template_name,
+            模板类型: sms_type,
+            模板内容: content,
+            申请日期: data_time,
+            申请人: username,
+            审核状态: stateText
+          };
+          showTemList.push(item);
+        });
 
-        this.templates = showTemList;
+        console.log(`==showTemList=====`, showTemList);
 
-      }else{
-        this.$emit('closeMsgTemplate')
+        let pass = [];
+        let ng = [];
+        let waiting = [];
+        showTemList.forEach(item => {
+          if (item["审核状态"] === "审核不通过") {
+            ng.push(item);
+          } else if (item["审核状态"] === "审核通过") {
+            pass.push(item);
+          } else {
+            waiting.push(item);
+          }
+        });
+        this.sortDate(pass, "申请日期");
+        this.sortDate(ng, "申请日期");
+        this.sortDate(waiting, "申请日期");
+
+        this.templates = waiting.concat(pass.concat(ng));
+
+        console.log(`=======`, this.templates);
+      } else {
+        this.$emit("closeMsgTemplate");
       }
-      
-    },  
-    addTem() {
-      
-      this.$store.commit("showPop", {
-        popName:'msgTemplate',
+    },
 
+    sortDate(arr, sortProperty) {
+      arr.sort((a, b) => {
+        return new Date(b[sortProperty]) - new Date(a[sortProperty]);
       });
-
+    },
+    addTem() {
+      this.$store.commit("showPop", {
+        popName: "msgTemplate"
+      });
     },
     editTemplate(item) {
       let type = item["模板类型"];
       if (type === "短信") {
-        this.$store.commit("showPop",{
-          popName:'editMsgTemplate',
-          params:item
+        this.$store.commit("showPop", {
+          popName: "editMsgTemplate",
+          params: item
         });
       }
       if (type === "视频") {
-        this.$store.commit("showPop", "videoTemplate",item);
+        this.$store.commit("showPop", "videoTemplate", item);
       }
     },
     btnDEL(item) {

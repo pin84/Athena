@@ -3,54 +3,113 @@ import Router from 'vue-router'
 import store from './store'
 import commonFn from './utils'
 import MySubscript from './views/dingyue/MySubscript'
-import LookAround from './views/dingyue/LookAround'
 import DingYue from './views/dingyue'
 import axios from 'axios'
 import qs from 'qs'
 import api from './api/api'
-import {Toast} from 'mint-ui'
+import { Toast } from 'mint-ui'
+import VConsole from 'vconsole'
+
 // let isTest = true; 
-let isTest = false; 
+let isTest = false
 
 // 首页
-const index =[
-  {
-    path: '/shangLian',
-    name: 'shangLian',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import( /* webpackChunkName: "shangLian" */ './views/shangLian/ShangLian.vue'),
-    meta: {
-      keepAlive: true, //需要被缓存
-      remark:'shangLian',
-      main:'首页',
+const index = [
 
-    }
-  },
+  // {
+  //   path: '/shangLian',
+  //   name: 'shangLian',
+  //   // route level code-splitting
+  //   // this generates a separate chunk (about.[hash].js) for this route
+  //   // which is lazy-loaded when the route is visited.
+  //   component: () => import( /* webpackChunkName: "shangLian" */ './views/shangLian/ShangLian.vue'),
+  //   meta: {
+  //     keepAlive: true, //需要被缓存
+  //     remark:'shangLian',
+  //     main:'首页',
+
+  //   }
+  // },
+
   {
     path: '/',
     name: 'shangLianTest',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import( /* webpackChunkName: "shangLian" */ './views/shangLian/ShangLianTest.vue'),
+    component: () => import( /* webpackChunkName: "shangLian" */ './views/shangLian/ShangLianMap.vue'),
     meta: {
-      keepAlive: false, //需要被缓存
-      remark:'首页',
-      main:'首页',
+      keepAlive: true, //需要被缓存
+      remark: '首页',
+      main: '首页',
     },
+    children: [
+      {
+        path: 'searchTest',
+        name: 'searchTest',
+        component: () => import( /* webpackChunkName: "Company" */ './views/shangLian/SearchPage/Company.vue'),
+        meta: {
+          keepAlive: true, //需要被缓存
+          remark: '搜索企业',
+          main: '首页',
+        },
+      }
+    ]
   },
   {
-    path: '/tipssl',
-    name: 'tips',
-    component: () => import('@/components/tips/TipsSL'),
-    meta:{
-      keepAlive:true,
-      remark:'新手提示--上链',
-      main:'首页',
+    path: '/search',
+    name: 'search',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import( /* webpackChunkName: "shangLian" */ './views/shangLian/Search.vue'),
+    meta: {
+      keepAlive: true, //需要被缓存
+      remark: '首页搜索',
+      main: '首页',
+    },
+    redirect: '/search/company',
+    children: [
+      {
+        path: 'company',
+        name: 'searchCompany',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import( /* webpackChunkName: "Company" */ './views/shangLian/SearchPage/Company.vue'),
+        meta: {
+          keepAlive: true, //需要被缓存
+          remark: '企业搜索',
+          main: '首页',
+        },
+      },
+      {
+        path: 'global',
+        name: 'searchGlobal',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import( /* webpackChunkName: "Global" */ './views/shangLian/SearchPage/Global.vue'),
+        meta: {
+          keepAlive: true, //需要被缓存
+          remark: '全网搜索',
+          main: '首页',
+        },
+      },
+    ]
+  },
+  {
+    path: '/tipmain',
+    name: 'TipMain',
+    component: () => import('@/components/tips/TipMain'),
+    meta: {
+      keepAlive: false,
+      remark: '新手提示--上链',
+      main: '首页',
     }
   },
+
+
   {
     path: '/oauth/users',
     name: 'testAuto',
@@ -59,9 +118,9 @@ const index =[
     // which is lazy-loaded when the route is visited.
     component: () => import('./views/TestAuto.vue'),
     meta: {
-      keepAlive: true, //需要被缓存
-      remark:'授权页',
-      main:'首页',
+      keepAlive: false, //需要被缓存
+      remark: '授权页',
+      main: '首页',
     }
   },
   {
@@ -73,10 +132,34 @@ const index =[
     component: () => import('./views/shangLian/Poster.vue'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'海报页',
+      remark: '海报页',
+      main: '首页',
+    }
+  },
+  {
+    path: '/spposter',
+    name: 'spposter',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import('./views/shangLian/SpPoster.vue'),
+    meta: {
+      keepAlive: false, //需要被缓存
+      remark: '节日海报页',
+      main: '首页',
+    }
+  },
+  {
+    path:'/companylist/:logo/:industryid/:province/:industryName',
+    name:'companylist',
+    component:()=> import('./views/shangLian/CompanyList.vue'),
+    meta:{
+      keepAlive:false,
+      remark:'企业列表',
       main:'首页',
     }
-  }
+
+  },
 ]
 
 // 订阅
@@ -87,40 +170,40 @@ const dingYue = [
     component: DingYue,
     // redirect: '/mySubscript',
     children: [{
-        path: '/mySubscript',
-        name: 'mySubscript',
-        component: MySubscript,
-        meta: {
-          keepAlive: false, //需要被缓存
-          remark:'我的订阅',
-          main:'订阅',
-        },
+      path: '/mySubscript',
+      name: 'mySubscript',
+      component: MySubscript,
+      meta: {
+        keepAlive: false, //需要被缓存
+        remark: '我的订阅',
+        main: '订阅',
       },
-      {
-        path: '/lookAround',
-        name: 'lookAround',
-        component: () => import('./views/dingyue/LookAround.vue'),
-        meta: {
-          keepAlive: true, //需要被缓存
-          remark:'订阅',
-          main:'订阅',
-        },
+    },
+    {
+      path: '/lookAround',
+      name: 'lookAround',
+      component: () => import('./views/dingyue/LookAround.vue'),
+      meta: {
+        keepAlive: true, //需要被缓存
+        remark: '订阅',
+        main: '订阅',
       },
-      {
-        path: '/recommand',
-        name: 'recommand',
-        component: () => import('./views/dingyue/Recommand'),
-        meta: {
-          keepAlive: false, //需要被缓存
-          remark:'采招推荐',
-          main:'订阅',
-        },
+    },
+    {
+      path: '/recommand',
+      name: 'recommand',
+      component: () => import('./views/dingyue/Recommand'),
+      meta: {
+        keepAlive: false, //需要被缓存
+        remark: '采招推荐',
+        main: '订阅',
       },
+    },
     ],
     meta: {
-      keepAlive: true, //需要被缓存
-      remark:'订阅父页面',
-      main:'订阅',
+      keepAlive: false, //需要被缓存
+      remark: '订阅父页面',
+      main: '订阅',
     }
   },
   {
@@ -129,8 +212,8 @@ const dingYue = [
     component: () => import('./views/dingyue/pages/04_searchHistory'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'搜索历史',
-      main:'订阅',
+      remark: '搜索历史',
+      main: '订阅',
     },
   },
   {
@@ -139,8 +222,8 @@ const dingYue = [
     component: () => import('./views/dingyue/pages/03_quickSearch'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'快速搜索',
-      main:'订阅',
+      remark: '快速搜索',
+      main: '订阅',
     },
   },
   {
@@ -149,17 +232,18 @@ const dingYue = [
     component: () => import('./views/dingyue/pages/01_noSubscript'),
     meta: {
       keepAlive: true, //需要被缓存
-      remark:'无关键词',
-      main:'订阅',
+      remark: '无关键词',
+      main: '订阅',
     }
   },
   {
     path: '/setSub',
+    name: 'setSub',
     component: () => import('./views/dingyue/pages/02_setSubscript'),
     meta: {
       keepAlive: true, //需要被缓存
-      remark:'设置订阅关键词',
-      main:'订阅',
+      remark: '设置订阅关键词',
+      main: '订阅',
     }
   },
   {
@@ -168,8 +252,8 @@ const dingYue = [
     component: () => import('./views/dingyue/pages/05-MoreResult'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'更多关键词搜索内容',
-      main:'订阅',
+      remark: '更多关键词搜索内容',
+      main: '订阅',
     }
   },
   {
@@ -178,20 +262,31 @@ const dingYue = [
     component: () => import('./views/dingyue/pages/06_searchCompany'),
     meta: {
       keepAlive: true, //需要被缓存
-      remark:'订阅下的搜索企业',
-      main:'订阅',
+      remark: '订阅下的搜索企业',
+      main: '订阅',
     }
   },
   {
     path: '/tipsdy',
     name: 'tips',
     component: () => import('@/components/tips/TipsDY'),
-    meta:{
-      keepAlive:true,
-      remark:'新手提示--订阅',
-      main:'订阅',
+    meta: {
+      keepAlive: false,
+      remark: '新手提示--订阅',
+      main: '订阅',
     }
   },
+  {
+    path: '/selectList',
+    name: 'selectList',
+    component: () => import('@/components/common/SelectList'),
+    meta: {
+      keepAlive: false,
+      remark: '选择区域列表',
+      main: '公共组件',
+    }
+  },
+
 
 ];
 
@@ -202,9 +297,9 @@ const chuKe = [
     name: 'chuke',
     component: () => import('./views/chuke'),
     meta: {
-      keepAlive: true, //需要被缓存
-      remark:'触客',
-      main:'触客',
+      keepAlive: false, //需要被缓存
+      remark: '触客',
+      main: '触客',
     }
   },
   {
@@ -213,11 +308,62 @@ const chuKe = [
     component: () => import('./views/chuke/Chuke-msg.vue'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'短信触客',
-      main:'触客',
+      remark: '短信触客',
+      main: '触客',
     }
   },
+
 ];
+
+const customerPool = [
+  {
+    path: '/customerpool',
+    name: 'customerpool',
+    component: () => import('./views/customerPool/CustomerPool.vue'),
+    meta: {
+      keepAlive: true, //需要被缓存
+      remark: '潜在客户池订阅首页',
+      main: '潜在客户池订阅',
+    },
+
+    // children:[
+    //   {
+    //     path:'pushmsg',
+    //     name:'pushmsg',
+    //     component: () => import( /* webpackChunkName: "CustomerPushMsg" */ './components/customerPool/CustomerPushMsg.vue'),
+    //     meta: {
+    //       keepAlive: true, //需要被缓存
+    //       remark:'搜索企业',
+    //       main:'首页',
+    //     },
+    //   }
+    // ]
+
+  },
+  {
+    path: '/customerset',
+    name: 'customerset',
+    component: () => import('./views/customerPool/CustomerSetting.vue'),
+    meta: {
+      keepAlive: false, //需要被缓存
+      remark: '潜在客户池推荐设置',
+      main: '潜在客户池订阅',
+    }
+  },
+  /*
+  {
+    path: '/customerscreen',
+    name: 'CustomerScreen',
+    component: () => import('./views/customerPool/CustomerScreen.vue'),
+    meta: {
+      keepAlive: true, //需要被缓存
+      remark:'潜在客户池筛选',
+      main:'潜在客户池订阅',
+    }
+  },*/
+
+];
+
 
 // 链圈
 const liqnQuan = [
@@ -226,9 +372,9 @@ const liqnQuan = [
     name: 'lianQuan',
     component: () => import( /* webpackChunkName: "lianQuan" */ './views/lianQuan/LianQuan.vue'),
     meta: {
-      keepAlive: true, //需要被缓存
-      remark:'链圈',
-      main:'链圈',
+      keepAlive: false, //需要被缓存
+      remark: '链圈',
+      main: '链圈',
     }
   },
 
@@ -241,9 +387,9 @@ const userCenter = [
     name: 'autConfig',
     component: () => import('./components/shangLian/autPop/AutConfig'),
     meta: {
-      keepAlive: true, //需要被缓存
-      remark:'企业认证',
-      main:'用户中心',
+      keepAlive: false, //需要被缓存
+      remark: '企业认证',
+      main: '用户中心',
     },
   },
   {
@@ -252,8 +398,8 @@ const userCenter = [
     component: () => import('./views/userCenter/'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'用户中心',
-      main:'用户中心',
+      remark: '用户中心',
+      main: '用户中心',
     }
   },
   {
@@ -262,8 +408,8 @@ const userCenter = [
     component: () => import('./views/userCenter/pop/SelfPic'),
     meta: {
       keepAlive: false, //需要被缓存
-      remark:'个人标签',
-      main:'用户中心',
+      remark: '个人标签',
+      main: '用户中心',
     }
   },
   {
@@ -271,9 +417,9 @@ const userCenter = [
     name: 'chongzhi',
     component: () => import('./components/pop/chongzhi/chongzhi'),
     meta: {
-      keepAlive: true, //需要被缓存
-      remark:'充值',
-      main:'用户中心',
+      keepAlive: false, //需要被缓存
+      remark: '充值',
+      main: '用户中心',
     }
   },
   {
@@ -282,10 +428,44 @@ const userCenter = [
     component: () => import('./views/userCenter/AuthCom'),
     meta: {
       keepAlive: true, //需要被缓存
-      remark:'企业认证信息',
-      main:'用户中心',
+      remark: '企业认证信息',
+      main: '用户中心',
     }
   },
+
+  {
+    path: '/myscore',
+    name: 'myscore',
+    component: () => import('./views/userCenter/MyScore'),
+    meta: {
+      keepAlive: false, //需要被缓存
+      remark: '查看受邀明细',
+      main: '用户中心',
+    }
+  },
+  {
+    path: '/records-consumption',
+    name: 'records-consumption',
+    component: () => import('./views/userCenter/RecordsConsumption'),
+    meta: {
+      keepAlive: true, //需要被缓存
+      remark: '消费记录',
+      main: '用户中心',
+    }
+  },
+
+  {
+    path: '/cooperation',
+    name: 'cooperation',
+    component: () => import('./views/userCenter/cooperation'),
+    meta: {
+      keepAlive: true,
+      remark: '协同',
+      main: '用户中心',
+    }
+  },
+
+
 
 ]
 
@@ -295,33 +475,123 @@ const userFeedBack = [
     path: '/feedback',
     name: 'feedback',
     component: () => import('@/components/common/feedback'),
-    meta:{
-      keepAlive:false,
-      remark:'反馈首页',
-      main:'用户反馈',
+    meta: {
+      keepAlive: false,
+      remark: '反馈首页',
+      main: '用户反馈',
     }
   },
   {
     path: '/fd-history',
     name: 'fd-history',
     component: () => import('@/components/common/feedback/FeedbackHistory'),
-    meta:{
-      keepAlive:false,
-      remark:'反馈历史',
-      main:'用户反馈',
+    meta: {
+      keepAlive: false,
+      remark: '反馈历史',
+      main: '用户反馈',
     }
   },
   {
     path: '/fdBak',
     name: 'fdBak',
     component: () => import('@/components/common/feedback/FdBak'),
-    meta:{
-      keepAlive:false,
-      remark:'反馈后台',
-      main:'用户反馈',
+    meta: {
+      keepAlive: false,
+      remark: '反馈后台',
+      main: '用户反馈',
     }
   },
 
+]
+
+// 图文介绍
+const companyDetail = [
+  {
+    path: '/special',
+    name: 'special',
+    component: () => import('@/views/companyDetail'),
+    meta: {
+      keepAlive: false,
+      remark: '首页',
+      main: '图文介绍',
+    }
+  },
+  {
+    path: '/editarticle',
+    name: 'editarticle',
+    component: () => import('@/views/companyDetail/EditArticle'),
+    meta: {
+      keepAlive: false,
+      remark: '编辑页面',
+      main: '专题服务',
+    }
+  },
+  // {
+  //   path: '/addarticle_t',
+  //   name: 'addarticle_t',
+  //   component: () => import('@/views/companyDetail/AddArticle_T'),
+  //   meta: {
+  //     keepAlive: false,
+  //     remark: '编辑页面-测试',
+  //     main: '专题服务',
+  //   }
+  // },
+  {
+    path: '/addarticle',
+    name: 'addarticle',
+    component: () => import('@/views/companyDetail/AddArticle'),
+    meta: {
+      keepAlive: false,
+      remark: '编辑页面',
+      main: '专题服务',
+    }
+  },
+ 
+  {
+    path: '/sppublish',
+    name: 'sppublish',
+    component: () => import('@/views/companyDetail/Publish'),
+    meta: {
+      keepAlive: false,
+      remark: '发布',
+      main: '图文介绍',
+    }
+  },
+  {
+    path: '/showimglist',
+    name: 'showimglist',
+    component: () => import('@/views/companyDetail/ShowImgList'),
+    meta: {
+      keepAlive: false,
+      remark: '显示图片',
+      main: '图文介绍',
+    }
+  },
+  {
+    path: '/article',
+    name: 'article',
+    component: () => import('@/views/companyDetail/Article'),
+    meta: {
+      keepAlive: false,
+      remark: '文章列表',
+      main: '图文介绍',
+    }
+  },
+
+]
+
+//  
+const specialPage = [
+  {
+    path: '/specialshow',
+    name: 'specialshow',
+    component: () => import('@/views/special/special.vue'),
+    meta: {
+      keepAlive: false,
+      remark: '专场首页',
+      main: '专场服务',
+    }
+  },
 ]
 
 // 审核界面
@@ -331,9 +601,9 @@ const auditPage = [
     name: 'ng',
     component: () => import( /* webpackChunkName: "Operator" */ './views/operator/Operator'),
 
-    meta:{
-      remark:'运营商审核未通过界面',
-      main:'审核界面',
+    meta: {
+      remark: '运营商审核未通过界面',
+      main: '审核界面',
     }
   },
   {
@@ -341,65 +611,86 @@ const auditPage = [
     name: 'operator',
     component: () => import( /* webpackChunkName: "Operator" */ './views/operator/Ng'),
 
-    meta:{
-      remark:'运营商审核通过界面',
-      main:'审核界面',
+    meta: {
+      remark: '运营商审核通过界面',
+      main: '审核界面',
     }
   },
   {
     path: '/company-cert',
     name: 'company-cert',
     component: () => import( /* webpackChunkName: "Operator" */ './views/CompanyCert'),
-    meta:{
-      remark:'审核认证企业',
-      main:'审核界面',
+    meta: {
+      remark: '审核认证企业',
+      main: '审核界面',
     }
   },
   {
     path: '/refund',
     name: 'refund',
     component: () => import( /* webpackChunkName: "Operator" */ './views/auditPage/Refund.vue'),
-    meta:{
-      remark:'短信退款审核',
-      main:'审核界面',
+    meta: {
+      remark: '短信退款审核',
+      main: '审核界面',
     }
   },
 ]
 
+// const other = [
+
+// {
+//   path: '/share',
+//   name: 'share',
+//   component: () => import( /* webpackChunkName: "Operator" */ './views/Share'),
+//   meta:{
+//     remark:'分享页',
+//     main:'分享页',
+//     keepAlive: false,
+//   }
+// },
+
+//   {
+//     path: '/Test',
+//     name: 'Test',
+//     component: () => import( /* webpackChunkName: "shangLian" */ './views/TestToPay.vue'),
+//     meta: {
+//       remark:'测试页',
+
+//     }
+//   },
+
+// {
+//   path: '/test',
+//   name: 'test',
+
+//   // route level code-splitting
+//   // this generates a separate chunk (about.[hash].js) for this route
+//   // which is lazy-loaded when the route is visited.
+//   component: () => import('./views/Test.vue'),
+//   meta: {
+//     keepAlive: false, //需要被缓存
+//     remark:'test',
+//   }
+// },
+
+// ]
+
 const other = [
-  {
-    path: '/share',
-    name: 'share',
-    component: () => import( /* webpackChunkName: "Operator" */ './views/Share'),
-    meta:{
-      remark:'分享页',
-      main:'分享页',
-      keepAlive: false,
-    }
-  },
-  {
-    path: '/Test',
-    name: 'Test',
-    component: () => import( /* webpackChunkName: "shangLian" */ './views/TestToPay.vue'),
-    meta: {
-      remark:'测试页',
-      
-    }
-  },
   {
     path: '/test',
     name: 'test',
-    
+
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import('./views/Test.vue'),
+    component: () => import('./views/shangLian/Test.vue'),
     meta: {
       keepAlive: true, //需要被缓存
-      remark:'test',
+      remark: 'test',
     }
   },
 ]
+
 
 
 let routes = [];
@@ -407,11 +698,14 @@ routes = routes.concat(
   index,
   dingYue,
   chuKe,
+  customerPool,
   liqnQuan,
   userCenter,
   userFeedBack,
+  specialPage,
   auditPage,
   other,
+  companyDetail
 )
 
 
@@ -420,56 +714,42 @@ const router = new Router({
   routes
 })
 
-async function toGetCode() {
-  try {
-    let getCodeUrl = await axios.get(api.getCode).then(res => res.data)
-    // alert('get code '+ getCode)
-    // console.log(getCode)
-    window.location.href = getCodeUrl.auth_url;
-  } catch (e) {
-    // alert('router未能获取code')
-
-  }
-}
-
-// let alertOpen = false;
 // 检查本地设备时候含有用户信息
 async function checkLocalUser() {
-  
+
   let sxlUserInfo = commonFn.handleStroage.getLocalStorage('sxlUserInfo');
-  console.log(sxlUserInfo)
+
   if (!sxlUserInfo) return false;
-  
-  let Administrator = await axios.get(api.Administrator,{
-    params:{
-      token:sxlUserInfo.token
-    }
-  }).then(res=>res.data)
-  .catch(rej=>{console.log(rej)
-  
-    return rej;
-  });
-  
-  let {token_state,messagge} = Administrator
-  if(typeof messagge == 'number'){
-    store.commit('setAdministrator',messagge);
-  }
-  if( token_state === false && token_state!==undefined ){
-    return false
-  }
 
   let createdTime = sxlUserInfo.createdTime;
   let oneDaySec = 86400 * 1000;
   let nowTime = Date.now();
 
   if (nowTime - createdTime > (oneDaySec * 2)) {
-
     localStorage.removeItem('sxlUserInfo');
     return false
+  }
+
+  if (store.state.loginInfo.Administrator == null) {
+
+    let Administrator = await axios.get(api.Administrator, {
+      params: {
+        token: sxlUserInfo.token
+      }
+    }).then(res => res.data)
+      .catch(rej => {
+        return rej;
+      });
+
+    let { token_state, message } = Administrator
+    if (typeof message == 'number') {
+      store.commit('setAdministrator', message);
+    }
+    if (token_state === false && token_state !== undefined) {
+      return false
+    }
 
   }
-  
-  
 
   return sxlUserInfo
 }
@@ -480,25 +760,11 @@ function saveUserInfo2Vuex() {
   if (sxlUserInfo) {
     store.commit('userInfo', sxlUserInfo)
   } else {
-    console.error('sxlUserInfo is not defined');
+    Toast({
+      message: 'sxlUserInfo is not exist'
+    })
+    // console.error('sxlUserInfo is not defined');
   }
-}
-
-// axios拦截器
-function axiosInterceptors(token) {
-  axios.interceptors.request.use(
-    config => {
-      // 这里写死一个token，你需要在这里取到你设置好的token的值
-      // const token = 'this is a token';
-      if (token) {
-        // 这里将token设置到headers中，header的key是Authorization，这个key值根据你的需要进行修改即可
-        config.headers.Authorization = 'JWT' + token;
-      }
-      return config
-    },
-    error => {
-      return Promise.reject(error)
-    });
 }
 
 // 安卓 ios 内核判断
@@ -536,19 +802,12 @@ function getFirstUrl() {
   }
 }())
 
-
-
 // 微信签名
 async function wxSign(to) {
 
   let url = location.href;
-  // url = url.split('#')[0] + '#' + to.path;
   let queryString = qs.stringify(to.query);
-  url = url.split('#')[0] + '#' + to.path + (queryString?`?${queryString}`:'');
-  
-  // console.log(url.split('#')[0] + '#' + to.path + '?' + qs.stringify(to.query))
-  // console.log(url.split('?')[0]);
-  // url = url.split('?')[0];
+  url = url.split('#')[0] + '#' + to.path + (queryString ? `?${queryString}` : '');
 
   let core = coreJudge()
   if (core == 'ios') {
@@ -606,26 +865,14 @@ async function wxSign(to) {
   //   }
 
   // });
-  
-  /**
-   *  忽视重设分享信息的地址 
-   * （由于执行顺序的问题 当部分地址需要进去后立即更改参数时
-      随后触发的自动变更分享将会使之前的更替失效 故假如该忽略list以自定义其忽略部分）
-   * */ 
-  let ignoreList = [
-    '/',
-    '/03_quickSearch',
-    '/moreResult',
-  ];
 
-  if(ignoreList.indexOf(to.path) == -1 ){
-    store.commit('resetShareInfo',to);
-    store.commit('resetFriendNetInfo',to);
-  }
 
 }
-wx.ready(function(){
-  
+
+
+
+wx.ready(function () {
+
   // 获取“分享给朋友”按钮点击状态及自定义分享内容接口
 
   wx.onMenuShareAppMessage(store.state.shareInfo);
@@ -639,139 +886,144 @@ wx.ready(function(){
 sessionStorage.setItem('auth', 'false')
 
 // 设置问号
-function questionMarkSet(){
-  let url = window.location.href;
+function questionMarkSet() {
+  let url = window.location.href.split('#')[0];
   if (!url.match(/\?/)) {
     // sessionStorage.removeItem('sxlFirstLink')
     location.replace(window.location.href.split('#')[0] + '?' + window.location.hash);
   }
 }
 
-function isHasManageAuth(to){
+function isHasManageAuth(to) {
   // 需要有相关权限才能进入的页面
   const autoPageList = [
-    '/company-cert', //企业审核
-    '/refund', //短信退款审核
+    // '/company-cert', //企业审核
+    // '/refund', //短信退款审核
   ];
   let userInfo = store.state.loginInfo.userInfo
-  if(userInfo.username=='XY lim') return true;
-  let autoPage= autoPageList.indexOf(to.path);
-  if(autoPage == -1) return true;
+  // if(userInfo.username=='伊谢尔伦的风') return true;
+  let autoPage = autoPageList.indexOf(to.path);
+  if (autoPage == -1) return true;
+  store.state.loginInfo.Administrator
 
-  return store.state.loginInfo.Administrator==0?true:false;
+  return store.state.loginInfo.Administrator == 0 ? true : false;
 
 }
 
-function pushHistory() {
-  var state = {
-    title: "title",  
-    url: location.href.split(location.host)[1],
-  };
-  window.history.pushState(state, "title", location.href.split(location.host)[1]);
-}
-
-window.addEventListener("popstate", function(e) {
-  if(!e.state){
-      Toast({
-        message:'再按一次退出程序',
-      })
-      setTimeout(()=>{
-        pushHistory();  
-      },4000)  
-  }
-  
-}, false);
-pushHistory();
-  
 // 用于用户授权登录验证
 async function userAuth(to, form, next) {
 
-  let userInfo = await checkLocalUser();
+  let userInfo;
+  // 请下面两行千万千万不要放到生产环境
   
-  // userInfo =false;
-  // debugger;
+  if( window.location.host === '192.168.31.109'  || window.location.host === '192.168.31.112' ){
+    console.log('test run time');
+    // userInfo = {"createdTime":1568040833076,"user_id":574,"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo1NzQsImV4cCI6MTU2OTMzNjgzMywiZW1haWwiOiIiLCJ1c2VybmFtZSI6Im9PNUVxNkw5UTJVODJaa3BjUHV1Sk9VaEVtancifQ.K6o0pH9KHgP1F1slBrkvI01szZQfZUrTFGRwQ63G3BM","headimgUrl":"http://thirdwx.qlogo.cn/mmopen/vi_32/DYAIOgq83erW31BLEgcr5wUNDviac1AGIjxm9vdS7QvR9IPwSQOZsiaK80ic1YMuZovFMSsVsJjGdCovJ8yKVPDiaQ/132","username":"Chrital","money":0,"status":true,"identity_status":true,"code":0,"kind_count":0,"province":"广东省","number":0,"count":19,"industryid":"12","kind":null,"enterprise":"广州市阿拉丁信息技术咨询有限公司","enterpriseid":"71d94e4bd8c02c4f90ba39fdac6c5dba"}
+    // localStorage.setItem('sxlUserInfo',JSON.stringify(userInfo));
+  }
+  
+  userInfo = await checkLocalUser();
+  
+  // user_id:755 健达id
+  if(userInfo.user_id == 600){
+    
+    // userInfo = {"createdTime":1568256912206,"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IiIsInVzZXJfaWQiOjYyOCwiZXhwIjoxNTY5NTUyOTEyLCJ1c2VybmFtZSI6Im9PNUVxNkFMR2hOS1dwOUUyTXBQV3k3ekItRnMifQ.BfMlnEGwIeiicJwJmghESzaYbEkP6gMNDXdZRCkcPTY","user_id":628,"username":"hujiameng","headimgUrl":"http://thirdwx.qlogo.cn/mmopen/vi_32/ib4MIyW54h6tVZKtANdVib5OVmNpNnbUMVrVOTBh3JCRTOqfX0Tq3ZaF8sV9fuvBpOTm7UgKvH34Q0yL92TTvC7w/132","number":62,"kind_count":0,"province":"江苏省","identity_status":false,"enterpriseid":"0001b35122ef73797b2728e758e34bc0","kind":["镀膜玻璃","防火玻璃","夹胶玻璃","彩釉玻璃","钢化玻璃","浮法玻璃着色本体","镀膜反射玻璃","离线"],"code":0,"count":796,"industryid":3,"status":false,"enterprise":"宜兴市蓝星金辉玻璃有限公司"}
+    // localStorage.setItem('sxlUserInfo',JSON.stringify(userInfo));
+  }
+  
   if (userInfo) {
     // localStorage 含有用户信息
-      questionMarkSet();
-      saveUserInfo2Vuex(userInfo);
-      // let token = userInfo.token;
-      let hasAuto = isHasManageAuth(to);
-      if(hasAuto){
-        
-        next();
-      }else{
-        
-        next('/')
-      }
-      
-      // 认证结束
-      sessionStorage.setItem('auth', 'true')
-      return true
+    questionMarkSet();
+    saveUserInfo2Vuex(userInfo);
+    // let token = userInfo.token;
+
+    let userCheck = () => [653, 464, 4, 600].indexOf(userInfo.user_id)
+
+    if (userCheck() !== -1) {
+      // this is tool for dev
+      // var vConsole = new VConsole();
+    }
+
+    let hasAuto = isHasManageAuth(to);
+
+    if (hasAuto) {
+      next();
+    } else {
+      next('/')
+    }
+
+    // 认证结束
+    sessionStorage.setItem('auth', 'true')
+    return true
 
     // axiosInterceptors(token);
   } else {
-
     let code = commonFn.getUrlParam('code');
     if (code) {
-
       axios.get(api.getUserInfo, {
         params: {
           code
         }
       }).then(res => {
 
+        console.log(`===code====`, res);
+
+        let getTokenTime = Date.now()
         let getUserInfoByCode = {
-          createdTime: Date.now(),
+          createdTime: getTokenTime,
           ...res.data
         };
 
+        console.log(`===getUserInfoByCode====`, getUserInfoByCode);
+
         store.commit('userInfo', getUserInfoByCode);
         commonFn.handleStroage.setLocalStorage('sxlUserInfo', getUserInfoByCode)
+        if (!commonFn.handleStroage.getLocalStorage('firstLoginTime')) {
+          commonFn.handleStroage.setLocalStorage('firstLoginTime', getTokenTime)
+        }
 
         let getSxlUserInfo = commonFn.handleStroage.getLocalStorage('sxlUserInfo')
 
         let host = window.location.href.split('?')[0];
         let path = window.location.href.split('#')[1];
 
-        // window.location.href = encodeURIComponent(host + '?#'+ path);
-
-        // window.location.href = (host + '#' + path);
-        // sessionStorage.removeItem('sxlFirstLink')
         window.location.href = (host + '?#' + path);
 
       })
+        .catch(rej => {
+          Toast({
+            message: 'token获取失败' + rej + ' weChatCode:' + code,
+          })
+        })
 
     } else {
-
       const appid = 'wx326433af14961e48';
-
       let path = window.location.href.split('#')[1];
       let redirect_uri = encodeURIComponent(`http://www.shangxialian.net/js/#${path}`);
 
-      // console.log(`http://shangxialian.net/js${path}`)
-      let getCodeUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_userinfo&state=#wechat_redirect`
-
-      window.location.href = getCodeUrl
-
+      let getCodeUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_userinfo&state=#wechat_redirect`;
+      window.location.href = getCodeUrl;
     }
-    
+
   }
 }
 
-let url,
-    delUrl,
-    endUrl, //获得用户最终的url(刷新仍会发送请求 后端判断时间间隔短则覆盖)
-    endUrlName, //获得对应url命名描述
-    mainEndUrlName; //对应url主要类别
+let endUrl, //获得用户最终的url(刷新仍会发送请求 后端判断时间间隔短则覆盖)
+  endUrlName, //获得对应url命名描述
+  mainEndUrlName; //对应url主要类别
 router.beforeEach((to, form, next) => {
-
   // 用户授权登录验证
   if (isTest == false) {
     let userInfo = commonFn.handleStroage.getLocalStorage('sxlUserInfo')
-    if(userInfo){
-      let {username,user_id,headimgUrl} = userInfo;
-   
-      endUrl = 'www.shangxialian.net/?#'+to.path;
+
+    // alert(userInfo)
+
+    if (userInfo) {
+
+
+      let { username, user_id, headimgUrl } = userInfo;
+
+      endUrl = 'www.shangxialian.net/?#' + to.path;
       endUrlName = to.meta.remark;
       mainEndUrlName = to.meta.main;
       let userData = JSON.stringify({
@@ -782,8 +1034,11 @@ router.beforeEach((to, form, next) => {
         endUrlName,
         mainEndUrlName,
       });
-      localStorage.setItem('exitSave',userData);
+      localStorage.setItem('exitSave', userData);
     }
+
+    // alert(userInfo)
+
 
     userAuth(to, form, next);
 
@@ -795,14 +1050,25 @@ router.beforeEach((to, form, next) => {
 
 
 router.afterEach((to, from) => {
-  // ...
-  // let url = location.href;
-  // url = url.split('#')[0] + '#' + to.path;
-  // endUrl = url;
-  // endUrlName = to.meta.remark;
-  // mainEndUrlName = to.meta.main;
-  
-  wxSign(to);
+  if (!isTest) {
+    wxSign(to);
+  }
+  /**
+   *  忽视重设分享信息的地址 
+   * （由于执行顺序的问题 当部分地址需要进去后立即更改参数时
+      随后触发的自动变更分享将会使之前的更替失效 故假如该忽略list以自定义其忽略部分）
+   * */
+  let ignoreList = [
+    '/',
+    '/03_quickSearch',
+    '/moreResult',
+  ];
+
+  if (ignoreList.indexOf(to.path) == -1) {
+    store.commit('resetShareInfo', to);
+    store.commit('resetFriendNetInfo', to);
+  }
+
 
 })
 // let testExit = localStorage.getItem('testExit')
@@ -825,17 +1091,17 @@ router.afterEach((to, from) => {
 //   }   
 // }
 
-window.onunload = ()=>{
-  
+window.onunload = () => {
+
   let authState = sessionStorage.getItem('auth') // 当 auth == 'true' 认证结束 tips 此值类型 String
-  
+
   // let userInfo = commonFn.handleStroage.getLocalStorage('sxlUserInfo')
   // 当存在用户信息 切认证完毕后 还支持 navigator.sendBeacon 方法
-  
+
   let exitData = localStorage.getItem('exitSave')
   // localStorage.setItem('testExit','we go away before')
-  
-  if ( exitData && authState=='true' && navigator.sendBeacon) {
+
+  if (exitData && authState == 'true' && navigator.sendBeacon) {
     // Beacon 代码
     /*let {username,user_id,headimgUrl} = userInfo;
     let {username,user_id,headimgUrl} = userInfo;
@@ -851,12 +1117,12 @@ window.onunload = ()=>{
       url,
     })
    */
-   localStorage.setItem('testExit','we run '+exitData);
-   
-   navigator.sendBeacon(api.leaveRecord,exitData);
-  // //  navigator.sendBeacon(api.leaveRecord,userData);
+    localStorage.setItem('testExit', 'we run ' + exitData);
+
+    navigator.sendBeacon(api.leaveRecord, exitData);
+    // //  navigator.sendBeacon(api.leaveRecord,userData);
   }
-  
+
 }
 
 /*
@@ -880,17 +1146,17 @@ syncReport(testApi,{
 // },10000)
 
 // window.onbeforeunload = function() {
-  // var n = window.event.screenX - window.screenLeft;
-  // var b = n > document.documentElement.scrollWidth-20;
-  // if(b && window.event.clientY < 0 || window.event.altKey) {
-  // alert("是关闭而非刷新");
-  // }else{
-  // alert("是刷新而非关闭");
-  // }
+// var n = window.event.screenX - window.screenLeft;
+// var b = n > document.documentElement.scrollWidth-20;
+// if(b && window.event.clientY < 0 || window.event.altKey) {
+// alert("是关闭而非刷新");
+// }else{
+// alert("是刷新而非关闭");
+// }
 
 // }
 // let remarkList = routes.map((ele,index)=>{
-  
+
 //   return ele.meta.remark
 // })
 // let remarkList = {}

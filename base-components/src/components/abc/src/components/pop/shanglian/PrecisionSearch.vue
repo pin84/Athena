@@ -90,6 +90,7 @@ export default {
     "flow-window": FlowWindow
   },
 
+
   props:{
     pieParams:{
       type:Object,
@@ -117,25 +118,25 @@ export default {
       getProvince: null,
       getIndustryId: null,
 
-      postData: {
-        curSelect: [
-          { 0: "a" || "请选择" },
-          { 1: "b" || "请选择" },
-          { 2: "c" || "请选择" },
-          { 3: false }
-        ]
-      },
+      // postData: {
+      //   curSelect: [
+      //     { 0: "a" || "请选择" },
+      //     { 1: "b" || "请选择" },
+      //     { 2: "c" || "请选择" },
+      //     { 3: false }
+      //   ]
+      // },
       resultList: [], //保存搜索结果列表
       isShowSelectList: false, //是否显示下拉列表
       curDatalist: [],
-      curIndex: 0,
-      curSelect: [
-        { 0: "a" || "请选择" },
-        { 1: "b" || "请选择" },
-        { 2: "c" || "请选择" },
-        { 3: false }
-      ],
-      thisPageData: ["行业", "省份", "主营产品/业务"],
+      // curIndex: 0,
+      // curSelect: [
+      //   { 0: "a" || "请选择" },
+      //   { 1: "b" || "请选择" },
+      //   { 2: "c" || "请选择" },
+      //   { 3: false }
+      // ],
+      // thisPageData: ["行业", "省份", "主营产品/业务"],
       count: "" || "0",
       private: "",
       isShowNum: 1,
@@ -285,33 +286,37 @@ export default {
       this.$emit("close");
     },
     
-    search() {
-      if (!this.wordlistindustry || !this.wordlistarea) {
-        return alert("请选择行业或省份");
-      }
-      Object.values(this.wordlistindustry).map(item => {
-        this.postToBack["id"] = item.id;
-      });
-      Object.values(this.wordlistarea).map(item => {
-        this.postToBack["province"] = item.name;
-      });
 
-      console.log(this.$api.precise);
 
-      this.$axios
-        .get(`${this.$api.precise}/precise/`, {
-          params: {
-            industryid: 1,
-            province: "西藏",
-            page: 1
-          }
-        })
-        .then(res => {
-          console.log(res.data);
-          this.companyList = res.data.enterprise_data;
-          this.count = res.data.count;
-        });
-    },
+    // search() {
+    //   if (!this.wordlistindustry || !this.wordlistarea) {
+    //     return alert("请选择行业或省份");
+    //   }
+    //   Object.values(this.wordlistindustry).map(item => {
+    //     this.postToBack["id"] = item.id;
+    //   });
+    //   Object.values(this.wordlistarea).map(item => {
+    //     this.postToBack["province"] = item.name;
+    //   });
+
+    //   console.log(this.$api.precise);
+
+    //   this.$axios
+    //     .get(`${this.$api.precise}/precise/`, {
+    //       params: {
+    //         industryid: 1,
+    //         province: "西藏",
+    //         page: 1
+    //       }
+    //     })
+    //     .then(res => {
+    //       console.log(res.data);
+    //       this.companyList = res.data.enterprise_data;
+    //       this.count = res.data.count;
+    //     });
+    // },
+
+
     isShow(flag) {
       this.flag = flag;
       this.isShowFlowWindow = true;

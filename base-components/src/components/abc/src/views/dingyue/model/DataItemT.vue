@@ -1,34 +1,31 @@
 <template>
   <div>
     <div
+      class="index_list_r_list_s"
+      @click="showDetail(pData)"
       v-for='(pData,index) in pData'
       :key='index'
     >
-      <div
-        class="index_list_r_list_s"
-        @click="showDetail"
-      >
-        <div class="index_list_r_list_t">
-          <div class="index_list_r_list_d pos_res">
-            <div class="index_list_r_list_d_p1">
-              <div class="list_d_s1">
-                <p></p>
-                <p><span class="fz_24">{{pData.BidsPirce  == 0 ? '(看详情)' :pData.BidsPirce }}</span>万</p>
-                <!-- <p><span class="fz_24">{{(pData.BidsPirce / 10000).toFixed(2) == 0 ? '(看详情)' :(pData.BidsPirce / 10000).toFixed(2)}}</span>万</p> -->
-              </div>
-              <div class="list_d_s2">
-                <p class="fC2 p1">{{pData.Title}}</p>
-                <p class="fC1 fz_22 p2">招标单位:<span>{{pData.Company}}</span></p>
-                <ul class="clear fz_20">
-                  <li class="fl fC1">截标:<span>{{pData.EndDate}}</span></li>
-                </ul>
-              </div>
-              <div
-                class="list_d_s3"
-                :class="{time_out:pData.status === '1'}"
-              >
-                <span class="text">{{pData.status === '1' ? '已截止' : '正在进行'}}</span>
-              </div>
+      <div class="index_list_r_list_t">
+        <div class="index_list_r_list_d pos_res">
+          <div class="index_list_r_list_d_p1">
+            <div class="list_d_s1">
+              <p></p>
+              <p><span class="fz_24">{{pData.BidsPirce  == 0 ? '(看详情)' :pData.BidsPirce }}</span>万</p>
+              <!-- <p><span class="fz_24">{{(pData.BidsPirce / 10000).toFixed(2) == 0 ? '(看详情)' :(pData.BidsPirce / 10000).toFixed(2)}}</span>万</p> -->
+            </div>
+            <div class="list_d_s2">
+              <p class="fC2 p1">{{pData.Title}}</p>
+              <p class="fC1 fz_22 p2">招标单位:<span>{{pData.Company}}</span></p>
+              <ul class="clear fz_20">
+                <li class="fl fC1">截标:<span>{{pData.EndDate}}</span></li>
+              </ul>
+            </div>
+            <div
+              class="list_d_s3"
+              :class="{time_out:pData.status === '1'}"
+            >
+              <span class="text">{{pData.status === '1' ? '已截止' : '正在进行'}}</span>
             </div>
           </div>
         </div>
@@ -66,8 +63,8 @@ export default {
     PopDetail
   },
   methods: {
-    showDetail() {
-      this.$emit("showDetail");
+    showDetail(item) {
+      this.$emit("showDetail", item);
     }
   }
 };

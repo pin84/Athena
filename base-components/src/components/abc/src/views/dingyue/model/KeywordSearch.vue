@@ -4,7 +4,7 @@
     class="main_bgcolor_f3f3f3 pos_res h "
   >
     <div class="select-list">
-      <ul class="index_list_r_tag clear w ">
+      <ul class="index_list_r_tag clear kw ">
         <li
           class="fl bs_bb fC2"
           :class="{active:item.active}"
@@ -16,8 +16,21 @@
           {{item.kw}}
         </li>
       </ul>
+      <!-- <h2 class="title-hs">历史关键词：</h2>
+      <ul class="index_list_r_tag clear">
+        <li
+          class="fl bs_bb fC2"
+          :class="{active:item.active}"
+          v-for="(item,index) in historyKw"
+          :key="index"
+          ref="keyword"
+          @click="selectKeyword(item,index)"
+        >
+          {{item.kw}}
+        </li>
+      </ul> -->
 
-      <p class="w main_bgcolor_ffffff p_t_20 p_b_20">
+      <p class="main_bgcolor_ffffff p_t_20 p_b_20">
         <button
           type="button"
           class="btn_110"
@@ -41,7 +54,20 @@ export default {
   data() {
     return {
       keyword: [{ kw: "全部" }],
-      postData: {}
+      postData: {},
+      historyKw: [
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" },
+        { kw: "abc" }
+      ]
     };
   },
   created() {
@@ -80,25 +106,48 @@ export default {
       }
 
       if (item["kw"] === "全部") {
-        this.keyword.forEach(keyword => {
-          this.$delete(keyword, "active");
-        });
+        this.keyword.forEach(keyword => this.$delete(keyword, "active"));
+        this.historyKw.forEach(hs => this.$delete(hs, "active"));
+
         this.$set(item, "active", true);
       } else {
         this.$delete(this.keyword[0], "active");
       }
     },
+    kwHandler(arr) {
+      let tem = [];
+      arr.forEach(item => {
+        if (this.keyword[0].active) {
+          tem.push(item.kw);
+        } else if (item.active) {
+          tem.push(item.kw);
+        }
+      });
+      return tem;
+    },
     search() {
-      this.$emit("keySearch", this.keyword);
+      let kw = this.kwHandler(this.keyword);
+      let hkw = this.kwHandler(this.historyKw);
+
+      if (kw.length === 0) {
+        this.keyword.forEach(item => {
+          kw.push(item.kw);
+        });
+      }
+      if (kw[0] === "全部") {
+        kw.shift();
+      }
+      this.$emit("keySearch", kw.join());
     }
   }
 };
 </script>
 
+
 <style lang="stylus" scoped>
 .main_bgcolor_f3f3f3
   position: fixed;
-  top: 2rem;
+  // top: 2rem;
   left: 0;
   width: 100%;
   height: 100%;
@@ -131,14 +180,22 @@ export default {
     padding:0.2rem 2.6% 0.98rem;
     
 }
+.title-hs{
+  padding 0 0.1rem
+  background-color #fff
+}
 .index_list_r_tag{
     background-color #fff
-    height 5rem
+    height 2.5rem
     overflow-y auto
-    padding:0.18rem;
+    padding:0.1rem;
     box-sizing:border-box;
     // margin-top:0.2rem
 }
+.kw{
+  height 5rem  
+}
+
 .index_list_r_tag>li{
     width:27.9%;
     margin:0 8.15% 0.2rem 0;

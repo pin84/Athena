@@ -1,7 +1,10 @@
 <template>
-  <div id="operator">
-    <TopSort />
+  <div id="operator-t">
     <div class="pushTemplateList">
+      <div class="top-router">
+
+        <TopSort />
+      </div>
       <h3>短信模板审核列表</h3>
       <ul class="list">
         <!-- <li class="item" v-if="isEmpty" >
@@ -127,17 +130,19 @@ export default {
     },
 
     // 根据 状态排序
-    stateSort(arr, sortProperty, sortRule = false) {
-      arr.sort((a, b) => {
-        let sta = a.itemData[sortProperty];
-        let stb = b.itemData[sortProperty];
-        if (sortRule) {
-          return stb - sta;
-        } else {
-          return sta - stb;
-        }
-      });
-    },
+    // stateSort(arr, sortProperty, sortRule = false) {
+    //   console.log(`=======`,arr);
+    //   arr.sort((a, b) => {
+    //     let sta = a.itemData[sortProperty];
+    //     let stb = b.itemData[sortProperty];
+
+    //     if (sortRule) {
+    //       return stb - sta;
+    //     } else {
+    //       return sta - stb;
+    //     }
+    //   });
+    // },
 
     // 模板列表数据转换
     auditListTrans(temList, rule = "state", sortRule = false) {
@@ -187,12 +192,15 @@ export default {
           itemData: ele
         };
         // console.log(item)
-        // debugger
         showTemList.push(item);
       });
       // let str1 = JSON.parse(JSON.stringify(showTemList))
-      this.stateSort(showTemList, rule, sortRule);
-      console.log(showTemList);
+      // this.stateSort(showTemList, rule, sortRule);
+
+      showTemList.sort((a, b) => {
+        return new Date(b["申请日期"]) - new Date(a["申请日期"]);
+      });
+
       this.templates = showTemList;
       // let str2 = JSON.parse(JSON.stringify(showTemList))
     },
@@ -299,7 +307,7 @@ export default {
       let input = this.$refs.input;
       let str = input[index].value;
       str = this.opinionText = "运营商审核建议:" + str;
-      if (str.length < 5) {
+      if (str.length < 13) {
         return this.$toast("审核意见不能少于5个字");
       }
       this.isAgreeCommonFun(item, false, str);
@@ -333,13 +341,25 @@ export default {
 </script>
 
 <style lang="stylus" scope>
-#operator
+#operator-t
   position absolute
   top 0
   left 0
   width 100%
-  bottom 0.98rem
-  overflow scroll
+  height 100vh
+  // bottom 0.98rem
+  // overflow scroll
+  // -webkit-overflow-scrolling touch
+  .pushTemplateList
+    width 100%
+    padding-top 1.2rem
+    padding-bottom 1.3rem
+    box-sizing border-box
+    .top-router
+      position absolute
+      top 0
+      width 100%
+      height 1rem
 
 // 审核人前分割 s
 .line-slice
@@ -357,8 +377,6 @@ export default {
     flex-basis 30%
 .title-content
   width 70%    
-  // input 
-  //   border none  
 /*
 .item-span
   // float left

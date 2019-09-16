@@ -216,6 +216,7 @@
               <!-- <img class="circle-img" src="../../assets/icon/main-btng-1.png"> -->
             </div>
           </div>
+
         </div>
         <!-- 触客分发 -->
         <div @click="$toast({message:'上下链暂未开放该功能~~'})" :style="moreBtnCenter" class="more-ubtn ubtn-2">
@@ -235,11 +236,11 @@
           </div>
         </div>
     </div>
-    <div class="fresh-btn" @click="freshIndustry">
+    <!-- <div class="fresh-btn" @click="freshIndustry">
       <div class="fresh-center-circle">
-        <!-- <i class="fresh-btn-icon iconfont">&#xe6a7;</i> -->
       </div>
-    </div>
+    </div> -->
+    <!-- <i class="fresh-btn-icon iconfont">&#xe6a7;</i> -->
 
     <div v-show="isShowChooseBtns" class="industry-choose-btnG" :style="'height:auto;'">
       <ul>
@@ -272,7 +273,9 @@
     <template>
       <MoreDimenPop @freshMainBtn="saveMainFn" :is-show-main-select='isShowMore' :dimen-data="userDimen" />
     </template>
-    
+
+    <!-- <LabelShow :labelShow="labelShow" :companyInfo="chooseCompany"/> -->
+    <PushMsg />
   </div>
 </template>
 
@@ -284,19 +287,20 @@ let vm = null,
   
   import downIndustry from "@/assets/js/downIndustry" //下链行业JSON
   import upIndustry from "@/assets/js/upIndustry" //上链行业JSON
-
-  import { stringify } from 'querystring';
-  import { setTimeout } from 'timers';
+  // import LabelShow from "@/components/pop/shanglian/LabelShow";
 
   import provinceShort from '@/assets/js/Province.json';
   import provinceCode from '@/assets/js/provinceCode.json';
-import { debug } from 'util';
+  
+
+  import PushMsg from '@/components/pop/shanglian/CompanyList_2.vue'
 
 export default {
   name: "NewChart",
   components: {
-    
+    PushMsg,
     MoreDimenPop, //更多 弹窗
+    // LabelShow,
 
   },
   // provinceCode:vm.provinceDict[vm.provinceTrans(ele.data.Name)],
@@ -403,150 +407,202 @@ export default {
       showingPieInfo:{},
       provinceDict:{}, // 省份简称字典
 
+      labelShow:{
+        isShow:false,
+
+      },
+
+      // 之前用于海报 现在暂时废弃
+      chooseCompany: {
+        companyName: "",
+        companyTags: [],
+        enterprisesid: "",
+        industryid: 0
+      },
+      
+      activatedFunc:false,
+
+      freshInterval:0,
     };
   },
   beforeCreate() {
     vm = this;
     d3 = this.$d3;
+    
   },
 
-  async created() {
-    // this.provinceDict = this.createProvinceDict();
-    // console.log(provinceCode);
-    /*
-    console.warn('噶噶啊啊尴尬');
-    let link = location.href.split(location.host)[1];
-    
-    pushHistory();
-    window.addEventListener("popstate", function(e) {
-        WeixinJSBridge.invoke('closeWindow',{},function(res){ });
-    }, false);
+  created() {
+  
+  },
 
-    function pushHistory() {
-        var state = {
-            title: "index",
-            url: link
-        };  
-        console.log(link)
-        window.history.pushState(state, "index", link);  
-    }
-    */
-    // this.$router.push({
-    //   path:this.$route.path,
-    //   query:Object.assign({},this.$route.query)
-    // })
-    
-    this.$indicator.open({
-      text: `数据 让营销者先行...`,
-    });
-    
+  async mounted(){
+
     upIndustry.forEach((ele,index)=>{
-      this.upSelectBtnData[ele.name] = index
-    })
+      this.upSelectBtnData[ele.name] = index;
+    });
+
     downIndustry.forEach((ele,index)=>{
-      this.downSelectBtnData[ele.name] = index
-    })
+      this.downSelectBtnData[ele.name] = index;
+    });
     
     // 获取用户自定义维度
     this.userDimen = this.$commonFn.handleStroage.getLocalStorage('userDimen') || this.userDimen
 
     // 请求分别获取上下链数据
-    let downData = await this.$axios.get(this.$api.downData).then(res=>{
+    let downDataReq = this.$axios.get(this.$api.downData).then(res=>{
       if(res.data.message){
         this.$toast({
           message:'下链数据加载失败,请重新加载',
         });
-        this.$indicator.close();
-        // alert('下链数据'+res.data.message+'请重新加载')
       }
       return res.data
-
-    })
-    .catch(rej=>{
+    }).catch(rej=>{
       // alert(rej)
       // alert('downData fail')
       console.log(rej)
       return rej
-     })
-
-    let upData = await this.$axios.get(this.$api.upData).then(res=>{
+      })
+    
+    let upDataReq = this.$axios.get(this.$api.upData).then(res=>{
       if(res.data.message){
         this.$toast({
           message:'上链数据加载失败,请重新加载',
         })
-        this.$indicator.close();
-        // alert('上链数据'+res.data.message+'请重新加载')
       }
       return res.data
     })
     .catch(rej=>{
-      // alert('upData fail')
       console.log(rej)
-      // alert(JSON.stringify(rej))
       this.$toast({
         message:'上链数据加载断开,请重新加载',
       })
-      this.$indicator.close();
       return rej
     })
+
+    let downData = await downDataReq;
+    let upData = await upDataReq;
     
     let companyInfo = await this.popHrefBaseInfo();
-    companyInfo ? this.companyInfo = companyInfo:null;
-
-    companyInfo ? null :this.companyInfo = await this.$axios.get(this.$api.companyInfo,{
-      params:{
-        token:this.$store.state.loginInfo.userInfo.token
-      }
-    }).then(res=>res.data)
-    .catch(rej=>{console.log(rej)
-      this.$toast({
-          message:'公司数据加载失败,请重新加载',
-      })
-      return rej;
-    });
     
-    // console.log('newChart,获取公司的基本信息。并存到store',this.companyInfo);
-    this.$store.commit('indexInfo',this.companyInfo);
-    localStorage.setItem('com-indexinfo',JSON.stringify(this.companyInfo))
+    let getCompanyCreate = function(){};
+    getCompanyCreate = this.$watch('$store.state.company.indexInfo',()=>{
+      let willUseCompanyInfo = companyInfo ? companyInfo:this.$store.state.company.indexInfo;
+      if(this.companyInfo === willUseCompanyInfo){return false}
+      
+      this.companyInfo = willUseCompanyInfo;
 
-    let newJson = this.json2forceData(downData,upData);
-    this.$nextTick()
-        .then(this.sizeSet())//屏幕自适应
-        .then(this.colorIcon())
-        .then(this.initAtlasPie()) //初始化饼图
-        .then(this.simulation = this.init(newJson)) //初始化 主要是初始化图谱
-        .then(this.initBotInfoPie(this.companyInfo)) //初始化 底部饼图
-        .then(this.initBotInfoSide(this.companyInfo)) //初始化底部黑边 以及底部百分比半圆环
-        .then(this.createHrefPie(this.simulation)) //对应分享信息 假如存在对应信息 则打开对应图谱
-        // .then(this.popHrefBaseInfo())
-    this.bus.$on('changeCompany',this.changeCompany)
+      if(this.companyInfo === null){return false}
+      
+      this.createInit(downData,upData);
+      
+      getCompanyCreate();
+      
+    },{ immediate:true })
+
   },
   methods: {
     
+    async createInit(downData,upData){
+      console.trace();
+      
+      this.$store.commit('indexInfo',this.companyInfo);
+      
+      // localStorage.setItem('com-indexinfo',JSON.stringify(this.companyInfo))
+
+      let newJson = this.json2forceData(downData,upData);
+      this.$nextTick()
+          .then(()=>{
+            this.forceDelete();
+            this.sizeSet() //屏幕自适
+            this.colorIcon()
+            this.initAtlasPie()  //初始化饼图
+            this.simulation = this.init(newJson)  //初始化 主要是初始化图谱
+            this.initBotInfoPie(this.companyInfo)  //初始化 底部饼图
+            this.initBotInfoSide(this.companyInfo)  //初始化底部黑边 以及底部百分比半圆环
+            this.createHrefPie(this.simulation) //对应分享信息 假如存在对应信息 则打开放大对应图谱
+          })
+          // .then(this.sizeSet())//屏幕自适应
+          // .then(this.colorIcon())
+          // .then(this.initAtlasPie()) //初始化饼图
+          // .then(this.simulation = this.init(newJson)) //初始化 主要是初始化图谱
+          // .then(this.initBotInfoPie(this.companyInfo)) //初始化 底部饼图
+          // .then(this.initBotInfoSide(this.companyInfo)) //初始化底部黑边 以及底部百分比半圆环
+          // .then(this.createHrefPie(this.simulation)) //对应分享信息 假如存在对应信息 则打开放大对应图谱
+          
+      return true;
+    },
+
     // 弹出分享时出现的公司弹窗
     popHrefBaseInfo(){
-      let { enterpriseid,enterprise,industryid } = this.$route.query;
+      // enterprise companyName 均是企业名称 只是参数不同 表现不同
+      // 含有enterprise 弹出基本信息 含有companyName 弹出企业主营标签
+      let { enterpriseid,enterprise,industryid,companyName } = this.$route.query;
       
-      if([enterpriseid,enterprise,industryid].indexOf(undefined) !== -1) {
+      if([enterpriseid,enterprise||companyName,industryid].indexOf(undefined) !== -1) {
         return false
       };
       
-      this.$store.commit('showPop',{
-        popName:'dimen-1',
-        params:{
-          chooseInfo:{
-            enterpriseid,
-            industryid,
+      if(enterprise){
+        this.$store.commit('showPop',{
+          popName:'dimen-1',
+          params:{
+            chooseInfo:{
+              enterpriseid,
+              industryid,
+              enterprise,
+            }
           }
-        }
-      });
-      return this.searchNewCompanyInfo(enterpriseid,enterprise,industryid)
+        });
+      }
+      return this.searchNewCompanyInfo(enterpriseid,enterprise||companyName,industryid)
+    },
+
+    // 根据企业id 企业名 行业id 获取新的企业信息并数据转换
+    async searchNewCompanyInfo(enterpriseid,enterprise,industriesId){
+      let companyOtherInfo = await this.$axios.get(this.$api.searchCompany,{
+          params:{
+            enterpriseid:enterprise,
+            industryid:+industriesId
+          }
+      }).then(res=>res.data).catch(rej=>rej)
+      console.log(companyOtherInfo);
+      let {code,count,identity_status,kind,kind_count,number} = companyOtherInfo;
+      
+      let authComInfo =  this.$store.state.company.authComInfo;
+
+      if(authComInfo){
+          let {
+              enterprise:authCompany,
+              enterpriseid:authId,
+          } = authComInfo;
+
+          if(authCompany == enterprise && authId==enterpriseid){
+              identity_status = true
+          }
+
+      }
+
+      let companyInfo = {
+          code,
+          count, //访问数
+          enterprise: enterprise,
+          enterpriseid: enterpriseid,
+          industryid: industriesId,
+          number, //推荐数
+          kind,
+          kind_count,
+          identity_status,
+      }
+
+      return companyInfo;
+
     },
 
     // 分享获取饼图并显示
     createHrefPie(simulation){
     let { dataType, industryName, industryID} = this.$route.query
       if([dataType,industryID,industryName].indexOf(undefined) !== -1) return ;
+      
       this.isPlus = true;
       this.nodePlus(null,simulation,{
         dataType,
@@ -638,57 +694,30 @@ export default {
       
     },
 
-    // 根据企业id 企业名 行业id 获取新的企业信息并数据转换
-    async searchNewCompanyInfo(enterpriseid,enterprise,industriesId){
-      let companyOtherInfo = await this.$axios.get(this.$api.searchCompany,{
-        params:{
-          enterpriseid:enterpriseid,
-          industryid:+industriesId
-        }
-      }).then(res=>res.data).catch(rej=>rej)
-      console.log(companyOtherInfo);
-      let {code,count,identity_status,kind_count,number} = companyOtherInfo;
-      
-      let authComInfo =  this.$store.state.company.authComInfo;
-
-      let {
-        enterprise:authCompany,
-        enterpriseid:authId,
-      } = authComInfo;
-
-      // enterpriseid,enterprise,industriesId
-      if(authComInfo && authCompany == enterprise && authId==enterpriseid){
-        identity_status = true
-      }
-
-      // if(authComInfo && authComInfo)
-
-      let companyInfo = {
-        code,
-        count, //访问数
-        enterprise: enterprise,
-        enterpriseid: enterpriseid,
-        industryid: industriesId,
-        number, //推荐数
-        kind_count,
-        identity_status,
-      }
-
-      return companyInfo;
-    },
 
     // 更改企业显示
-    async changeCompany(enterpriseid,enterprise,industriesId){
-        let companyInfo = await this.searchNewCompanyInfo(enterpriseid,enterprise,industriesId);
-        vm.companyInfo = companyInfo
+    async changeCompany(enterpriseid,enterprise,industriesId,hadCompanyInfo){
+        console.log('706 changeCompany');
+        let companyInfo;
+        if(hadCompanyInfo){
+          companyInfo = hadCompanyInfo;
+        }else{
+          companyInfo = await this.searchNewCompanyInfo(enterpriseid,enterprise,industriesId);
+          vm.companyInfo = companyInfo
+        }
         this.$store.commit('indexInfo',companyInfo)
-        localStorage.setItem('com-indexinfo',JSON.stringify(this.companyInfo));
-
+        
         this.freshIndustry(); //行业刷新
+        vm.removeBot();
         vm.initBotInfoPie(companyInfo) //初始化 底部饼图
         vm.initBotInfoSide(companyInfo) //初始化底部黑边 以及底部百分比半圆环
     },
-
+    // 清空底部边栏
+    removeBot(){
+      d3.selectAll('.info-pie-g').remove();
+      d3.selectAll('.botSide').remove();
+      
+    },
     // 删除力布局 用于刷新页面
     forceDelete(){
       d3.selectAll('.nodes').remove();
@@ -697,7 +726,18 @@ export default {
     },
     // 行业刷新
     async freshIndustry(){
-      
+      if(this.freshInterval >8){
+        this.$toast({
+          message:'刷新过于频繁,请稍后再试'
+        })
+        setTimeout(()=>{
+          this.freshInterval = 0;
+        },100000)
+        return;
+
+      }
+      this.freshInterval++;
+
       // 请求分别获取上下链数据
       let downData = await this.$axios.get(this.$api.downData).then(res=>res.data)
       .catch(rej=>{console.log(rej)})
@@ -1015,39 +1055,7 @@ export default {
       pieG.attr('transform', `translate(${outerRadius}, ${outerRadius}) rotate(90)`);
 
     },
-    // 初始化 pie图片 暂时废弃 无用
-    initPie(nodePie){
-      let pie = d3.pie().value(item=>item.Count),//角度生成器
-          arc = d3.arc().innerRadius(0).outerRadius(outerRadius - 2), //圆弧生成器
-      outerRadius = this.outerRadius, //图谱半径
-      colorList =['#61a0a8','#ff8900','#d48265'],
-      pieData=[] //存储角度生成器生成的数据
-      ; 
 
-      nodePie.datum(function(d){
-        pieData.push(pie(d.provinceList)); //通过 角度生成器的计算 得到 角度结果
-      })
-
-      nodePie.append('g')
-             .append('path')
-             .attr('d',pieData)
-      pieData.forEach((ele,index)=>{
-        // 输入角度信息 得到path元素属性d对应的值 用以描绘圆弧
-        let arcRes = arc(ele);
-        let piePath  = nodePie
-                        .append('path')
-                        .attr('d',arcRes)
-                        .attr('stroke','transparent')
-                        .attr('fill',function(d,index){
-                          if(index < colorList.length){
-                            return colorList[index]
-                          }else{
-                            return colorList[0]
-                          }
-                        })
-        })
-    },
-    
     // 渐变色预定义 此处有用于填充按钮
     colorIcon(){
       let svg = d3.select('svg'),
@@ -1072,38 +1080,34 @@ export default {
     
     // 初始化 图谱 #init-start
     init(graphData) {
-      vm.isPlus = false;
-      vm.canDragged = true;
-      vm.shade = false;
-      let svg = d3.select("svg"),
-       svgWidth = this.svgWidth, //svg在屏幕中的宽度
-       svgHeight = this.svgHeight; //svg在屏幕中的高度
-      svg.append('g')
-         .attr('id','force-layout')
-      this.graphData = graphData // ajax数据处理后的数据结果
+        vm.isPlus = false;
+        vm.canDragged = true;
+        vm.shade = false;
+        let svg = d3.select("#force-lian"),
+          svgWidth = this.svgWidth, //svg在屏幕中的宽度
+          svgHeight = this.svgHeight; //svg在屏幕中的高度
+        svg.append('g')
+            .attr('id','force-layout')
+        this.graphData = graphData // ajax数据处理后的数据结果
 
-       // 数据处理
+        // simulation 初始化力布局配置
+        let simulation = this.initSimulation(),
 
-      // simulation 初始化力布局配置
-      let simulation = this.initSimulation(),
-
-      // 初始化处理节点间的连线
-       link = this.initLinks(graphData),
-       // 初始化处理节点
-       getNodes = this.initNodes(graphData,simulation), //获取初始化节点后的各个selection
-      //  getNodesPlus = this.initNodesPlus(graphData),
-       {nodeG,industryNodeG,mainNodeG}= getNodes
-       ;
-       
-
-       this.eventManage(getNodes,simulation,graphData,link,industryNodeG,mainNodeG,svgWidth,svgHeight); //事件管理中心
+        // 初始化处理节点间的连线
+          link = this.initLinks(graphData),
+          // 初始化处理节点
+          getNodes = this.initNodes(graphData,simulation), //获取初始化节点后的各个selection
+        //  getNodesPlus = this.initNodesPlus(graphData),
+          { nodeG, industryNodeG, mainNodeG }= getNodes;
+          
+          this.eventManage(getNodes,simulation,graphData,link,industryNodeG,mainNodeG,svgWidth,svgHeight); //事件管理中心
       
-      // 实时监听link node的x,y坐标更改
-      // simulation.nodes(graphData.nodes).on("tick", ()=>vm.ticked(link,nodeG,svgWidth,svgHeight));
-      // 力布局links
-      simulation.force("link").links(graphData.links);
-      d3.select('svg').append('g').attr('class','node-plus-group')
-      return simulation;
+        // 实时监听link node的x,y坐标更改
+        // simulation.nodes(graphData.nodes).on("tick", ()=>vm.ticked(link,nodeG,svgWidth,svgHeight));
+        // 力布局links
+        simulation.force("link").links(graphData.links);
+        d3.select('svg').append('g').attr('id','node-plus-group');
+        return simulation;
     },
     
     // 初始化力布局
@@ -1184,6 +1188,7 @@ export default {
                   d.nodeOrder = `node-${i}`;
                   return d;
                 })
+
       // 节点组 节点的所有内容
       nodeG = nodes.append('g')
       nodeG.attr('class',function(d){
@@ -1205,7 +1210,6 @@ export default {
         return d.industryID
       })
            
-      
       // add & pie
       industryNodeG = nodeG.select(function(d){
         if(d.pieType != 'main') {
@@ -1224,10 +1228,10 @@ export default {
             // .attr("height", d=>d.radius*2)
             // .attr('transform',d=>`translate(${-d.radius},${-d.radius})`)
 
-    // ====================================================================================
+      // ====================================================================================
       this.initPieNode(industryPie) //生成上下链饼图
 
-    // ====================================================================================
+      // ====================================================================================
 
       // 包含text标签
       
@@ -1561,34 +1565,6 @@ export default {
           })
           .enter()
           .append('g')
-          // .sort(function(a, b) {
-            
-          //   let other=null;
-          //   a.provinceCode == '其他' ? other = a.provinceCode : null;
-          //   b.provinceCode == '其他' ? other = b.provinceCode : null;
-
-          //   if(other){
-          //     return true
-          //   }
-          //   
-          //   return b.provinceCount - a.provinceCount
-          //     // return b.index - a.index;
-          // })
-
-          // .attr('class','province')
-          /*
-          .attr('class',function(d){
-            if(d.dataType == 'up'){
-              
-              return `province-${d.provinceName}`
-            }else if(d.dataType == 'down'){
-              
-              // 用于区分各行业内各省份
-              return `province-${d.provinceID}`
-            }
-          })
-          */
-
 
       // 内环圆
       let provinceInnerPath = provinceG.append('path')
@@ -1728,11 +1704,6 @@ export default {
                      .attr('text-anchor','middle') //水平居中
                      .attr('dominant-baseline','middle') //垂直居中
                      .attr('transform',`translate(0,${innerWidth/5})`)
-          // Object.assign(this.piesNodes,{
-          //   provinceName, //省份名称
-
-          // })
-
         return industryPie;
     },
 
@@ -1972,7 +1943,7 @@ export default {
     async createSinglePlusPie(industryRes){
                               //↑获取经过转换的单行业d3数据
 
-      let plusNodeGroup = d3.select('.node-plus-group')
+      let plusNodeGroup = d3.select('#node-plus-group')
                                       // .datum(function(){
                                       //   return industryRes;
                                       // })
@@ -2012,7 +1983,7 @@ export default {
                   d.nodeOrder = `node-${i}`;
                   return d;
                 })
-    //   // 节点组 节点的所有内容
+      //   // 节点组 节点的所有内容
       nodeG = nodes.append('g')
       nodeG.attr('class',function(d){
         if(d.pieType=='pie'){
@@ -2052,10 +2023,10 @@ export default {
             // .attr("height", d=>d.radius*2)
             // .attr('transform',d=>`translate(${-d.radius},${-d.radius})`)
 
-    // ====================================================================================
+      // ====================================================================================
       this.initPieNode(industryPie) //生成上下链饼图
 
-    // ====================================================================================
+      // ====================================================================================
 
       // 包含text标签
       
@@ -2133,8 +2104,8 @@ export default {
         
       }
       
-
-      let svg = d3.select('svg')
+      
+      let svg = d3.select('#force-lian')
       let infoPieG = svg.append('g')
                         .attr('class','info-pie-g')
                         
@@ -2238,7 +2209,9 @@ export default {
       recText.datum(function(){
               let d = {}
               d.func='recommend';
-              d.changeText = recNum+1;
+              d.recNum = recNum;
+              
+              d.isRec = false;
               return d
               })
 
@@ -2308,7 +2281,7 @@ export default {
         console.warn('enterprise is undefined or null')
         return
       }
-      let svg = d3.select('svg')
+      let svg = d3.select('#force-lian')
       
       // 黑边
         let botSideG = svg.append('g')
@@ -2483,25 +2456,53 @@ export default {
         if(func){
           switch(func){
             // 推荐人数+1
-            case 'recommend' :
-            let company_id = vm.$store.state.company.indexInfo.enterpriseid,
-                token = vm.$store.state.loginInfo.userInfo.token;
-
-            /* 程序出错
-            vm.$axios.post(vm.$api.Recommend,{
-              company_id,
-              token
-            })
-            .then(res=>{
-              console.log(res);
-            })
-            .catch(rej=>{
-              console.log(rej);
-            })*/
-
-            d3.select('#recText').html(function(d){
-                return d.changeText;
-            })
+            case 'recommend':
+              let company_id = vm.$store.state.company.indexInfo.enterpriseid,
+                  token = vm.$store.state.loginInfo.userInfo.token,
+                  industryid = +vm.$store.state.company.indexInfo.industryid;
+              let isRec;
+              d3.select('#recText').datum(function(d){
+                  isRec = d.isRec
+                  return d;
+              })
+              if(isRec){
+                // 是否已推荐 true 已推荐 false 未推荐
+                vm.$toast({
+                  message:"你已经推荐过该企业"
+                })
+                return;
+              }
+              // /* 程序出错
+              vm.$axios.post(vm.$api.Recommend,{
+                company_id,
+                industryid,
+                token,
+                i_recommend:true,
+              })
+              .then(res=>{
+                console.log(res);
+                let { message } = res.data;
+                console.log(message)
+                let addRecNum =0;
+                if(message){
+                  vm.$toast({
+                    message
+                  })
+                }else{
+                  vm.$toast({
+                    message:"推荐成功"
+                  })
+                  addRecNum++;
+                }
+                d3.select('#recText').html(function(d){
+                    d.isRec = true;
+                    return d.recNum + addRecNum;
+                })
+              })
+              .catch(rej=>{
+                console.log(rej);
+              })
+            
             
             break;
 
@@ -2511,12 +2512,8 @@ export default {
             
             // 点击右下角未认证饼图
             case 'isAuth' :
-              let targetText;
-              d3.select('#is_auth').datum((d)=>{
-                targetText = d.identity_status
-                return d
-              });
-              if(targetText == '未认证'){
+              let status = vm.$store.state.company.indexInfo.status;
+              if(status === false){
                 vm.$router.push({
                   name:'autConfig'
                 })
@@ -2636,7 +2633,13 @@ export default {
           industryName, //仅用于显示
         }
       });
+
+      
+
     },
+
+
+
 
     // 非主节点的饼图节点点击放大后点击各省份的事件
     async pieBtnItem(Target){
@@ -2691,19 +2694,7 @@ export default {
 
       if(provinceID!== 'other'){
 
-        // this.$indicator.open({
-        //   text: '数据 让营销者先行...',
-        // });
-
-        // let listData = await this.$axios.get(this.$api.searchPrinceCom,{
-        //     params:{
-        //     industryid,
-        //     provinces,
-        //     logo:logoType,
-        //     up_industry: logoType=='up'?up_industry:null,
-        //     token:this.$store.state.loginInfo.userInfo.token
-        //   }
-        // })
+        
 
         // 饼图按钮获取企业列表信息
         this.pieBtnReqCompanyList({
@@ -2719,7 +2710,6 @@ export default {
 
       }else{
         // 当点击饼图中的其他按钮时
-        
         vm.showingPieInfo =  {
           industryid,
           // provinces,
@@ -2742,6 +2732,7 @@ export default {
       }
 
     },
+
     // 点击事件处理
     mainBtnItem(order){
       //获得order 得知是主节点的哪个按钮被触发 并触发相关事件
@@ -2757,11 +2748,52 @@ export default {
       setTimeout(()=>{
         orderBtn.attr('transform','scale(1)')
       },1000)
-
+      let {
+        enterprise:companyName,
+        kind,
+        enterpriseid:enterprisesid,
+        industryid,
+      } = vm.$store.state.company.indexInfo;
+      
       switch(order){
         case '0':
-        console.log('0')
+          console.log('0')
+          vm.$store.commit("showPop", {
+            popName: "dimen-" + (+order+1),
+            params: {
+            }
+          });
         break;
+        case '1':
+          console.log('1');
+          console.log('每天海报');
+          
+          let chooseCompany = {
+            companyName,
+            companyTags:kind,
+            enterprisesid,
+            industryid,
+          }
+          
+          vm.$router.push({
+            name:'poster',
+            params:chooseCompany
+          })
+          
+          // vm.labelShow.isShow = true;
+        break;
+        case '2':
+          vm.$router.push({
+            path:'/chuke-msg'
+          });
+
+        break;
+        case '5':
+          
+          vm.bus.$emit('labelShowCall', enterprisesid,companyName,industryid, vm.$store.state.company.indexInfo );
+          
+        break;
+
         case '9':
           console.log('9')
         break;
@@ -2775,15 +2807,15 @@ export default {
         });
         return;
       }
-      if(true){
 
-      }
-      
-      vm.$store.commit("showPop", {
-        popName: "dimen-" + (+order+1),
-        params: {
-        }
-      });
+      // if(order !== 1){
+      //   vm.$store.commit("showPop", {
+      //     popName: "dimen-" + (+order+1),
+      //     params: {
+      //     }
+      //   });
+
+      // }
 
     },
 
@@ -2803,10 +2835,10 @@ export default {
       this.canDragged = false;
       // 打开背景遮罩
       this.bgShade.style('display','block');
-      simulation.stop()      
+      simulation.stop();
       vm.isHidFreshBtns = true;
       vm.bottomShow = false;
-      if(plusItem!==null){
+      if( plusItem !== null ){
         plusItem.datum(function(d){
           plusOrder = d.nodeOrder;
           pieType = d.pieType;
@@ -2818,7 +2850,7 @@ export default {
   
           return d
         })
-      }else if(hrefPieInfo){
+      }else if( hrefPieInfo !== null ){
         dataType = hrefPieInfo.dataType,
         industryName = hrefPieInfo.industryName,
         industryID = hrefPieInfo.industryID;
@@ -3043,8 +3075,6 @@ export default {
       return {nodeG,industryNodeG,mainNodeG,industryPie,pieBtnUse,addBtnUse,};
     },
     
-
-
     // 触摸到对应的node会触发 包括点击 拖拽
     dragstarted(d,simulation) {
       if(d.pieType=='main') return
@@ -3054,6 +3084,7 @@ export default {
       d.fx = d.x;
       d.fy = d.y;
     },
+
     // 拖拽中
     dragged(d,width,height) {
       if(d.pieType=='main') return
@@ -3069,12 +3100,8 @@ export default {
       d.fy = null;
     },
     
-
-
   },
   computed:{
-
-    
     
     moreBtnLeft:function(){
       
@@ -3122,21 +3149,30 @@ export default {
     }
 
   },
-  watch:{
 
-    bottomShow(newVal){
-      // let infoPie = d3.select('.info-pie-g');
-      // let botSide = d3.select('.botSide');
-      // infoPie.style('display',newVal?'block':'none');
-      // botSide.style('display',newVal?'block':'none');
+  activated(){
+    console.log('activated')
+    if(this.activatedFunc !== false){
+      console.log('activated run!!!')
+      this.$nextTick(()=>{
+
+        this.activatedFunc.func(...this.activatedFunc.params)
+        this.activatedFunc = false
+      })
       
-    },
+    }
 
-
+  },
+  deactivated(){
+    this.bus.$on('changeCompany',(enterpriseid,enterprise,industriesId,hadCompanyInfo)=>{
+      console.log('changeCompany listen')
+      this.activatedFunc = {};
+      this.activatedFunc.params = [enterpriseid,enterprise,industriesId,hadCompanyInfo]
+      this.activatedFunc.func = this.changeCompany
+    })
   },
   destroyed(){
     this.bus.$off('changeCompany');
-
   }
 };
 </script>

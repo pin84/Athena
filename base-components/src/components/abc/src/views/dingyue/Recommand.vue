@@ -1,36 +1,25 @@
 <template>
-  <div
-    id="app"
-    class="main_bgcolor_f3f3f3 pos_res i-more-result"
-  >
+  <div id="app" class="main_bgcolor_f3f3f3 pos_res i-more-result">
     <div class="top">
       <span>{{company.name}}</span>
       <!-- <span style="color:#09a2a3;">【采招推荐】</span> -->
     </div>
     <div class="mainbody">
-      <div
-        id="scrollBox"
-        class="w bs_bb accurateSearchBox-list"
-      >
-
+      <div id="scrollBox" class="w bs_bb accurateSearchBox-list">
         <p class="accurateSearchBox-list-title fz_24">
-          <span>
-            主营业务：{{company.business}}
-          </span>
+          <span>主营业务：{{company.business}}</span>
           <!-- <span> 收集到</span>
           <span style="color: rgb(190, 2, 3);">
             {{resultNum}}
           </span>
           <span>条采标信息</span>
-          <span v-if="!dataList.length">请更换搜索条件</span> -->
+          <span v-if="!dataList.length">请更换搜索条件</span>-->
         </p>
         <p class="accurateSearchBox-list-title fz_24">
           <span>收集到</span>
-          <span style="color: rgb(190, 2, 3);">
-            {{resultNum || 0}}
-          </span>
+          <span style="color: rgb(190, 2, 3);">{{resultNum || 0}}</span>
           <span>条采标信息</span>
-          <span v-if="!dataList">请完善企业画像</span>
+          <span v-if="!dataList">请完善企业自画像</span>
         </p>
       </div>
 
@@ -39,39 +28,38 @@
           v-infinite-scroll="loadMore"
           infinite-scroll-disabled="loading"
           infinite-scroll-distance="10"
+          infinite-scroll-immediate-check="isImmediateCheck"
         >
-          <li
+          <!-- <li
             class="item"
             v-for='(item,index) in dataList'
             :key="index"
-          >
-            <DataItem
-              :pData='item'
-              @showDetail='showDetail(item)'
-            />
-          </li>
+          >-->
+          <DataItem :pData="dataList" @showDetail="showDetail" />
+          <!-- </li> -->
         </ul>
       </div>
 
       <PopDetail
-        :isShow='isShowDetail'
-        :detailData='detailData'
-        @closePop='closeDetail'
-        :content='content'
+        :isShow="isShowDetail"
+        :detailData="detailData"
+        @closePop="closeDetail"
+        :content="content"
       />
     </div>
-
   </div>
 </template>
 <script>
-import DataItem from "./model/DataItem";
+import DataItem from "./model/DataItemT";
 import SearchList from "./model/SearchList";
 import PopDetail from "./model/PopDetail";
 import { InfiniteScroll } from "mint-ui";
+import Commonjs from "./common";
 export default {
   directives: { InfiniteScroll },
   data() {
     return {
+      isImmediateCheck: false,
       loading: false,
       token: "",
       content: "", //详情页的内容
@@ -99,35 +87,34 @@ export default {
     };
   },
 
-  created() {
+  async created() {
+    // console.log(`==aa=====`, this.$store.state.company.authComInfo);
+
     this.token = this.$store.state.loginInfo.userInfo.token;
-    let comIndexInfo = JSON.parse(localStorage.getItem("com-indexinfo"));
-    this.company.name = comIndexInfo.enterprise;
-    if (comIndexInfo.kind) {
-      this.company.business = comIndexInfo.kind.join();
+
+    let randomCompany = JSON.parse(localStorage.getItem("com-indexinfo"));
+    if (!randomCompany) {
+      console.log(`=====aa==`);
+      await this.getUserCompany();
+      randomCompany = JSON.parse(localStorage.getItem("com-indexinfo"));
+      await this.initData(randomCompany);
+    } else {
+      console.log(`=====bb==`);
+      this.initData(randomCompany);
     }
-    let data = {
-      company_name: comIndexInfo.enterprise,
-      state: comIndexInfo.identity_status,
-      page: 1,
-      kind: ""
-    };
-
-    if (comIndexInfo.kind) {
-      data.kind = comIndexInfo.kind.join().replace(/\,/g, "|");
-    }
-
-    this.searchData = data;
-
-    setTimeout(() => {
-      this.getData(this.$api.recommanInitData, this.searchData).then(
-        ({ d, count }) => {
-          this.dataList = d;
-          this.resultNum = count;
-        }
-      );
-    }, 500);
   },
+
+
+
+  // watch: {
+  //   "$store.state.company.indexInfo": {
+  //     handler: function(val, oldval) {
+  //       this.initData(val);
+  //     },
+  //     deep: true,
+  //     immediate: true
+  //   }
+  // },
   components: {
     DataItem,
     SearchList,
@@ -135,68 +122,192 @@ export default {
   },
 
   methods: {
+    async initData(comIndexInfo) {
+      // {"code":0,"enterpriseid":"de6686f307b6b6e38f28575dba379315","province":"北京市","kind":["abc"],"enterprise":"微软(中国)有限公司","industryid":"9","status":true,"count":0,"number":0,"identity_status":true,"kind_count":136}
+
+      console.log(`=======`, comIndexInfo);
+      this.company.name = comIndexInfo.enterprise;
+
+      if (comIndexInfo.kind) {
+        if (Array.isArray(comIndexInfo.kind)) {
+          this.company.business = comIndexInfo.kind.join(",");
+        } else {
+          this.company.business = comIndexInfo.kind.replace(/\|/g, ",");
+        }
+      }
+
+      let data = {
+        company_name: comIndexInfo.enterprise,
+        state: comIndexInfo.identity_status,
+        page: 1,
+        kind: this.company.business.replace(/\,/g, "|")
+      };
+
+      this.searchData = data;
+      setTimeout(async () => {
+        let res = await this.getData(
+          this.$api.recommanInitData,
+          this.searchData
+        );
+
+        if (!res) {
+          return;
+        }
+
+        if (res.d !== undefined) {
+          res.d.sort((a, b) => {
+            return new Date(b.EndDate) - new Date(a.EndDate);
+          });
+        }
+        this.dataList = res.d;
+
+        this.resultNum = res.count;
+      }, 1000);
+    },
+
     async loadMore() {
+      this.loading = true;
       if (!this.dataList.length) {
         return;
       }
       this.searchData.page++;
-      let { d } = await this.getData(
-        this.$api.recommanInitData,
-        this.searchData
-      );
+      let res = await this.getData(this.$api.recommanInitData, this.searchData);
 
-      this.dataList = this.dataList.concat(d);
+      if (!res) {
+        return;
+      }
+
+      this.dataList = this.dataList.concat(res.d);
+      this.dataList.sort((a, b) => {
+        return new Date(b.EndDate) - new Date(a.EndDate);
+      });
+      this.loading = false;
     },
 
     async getData(url, data) {
       let res = await this.$axios.get(url, { params: data });
+
+      if (res.data.message === "该企业没有主营信息") {
+        this.$toast("该企业没有主营信息");
+        this.loading = true;
+        return;
+      }
+
+      if (res.data.end) {
+        this.$toast("没有更多数据了");
+        this.loading = true;
+        return;
+      }
+
       let d = res.data.data;
       let count = res.data.count;
-      // console.log(`===aaaaaa====`,res);
 
-      // if (res.data.message === false) {
-      //   return false;
-      // }
-      // if (res.data.state === false) {
-      //   return false;
-      // }
+      if (res.data.message === false) {
+        return false;
+      }
+      if (res.data.state === false) {
+        return false;
+      }
 
-      //   let now = new Date();
-      //  d.forEach((item, index) => {
-      //     if (now > new Date(item.EndDate)) {
-      //       // item.status = "1";
+      let now = new Date();
 
-      //     }
-      //   });
+      d.forEach((item, index) => {
+        if (now > new Date(item.EndDate)) {
+          item.status = "1";
+        }
+      });
 
       return { d, count };
     },
 
-    showDetail(item) {
-      console.log(`=======`, item.id);
-      this.$axios
-        .get(`${this.$api.detailContent}${item.id}/`, {
-          params: {
-            token: this.token
-          }
-        })
-        .then(res => {
-          if (res.data.message === false) {
-            this.isShowDetail = "limit";
-          } else {
-            this.detailData = item;
-            this.isShowDetail = "detail";
-            let reg = /class=".*?"|id=".*?"/g;
-            this.content = res.data.BidsContent[0].replace(reg, "");
-            // this.content = res.data.BidsContent[0];
-          }
-        });
+    async showDetail(item) {
+      console.log(`====sdf===`, item);
+      let res = await Commonjs.showDetail(item.id, this.token);
+
+      if (res !== false) {
+        this.detailData = item;
+
+        this.isShowDetail = "detail";
+        this.content = res;
+      } else {
+        this.isShowDetail = "limit";
+      }
+
+      // console.log(`=======`, item.id);
+      // this.$axios
+      //   .get(`${this.$api.detailContent}${item.id}/`, {
+      //     params: {
+      //       token: this.token
+      //     }
+      //   })
+      //   .then(res => {
+      //     if (res.data.message === false) {
+      //       this.isShowDetail = "limit";
+      //     } else {
+      //       this.detailData = item;
+      //       this.isShowDetail = "detail";
+      //       let reg = /class=".*?"|id=".*?"/g;
+      //       this.content = res.data.BidsContent[0].replace(reg, "");
+      //       // this.content = res.data.BidsContent[0];
+      //     }
+      //   });
     },
     closeDetail() {
       this.isShowDetail = "";
     },
     closePop() {
       this.isShowDetail = "";
+    },
+    // 获取用户企业
+    async getUserCompany() {
+      let userInfo = this.$store.state.loginInfo.userInfo,
+        token = userInfo.token;
+
+      let companyInfo = await this.$axios
+        .get(this.$api.companyInfo, {
+          params: {
+            token: this.$store.state.loginInfo.userInfo.token
+          }
+        })
+        .then(res => res.data)
+        .catch(rej => {
+          this.$toast({
+            message: "公司数据加载失败,请重新加载"
+          });
+          // this.$indicator.close();
+          return rej;
+        });
+
+      console.log(`===companyInfo====`, companyInfo);
+
+      if (companyInfo.status) {
+        this.$store.commit("authComInfo", companyInfo);
+        this.$store.commit("indexInfo", companyInfo);
+        // localStorage.setItem("authComInfo", JSON.stringify(companyInfo));
+      } else {
+        //如果没有认证的企业，则查询是否有加入协同
+        let res = await this.$commonFn.isJoinCooperation(
+          this.$api.getUserAuth,
+          userInfo.token,
+          userInfo.user_id
+        );
+
+        if (res) {
+          let tem = {
+            enterprise: res.user.company_name,
+            enterpriseid: res.user.company_id
+          };
+
+          companyInfo = Object.assign(res.companyInfo, tem);
+          //储存两个store是为了区别之后的逻辑，indexInfo在使用的过程中储存当用的公司信息，比较用户搜索后的企业信息
+          this.$store.commit("authComInfo", companyInfo);
+          this.$store.commit("indexInfo", companyInfo);
+          // localStorage.setItem("authComInfo", JSON.stringify(companyInfo));
+        } else {
+          this.$store.commit("authComInfo", false);
+          this.$store.commit("indexInfo", companyInfo);
+        }
+      }
     }
   }
 };
@@ -216,9 +327,9 @@ export default {
     font-weight 600
     box-sizing border-box
   .mainbody
-    height 100%
+    height 70vh
     #listWrapper
-      height 100vh
+      height 100%
       overflow-y scroll 
       -webkit-overflow-scrolling touch
       .item

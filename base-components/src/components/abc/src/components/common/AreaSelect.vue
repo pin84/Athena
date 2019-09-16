@@ -1,36 +1,29 @@
 <template>
-  <div id="search-list">
+  <div id="search-list" v-if="isShow">
     <ul class="index_list_r_tag clear w test">
       <li
         class="fl bs_bb fC1"
-        v-for="(item,index) in area"
+        v-for="(item,index) in dataList"
         :key="index"
         :class="{active:item.active}"
         @click="select(item,index)"
         ref="item"
-      >
-        {{item.label}}
-      </li>
+      >{{item.label}}</li>
     </ul>
 
     <p class="w main_bgcolor_ffffff p_t_20 p_b_20">
-      <button
-        type="button"
-        class="btn_110"
-        style="margin-top: 0px;"
-        @click="search"
-      >确定
-      </button>
+      <button type="button" class="btn_110" style="margin-top: 0px;" @click="search">确定</button>
     </p>
   </div>
 </template>
 <script>
 export default {
   props: {
-    // keywordSearch: {
-    //   type: Boolean,
-    //   default: false
-    // },
+    dataList: {
+      type: Array,
+      default: []
+    },
+    isShow: false
     // keyword: {
     //   type: Array,
     //   default: function() {
@@ -193,50 +186,34 @@ export default {
      */
 
     select(item) {
-      if (item.active) {
-        this.$delete(item, "active");
-        // delete this.postData[item.id];
+      let arr = ["全国", "全行业", "全选"];
+
+      // if (arr.includes(item.label)) {
+      //   this.dataList.forEach(i => {
+      //     this.$set(i, "active", false);
+      //   });
+      //   this.$set(item, "active", true);
+      // } else {
+      //   this.$set(item, "active", true);
+      //   this.$set(this.dataList[0], "active", false);
+      // }
+
+      item.active
+        ? this.$set(item, "active", false)
+        : this.$set(item, "active", true);
+
+      if (arr.includes(item.label)) {
+        this.dataList.forEach(i => {
+          this.$set(i, "active", false);
+        });
+        this.$set(item, "active", true);
       } else {
-        if (item.label === "全国") {
-          this.area.forEach(area => {
-            this.$delete(area, "active");
-          });
-          this.$set(item, "active", true);
-          // this.postData = {};
-          // this.postData[item.id] = item;
-        } else {
-          this.$set(item, "active", true);
-          this.$delete(this.area[0], "active");
-          // delete this.postData["0"];
-          // this.postData[item.id] = item;
-        }
+        this.$set(this.dataList[0], "active", false);
       }
     },
 
-    // select(item, index) {
-    //   if (item.active) {
-    //     this.$delete(item, "active");
-    //     delete this.postData[index];
-    //   } else {
-    //     this.$set(item, "active", true);
-    //     this.postData[index] = item;
-    //   }
-    //   if (item.label === "全国") {
-    //     this.area.forEach(area => {
-    //       this.$delete(area, "active");
-    //     });
-    //     this.$set(item, "active", true);
-    //     this.postData = {};
-    //     this.postData[index] = item;
-    //   } else {
-    //     this.$delete(this.area[0], "active");
-    //     delete this.postData["0"];
-    //     this.postData[index] = item;
-    //   }
-    // },
-
     search() {
-      this.area.forEach(item => {
+      this.dataList.forEach(item => {
         if (item.active) {
           this.postData.push(item.label);
         }
@@ -249,14 +226,18 @@ export default {
 </script>
 <style lang="stylus" scoped>
 #search-list
-  width 100%
-  height 100%
+  position absolute
+  width 95%
+  // height 100vh
   box-sizing border-box
   background-color rgba(0,0,0,0.6)
   z-index 100
   transition 0.3s
   transform-origin 0 0
   transform scaleY(1)
+  color black
+
+
 .index_list_r_tag{
     background-color #fff
     height 5rem

@@ -1,36 +1,19 @@
 <template>
-  <div
-    id="self-pic"
-    @click="cancleDel"
-    v-show="picType"
-  >
-    <div
-      id="mainbody"
-      class="main-body"
-      ref="mainBody"
-    >
+  <div id="self-pic" @click="cancleDel">
+    <div id="mainbody" class="main-body" ref="mainBody">
       <div class="content">
-
         <h1>欢迎来到上下链</h1>
         <h3>{{picType ==='company' ? '添加您的企业标签词' : '添加您的个人标签'}}</h3>
-        <section
-          class="se"
-          v-if="picType === 'company'"
-        >
+        <section class="se" v-if="picType === 'company'">
           <div class="random">
             <h4>例如:</h4>
             <!-- <span
               class="change"
               @click="changeTags"
-            >换一批</span> -->
+            >换一批</span>-->
           </div>
           <div class="example">
-            <span
-              v-for="(example,index) in comExamples"
-              :key="index"
-            >
-              {{example}}
-            </span>
+            <span v-for="(example,index) in comExamples" :key="index">{{example}}</span>
           </div>
           <div class="btn">
             <input
@@ -39,52 +22,37 @@
               placeholder="输入企业标签词"
               v-model="companyTag"
               @focus="inputOnFocus"
-            >
-            <button
-              class="btn-add"
-              @click="addTag('company')"
-            >+添加</button>
+            />
+            <button class="btn-add" @click="addTag('company')">+添加</button>
           </div>
 
           <ul class="list">
             <li
               class="item"
-              :class="classList[idx]"
-              v-for='(tag,idx) in comTags'
-              :key='idx'
-              @touchstart='touchstar'
-              @touchend='touchend'
+              :class="classList[classListNum[idx]]"
+              v-for="(tag,idx) in comTags"
+              :key="idx"
+              @touchstart="touchstar"
+              @touchend="touchend"
             >
               {{tag}}
-              <em
-                class="del"
-                @click="delComTag(tag,idx)"
-              ></em>
+              <em class="del" @click="delComTag(tag,idx)"></em>
             </li>
           </ul>
         </section>
 
         <!-- =====================a:idx===0,b:idx===1,c:idx===2,d:idx===3,e:idx===4================================ -->
 
-        <section
-          class="se"
-          v-if="picType === 'person'"
-        >
+        <section class="se" v-if="picType === 'person'">
           <div class="random">
             <h4>例如:</h4>
             <!-- <span
               class="change"
               @click="changeTags"
-            >换一批</span> -->
+            >换一批</span>-->
           </div>
           <div class="example">
-            <span
-              v-for="(example,idx) in personExamples"
-              :key="idx"
-              @click="addExample(example)"
-            >
-              {{example}}
-            </span>
+            <span v-for="(example,idx) in personExamples" :key="idx">{{example}}</span>
           </div>
           <div class="btn">
             <input
@@ -94,53 +62,38 @@
               v-model="personTag"
               @focus="inputOnFocus"
               ref="perInput"
-            >
-            <button
-              class="btn-add"
-              @click="addTag('person')"
-            >+添加</button>
+            />
+            <button class="btn-add" @click="addTag('person')">+添加</button>
           </div>
 
           <ul class="list">
             <li
               class="item item-person"
-              :class="classList[idx > 5 ? idx-5 :idx]"
-              v-for='(tag,idx) in personTags'
-              :key='idx'
-              @touchstart='touchstar'
-              @touchend='touchend'
+              :class="classList[classListNum[idx]]"
+              v-for="(tag,idx) in personTags"
+              :key="idx"
+              @touchstart="touchstar"
+              @touchend="touchend"
             >
               {{tag}}
-              <em
-                class="del"
-                @click="delPersonTag(tag,idx)"
-              ></em>
+              <em class="del" @click="delPersonTag(tag,idx)"></em>
             </li>
           </ul>
-
         </section>
       </div>
-
-      <div
-        class="save-cancel"
-        ref="btnbox"
-      >
-        <button @click='cancle'>关闭</button>
-        <button @click="saveTag">保存标签</button>
-      </div>
-
+    </div>
+    <div class="save-cancel" ref="btnbox">
+      <!-- <button @click='cancle' class="btn-save">放弃</button> -->
+      <button @click="saveTag" class="btn-save">保存标签</button>
     </div>
   </div>
 </template>
+
+
+
 <script>
 import { debug } from "util";
 export default {
-  props: {
-    picType: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
       companyTag: "", //当前的输入的公司标签
@@ -149,10 +102,11 @@ export default {
       j: 0,
       isShowDel: false, //是否显示删除的标志
       classList: ["a", "b", "c", "d", "e", "f"],
+      classListNum: [],
       personExamples: [
         "从业软件销售10年",
         "优秀销售人员",
-        "擅长软件外包服务",
+        "擅长软件外包服务"
         // "全栈工程师",
         // "未来的大佬",
         // "精通javascript",
@@ -163,7 +117,7 @@ export default {
       comExamples: [
         "软件开发",
         "Crm软件",
-        " 小程序开发",
+        " 小程序开发"
         // "Erp开发 ",
         // "微信公众号开发",
         // "java高级开发",
@@ -174,11 +128,18 @@ export default {
       comTags: [],
       personTags: [],
       timer: undefined,
-      botNum: 0
+      botNum: 0,
+      picType: "",
+      company_id: ""
     };
   },
 
   created() {
+    let query = this.$route.query;
+    if (query.company_id) {
+      this.company_id = query.company_id;
+    }
+    this.picType = query.type;
     this.initData();
   },
 
@@ -197,23 +158,27 @@ export default {
 
     inputOnFocus() {
       // document.body.style.height = '1250px'
-      console.log(`=======`, document.body.clientHeight);
+      // console.log(`=======`, document.body.clientHeight);
       // document.body.scrollTop = document.body.scrollHeight;
     },
 
-    addExample(example) {
-      if (this.picType === "person") {
-      } else {
-      }
-    },
     cancle() {
       this.$emit("clostSelfPic");
     },
     addTag(type) {
+      // this.classListNum.push(Math.floor(Math.random()*6))
+      // console.log(`=======`, this.classListNum);
+
       if (type === "person") {
         if (!this.personTag.trim()) {
           this.personTag = "";
-          return alert("请输入标签");
+          this.$toast("请输入标签");
+          return;
+        }
+
+        if (this.personTag.indexOf("|") !== -1) {
+          this.$toast("请输入正确的标签");
+          return;
         }
         this.personTags.unshift(this.personTag);
         this.personTag = "";
@@ -222,7 +187,12 @@ export default {
       if (type === "company") {
         if (!this.companyTag.trim()) {
           this.companyTag = "";
-          return alert("请输入标签");
+          this.$toast("请输入标签");
+          return;
+        }
+        if (this.companyTag.indexOf("|") !== -1) {
+          this.$toast("请输入正确的标签");
+          return;
         }
         this.comTags.unshift(this.companyTag);
         this.companyTag = "";
@@ -256,23 +226,23 @@ export default {
         } else {
           comTags = comTags.join().replace(/\,/g, "|");
         }
+
         let localComInfo = JSON.parse(localStorage.getItem("com-indexinfo"));
         localComInfo.kind = this.comTags;
         localStorage.setItem("com-indexinfo", JSON.stringify(localComInfo));
 
         let res = await this.$axios.post(`${this.$api.comTags}`, {
           token,
-          kind: comTags
+          kind: comTags,
+          company_id: this.company_id
         });
       }
 
       let instance = this.$toast("保存成功");
       setTimeout(() => {
         instance.close();
-        this.$emit("clostSelfPic");
+        this.$router.go(-1);
       }, 1000);
-
-      this.initData();
     },
 
     async initData() {
@@ -285,9 +255,21 @@ export default {
       });
       let resComTags = await this.$axios.get(`${this.$api.comTags}`, {
         params: {
-          token
+          token,
+          company_id: this.company_id
         }
       });
+
+      console.log(`==resPersonTags=====`, resPersonTags, resComTags);
+
+      let j = 0;
+      for (let i = 0; i < 50; i++) {
+        if (j > this.classList.length - 1) {
+          j = 0;
+        }
+        this.classListNum.push(j);
+        j++;
+      }
 
       // let resComTags = await this.$axios.get(`${this.$api.accuracySearch}`, {
       //   params: {
@@ -317,8 +299,8 @@ export default {
       this.comTags = comTags;
       this.personTags = perTags;
 
-      this.$store.commit("savePersonTags", perTags);
-      this.$store.commit("saveComTags", comTags);
+      // this.$store.commit("savePersonTags", perTags);
+      // this.$store.commit("saveComTags", comTags);
     },
     delComTag(tag, index) {
       this.comTags.splice(index, 1);
@@ -347,36 +329,32 @@ export default {
 </script>
 <style lang="stylus" scoped>
 #self-pic
-  position fixed
-  top 0
+  position relative
   width: 100%
-  height: 100%
+  min-height: 100%
   box-sizing: border-box;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #fff
   // background-color: #fff;
   // display: -webkit-box;
   // -webkit-box-pack: center;
   // -webkit-box-align: center;
   // -webkit-box-orient: vertical;
-  z-index: 100;
-  padding 0.2rem 0.2rem 0.2rem 
   user-select: none
   font-size 0.28rem
-  overflow-y auto
+  
   .main-body
     position relative
     background-color #fff
-    height 90vh
-    border-radius 0.1rem
+    height 100%
     overflow-y auto
     // display flex
     // flex-direction column
     // justify-content space-between
     .content
-      padding 0.2rem
+      padding 0.1rem
       box-sizing border-box
       h1  
-        margin-top 0.1rem
+        // margin-top 0.1rem
         color #333
         font-size 0.6rem
       h3
@@ -403,25 +381,23 @@ export default {
             margin-right 0.1rem
       .example
         width 100%
-        height 2.1rem
-        padding 0.1rem
+        // padding 0.1rem
         box-sizing border-box
         overflow-y auto
         span 
           display inline-block 
           padding 0.15rem 0.3rem
           background-color #f3f3f3
-          // opacity 0.05 
           color #666 
           border-radius 0.6rem
           margin-right 0.2rem
-          margin-top 0.2rem
+          margin-top 0.1rem
           font-size 0.28rem
       .list
-        height 3rem
+        max-height 4.5rem
         box-sizing border-box
         overflow-y auto
-        margin-top 0.2rem
+        margin-top 0.1rem
         font-size 0.28rem
         .item
           position relative
@@ -435,32 +411,32 @@ export default {
             color #fff
             font-size 0.28rem
             font-weight 200
-          &.item-person::before
-            display inline-block
-            width 0.2rem
-            height 0.2rem
-            content ''
-            background url(../../../assets/icon/userCenter/person-tag.png)
-            background-size contain
+          // &.item-person::before
+          //   display inline-block
+          //   width 0.2rem
+          //   height 0.2rem
+          //   content ''
+          //   background url(../../../assets/icon/userCenter/person-tag.png)
+          //   background-size contain
           // &.item-company
           //   background   #ed7f14  
           &.a
             color #fff
             background-color #ed8014
           &.b
-            color #1362ee
-            background-color #f2f9fe
+            color #fff
+            background-color #1F85DE
           &.c
-            color #09a4a3
-            background-color #f2fbf9
+            color #fff
+            background-color #194133
           &.d
-            color #ec8011
-            background-color #fbf9f3
+            color #fff
+            background-color #1D96A7
           &.e
             color #ffffff
-            background-color  #4EA2EC 
+            background-color  #D93A14 
           &.f
-            background-color #333
+            background-color #611DA7
             color #fff   
           .del
             position absolute
@@ -473,7 +449,7 @@ export default {
       .btn
         width 100%
         position relative  
-        margin-top 0.4rem 
+        margin-top 0.2rem 
         .input-text,.btn-add
           width 100%
           height 1rem
@@ -495,25 +471,30 @@ export default {
         .input-text::placeholder
           color #cccccc
           font-size 0.3rem 
-    .save-cancel
-      // bottom 0
-      // left 0
-      // width 100%
-      // height 600px
-      position absolute
+  .save-cancel
+    position fixed
+    bottom 0
+    width 100%
+    position absolute
+    width 100%
+    height 1rem
+    line-height 1rem
+    display flex
+    margin-bottom 0.1rem
+    button 
+      font-size 0.32rem
       width 100%
-      bottom 0
-      height 1rem
-      line-height 1rem
-      display flex
-      button 
-        font-size 0.32rem
-        width 100%
-        background #f3f3f3  
-        color #666
-        &:last-child
-          border-left 1px solid #ccc
-          color #09a2a3
+      background #f3f3f3  
+      color #666
+      &:last-child
+        border-left 1px solid #ccc
+        color #09a2a3
+      &.btn-save
+          width 80%
+          margin 0 auto
+          border-radius 0.6rem
+          background-color   #23b2b3
+          color #ffffff
 
 
 

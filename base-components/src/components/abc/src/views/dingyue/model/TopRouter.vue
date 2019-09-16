@@ -27,8 +27,8 @@ export default {
 </script>
 <style lang="stylus" scoped>
 #linkWrapper
-  width 100%
-  height 100%
+  // width 100%
+  // height 100%
   background-color #ffffff
   font-size 0.3rem
   #mlinks
@@ -55,7 +55,7 @@ export default {
         left 50%
         transform translateX(-50%)
         content ''
-        width 30px
-        height 2px 
+        width 0.6rem
+        height 0.05rem 
         background-color #09a2a3
 </style>

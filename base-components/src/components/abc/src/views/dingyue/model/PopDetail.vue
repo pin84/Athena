@@ -1,23 +1,17 @@
 <template>
-
   <div>
-    <div
-      class="ZBdetails"
-      v-if="isShow === 'detail'"
-    >
+    <div class="ZBdetails" v-if="isShow === 'detail'">
       <div class="main_bgcolor_ffffff">
-        <div class="ZBdetails-logo">
-          采购
-        </div>
+        <div class="ZBdetails-logo">采购</div>
         <div class="ZBdetails-statement">
-          <div class="ZBdetails-statement-title">
-
-          </div>
+          <div class="ZBdetails-statement-title">{{detailData.Title}}</div>
           <div class="ZBdetails-statement-details">
             <div class="ZBdetails-statement-details-left">
               <div class="ZBdetails-statement-price">
                 标的金额：
-                <span>{{detailData.BidsPirce  === 0 ? '(看详情)' : detailData.BidsPirce }}</span> <span>万</span></div>
+                <span>{{detailData.BidsPirce === '' ? '(看详情)' : detailData.BidsPirce }}</span>
+                <span>万</span>
+              </div>
             </div>
             <div
               class="ZBdetails-statement-details-tag"
@@ -25,87 +19,62 @@
             >{{detailData.status === '1' ? '已截止' :'正在进行'}}</div>
           </div>
 
-          <div class="p_b_20 fz_24 main_color_666666">
-            采招单位：{{detailData.Company}}
-          </div>
-          <p class="p_b_20 fz_24 main_color_666666"><span class="p_r_20">公告日期：{{detailData.CreateTime}}</span> <span>截标日期：{{detailData.EndDate}}</span></p>
+          <div class="p_b_20 fz_24 main_color_666666">采招单位：{{detailData.Company}}</div>
+          <p class="p_b_20 fz_24 main_color_666666">
+            <span class="p_r_20">公告日期：{{detailData.CreateTime}}</span>
+            <span>截标日期：{{detailData.EndDate}}</span>
+          </p>
         </div>
         <div style="width: 100%; height: 0.2rem; background-color: rgb(243, 243, 243);"></div>
-        <div
-          class="ZBdetails-con"
-          v-html='content'
-        >{{content}}</div>
+        <div class="ZBdetails-con" v-html="content">{{content}}</div>
 
         <div class="ZBdetails-operator">
           <!-- <button>
             <img src="../../../assets/icon/dingyue/collect.png">
             <span class="">收藏</span>
-          </button> -->
-          <button
-            class="fs"
-            @click="fullScreen"
-          >
-            <img src="../../../assets/icon/dingyue/icon-fullScreen.png">
+          </button>-->
+          <button class="fs" @click="fullScreen">
+            <img src="../../../assets/icon/dingyue/icon-fullScreen.png" />
             <span>全屏</span>
           </button>
           <button @click="shareWithFriend">
-            <img src="../../../assets/icon/dingyue/share.png">
+            <img src="../../../assets/icon/dingyue/share.png" />
             <span>分享</span>
           </button>
         </div>
         <a class="wrap_close detail_close"></a>
-        <section
-          class="close"
-          @click="closePop"
-        >
-        </section>
-
+        <section class="close" @click="closePop"></section>
       </div>
-      <section
-        class="fullScreen bs_bb p_l_20 p_r_20 p_t_20"
-        v-if="isShowFullScreen"
-      >
-        <p
-          class="fs-fz"
-          v-html="content"
-        >{{content}}</p>
+      <section class="fullScreen bs_bb p_l_20 p_r_20 p_t_20" v-if="isShowFullScreen">
+        <p class="fs-fz" v-html="content">{{content}}</p>
         <div class="btn">
-          <a
-            href='javascript:;'
-            class="btn_i"
-          >
-            拨打号码 +
-          </a>
+          <a href="javascript:;" class="btn_i">拨打号码 +</a>
           <a
             href="javascript:;"
             type="button"
             @click="closeFullScreen"
             class="btn_i closeFullScreen"
-          >
-            关闭全屏
-          </a>
+          >关闭全屏</a>
         </div>
       </section>
     </div>
 
-    <div
-      id="tipsToReg"
-      class="tips-to-wrap"
-      v-if="isShow === 'limit'"
-    >
-      <i
-        class="tips-to-close"
-        id="tipsToClose"
-        @click="closePop"
-      ></i>
+    <div id="tipsToReg" class="tips-to-wrap" v-if="isShow === 'limit'">
+      <i class="tips-to-close" id="tipsToClose" @click="closePop"></i>
       <div class="unReg">
-        <p class="tx-c fz_36">每天免费查阅<span class="main_color_09a2a3">2条</span>采招商机<br>详情权限已用完</p>
-        <p class="fz_36 fw_bold tx-c">开通或绑定企业认证 <br> 每天<span class="main_color_09a2a3">无限制查阅</span></p>
-        <p class="pos_res"><a
-            href="javascript:;"
-            id="toSLink"
-            @click="ToVerifyCompany"
-          >开通或绑定企业认证，获取商机</a></p>
+        <p class="tx-c fz_36">
+          每天免费查阅
+          <span class="main_color_09a2a3">2条</span>采招商机
+          <br />详情权限已用完
+        </p>
+        <p class="fz_36 fw_bold tx-c">
+          开通或绑定企业认证
+          <br />每天
+          <span class="main_color_09a2a3">无限制查阅</span>
+        </p>
+        <p class="pos_res">
+          <a href="javascript:;" id="toSLink" @click="ToVerifyCompany">开通或绑定企业认证，获取商机</a>
+        </p>
       </div>
     </div>
   </div>
@@ -156,38 +125,40 @@ export default {
   methods: {
     shareWithFriend() {
       // this.share = !this.share;
-      this.bus.$emit('shareMaskShow',true);
-      
-      let query = Object.assign({},this.$route.query,{
-        Title:this.detailData.Title,
-        BidsPirce:this.detailData.BidsPirce,
-        CreateTime:this.detailData.CreateTime,
-        EndDate:this.detailData.EndDate,
-        Company:this.detailData.Company,
-        id:this.detailData.id,
-      })
+      this.bus.$emit("shareMaskShow", true);
+
+      let query = Object.assign({}, this.$route.query, {
+        Title: this.detailData.Title,
+        BidsPirce: this.detailData.BidsPirce,
+        CreateTime: this.detailData.CreateTime,
+        EndDate: this.detailData.EndDate,
+        Company: this.detailData.Company,
+        id: this.detailData.id
+      });
       console.log(query);
-      
+
       this.$router.push({
-        path:this.$route.path,
+        path: this.$route.path,
         query
-      })
+      });
 
       let str = `${this.username}邀请你关注 "${this.detailData.Title}"`;
 
-      this.$store.commit("setShareInfo",{
+      this.$store.commit("setShareInfo", {
         title: str
       });
-      this.$store.commit("setFriendNetInfo",{
+      this.$store.commit("setFriendNetInfo", {
         title: str
       });
-      
     },
     closePop() {
       this.$emit("closePop");
     },
     fullScreen() {
       this.isShowFullScreen = true;
+      let phonies = this.detailData.Phone;
+
+      console.log(`==phonies=====`, phonies);
     },
     closeFullScreen() {
       this.isShowFullScreen = false;
@@ -201,6 +172,8 @@ export default {
 <style lang="stylus" scoped>
 #toSLink
   font-size 0.28rem
+.p_b_20
+  padding-bottom 0  
 .tips-to-close
   background url(../../../assets/icon/close@2x.png) center no-repeat
   background-size contain
@@ -211,8 +184,8 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   box-sizing: border-box;
   background-color: rgba(0, 0, 0, 0.5);
   display: -webkit-box;
@@ -224,7 +197,7 @@ export default {
 
  .ZBdetails .close
     position absolute 
-    top -1.2rem
+    top -1rem
     right 0rem
     width 0.6rem
     height 0.6rem
@@ -256,7 +229,9 @@ export default {
 }
 
 .ZBdetails-statement {
-  padding: 0 0.18rem;
+  padding: 0  0.18rem 
+  // min-height 25vh
+  box-sizing border-box
 }
 
 .ZBdetails-statement-title {
@@ -281,7 +256,7 @@ export default {
 
 .ZBdetails-statement-details {
   position: relative;
-  padding: 0.2rem 0 0.2rem;
+  // padding: 0.1rem 0 
 }
 
 .ZBdetails-statement-details-left {
@@ -296,7 +271,7 @@ export default {
 .ZBdetails-statement-details-tag {
   position: absolute;
   right: 0;
-  top: 0.3rem;
+  top: 0.1rem;
   width: 1.2rem;
   height: 0.36rem;
   line-height: 0.36rem;
@@ -314,7 +289,7 @@ export default {
 .ZBdetails-con {
   padding: 0.39rem 0.21rem 0.45rem;
   line-height: 1.8;
-  height: 45vh;
+  height: 40vh;
   overflow-y: scroll;
   text-indent:2em;
   font-size:0.32rem;

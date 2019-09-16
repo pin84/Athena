@@ -75,22 +75,25 @@
 
       </div>
 
-      <div id="listWrapper">
+      <div
+        id="listWrapper"
+        ref="wrapper"
+      >
         <ul
           v-infinite-scroll="loadMore"
           infinite-scroll-disabled="loading"
           infinite-scroll-distance="10"
         >
-          <li
+          <!-- <li
             class="item"
             v-for='(item,index) in dataList'
             :key="index"
-          >
+          > -->
             <DataItem
-              :pData='item'
-              @showDetail='showDetail(item)'
+              :pData='dataList'
+              @showDetail='showDetail'
             />
-          </li>
+          <!-- </li> -->
         </ul>
 
       </div>
@@ -102,11 +105,10 @@
         :content='content'
       />
     </div>
-
   </div>
 </template>
 <script>
-import DataItem from "../model/DataItem";
+import DataItem from "../model/DataItemT";
 import SearchList from "../model/SearchList";
 import PopDetail from "../model/PopDetail";
 import { InfiniteScroll } from "mint-ui";
@@ -115,6 +117,7 @@ export default {
   directives: { InfiniteScroll },
   data() {
     return {
+      loading: false,
       content: "", //详情页的内容
       limit: false, //限制只读两条
       isShowDetail: "", //显示详情页面或是限制只读两条页面。'detail' or 'limit'
@@ -133,9 +136,11 @@ export default {
         // }
       ],
       searchData: {}, //保存由上一页面的Router传过来的搜索参数
-      pageNum: 1
+      pageNum: 0,
+      isToScrollTop: true
     };
   },
+
   async created() {
     let d = this.$route.query;
     let token = this.$store.state.loginInfo.userInfo.token;
@@ -163,6 +168,14 @@ export default {
       this.showDetail(d);
     }
   },
+  updated: function() {
+    if (this.isToScrollTop) {
+      this.$nextTick(() => {
+        this.$refs.wrapper.scrollTop = 0;
+        this.iisToScrollTop = false;
+      });
+    }
+  },
   components: {
     DataItem,
     SearchList,
@@ -170,12 +183,13 @@ export default {
   },
   methods: {
     async loadMore() {
+      this.isToScrollTop = false;
       if (this.dataList.length === 0) {
         return;
       }
-      this.loading = false;
-      this.pageNum++;
-      this.searchData.page = this.pageNum;
+      this.loading = true;
+      this.searchData.page++;
+      console.log(`====legnth===`, this.searchData.page);
       let res = await this.getData(
         `${this.$api.keywordSearch}`,
         this.searchData
@@ -187,6 +201,7 @@ export default {
 
       this.dataList = this.dataList.concat(res.state_1);
       this.dataList = res.state_0.concat(this.dataList);
+      this.loading = false;
     },
 
     // 动态改变分享链接信息
@@ -215,6 +230,8 @@ export default {
     },
 
     async changeKeyword() {
+      this.isToScrollTop = true;
+      this.searchData.page = "1";
       this.searchData.Title = this.searchKeyword;
 
       this.changeShare(this.searchData.Title);
@@ -223,13 +240,17 @@ export default {
         `${this.$api.keywordSearch}`,
         this.searchData
       );
+      this.dataList = [];
+      this.resultNum = 0;
 
       if (!res) {
+        this.loading = true;
         return;
       }
 
       this.dataList = res.state_0.concat(res.state_1);
       this.resultNum = res.num;
+      this.loading = false;
     },
 
     async getData(url, data) {
@@ -262,37 +283,39 @@ export default {
       });
 
       res.data.data_dict = state_0.concat(state_1);
-
       return { num: res.data.number, state_0, state_1 };
     },
 
     async filtArea(areas) {
-      this.selectedArea = "";
+      this.isToScrollTop = true;
       let tem = [];
-      let areaid = [];
+      let ids = [];
       areas.forEach(item => {
         tem.push(item.label);
-        areaid.push(item.id);
+        ids.push(item.id);
       });
-      this.selectedArea = tem.join();
-      this.searchData.BidsAreaID = areaid.join();
-      this.isShowSearchList = !this.isShowSearchList;
-
-      let data = this.searchData;
-      if (data.BidsAreaID === "0") {
-        delete data.BidsAreaID;
+      if (tem[0] === "全国") {
+        this.selectedArea = "全国";
+      } else {
+        this.selectedArea = tem.join();
       }
 
+      this.searchData.BidsAreaID = ids.join();
       this.searchData.page = "1";
-
-      let res = await this.getData(`${this.$api.keywordSearch}`, data);
-
+      this.isShowSearchList = !this.isShowSearchList;
+      let res = await this.getData(
+        `${this.$api.keywordSearch}`,
+        this.searchData
+      );
+      this.dataList = [];
+      this.resultNum = 0;
       if (!res) {
+        this.$toast("没有数据");
         return;
       }
-
       this.dataList = res.state_0.concat(res.state_1);
       this.resultNum = res.num;
+      this.loading = false;
     },
 
     showSelectArea() {
@@ -326,8 +349,9 @@ export default {
   overflow hidden
   background-color #f3f3f3
   padding-bottom 1rem
+  box-sizing border-box
   .mainbody
-    height 100%
+    // height 100%
     padding-top 1rem
     #listWrapper
       height 77vh

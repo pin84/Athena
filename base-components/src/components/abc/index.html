@@ -112,11 +112,9 @@
     let  timeList = new Set();
     testArr.forEach(ele=>{
         timeList.add(ele.KPI_MONTH)
-        // debugger
         let findIndex = newArr.findIndex((arrItem=>{
             return arrItem.NAME == ele.MASTER_NAME
         }));
-        // debugger
         if(findIndex != -1){
             newArr[findIndex][ele.KPI_MONTH] = ele.KPI_VALUE
         }else{

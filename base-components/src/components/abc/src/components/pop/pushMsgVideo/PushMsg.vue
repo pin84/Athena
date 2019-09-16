@@ -1,9 +1,5 @@
 <template>
-  <com-pop
-    @comPopShow="comPopIsShow"
-    :my-index="'pushMsg'"
-  >
-
+  <com-pop @comPopShow="comPopIsShow" :my-index="'pushMsg'">
     <template v-slot:pop-content>
       <div class="con-title">推送短信</div>
       <form class="con-content sms-push">
@@ -11,42 +7,36 @@
           <ul class="list">
             <li
               v-for="(item,index) in hasPhoneCompanyList"
-              :key="item.id"
+              :key="index"
               class="list-item signalLine"
             >{{index+1}}、{{item.enterprises}} [{{item.mobile}}]</li>
           </ul>
           <div class="count">
-            <div>
-             共{{companyCount}}家公司 包含{{hasPhoneCountNum}}个手机号码
-            </div>
+            <div>共{{companyCount}}家公司 {{ hasPhoneCountNum == false ? '' : '包含'+hasPhoneCountNum+'个手机号码' }}</div>
           </div>
         </div>
 
         <!-- 模板名称 -->
-        <div
-          @click="chooseTemplate"
-          class="con-group con-single sms-choose"
-        >
+        <div @click="chooseTemplate" class="con-group con-single sms-choose">
           <div class="con-name">选择短信内容模板</div>
-          <div class="template">{{getTem.template_name}} ></div>
+          <div class="template">{{getTem.template_name||'请选择模板'}} ></div>
         </div>
 
         <!-- 输入内容 -->
         <textarea
           disabled
-          class="con-group con-single sms-textarea "
-          name=""
+          class="con-group con-single sms-textarea abc"
+          name
           :value="getTem.content"
-        >
-          </textarea>
+        ></textarea>
 
-        <div class="con-group con-single sms-phonearea">
+        <div v-if="popModule !== 'customerPool' " class="con-group con-single sms-phonearea">
           <div class="con-name sms-phonedes">插入我的号码体验</div>
           <input
             type="number"
             v-model="smspush.phone"
             placeholder="请输入号码"
-            name=""
+            name
             class="con-val sms-phone"
           />
         </div>
@@ -57,16 +47,11 @@
     <template v-slot:flex-left>
       <!-- <div class="m-item">
           <span class="item-text">暂存</span>
-        </div> -->
+      </div>-->
     </template>
     <template v-slot:flex-right>
       <foot-btn>
-        <div
-          class="radiusBtn"
-          @click="send"
-        >
-          发送
-        </div>
+        <div class="radiusBtn" @click="send">发送</div>
       </foot-btn>
     </template>
     <!-- 按钮插槽 e -->
@@ -74,7 +59,6 @@
 </template>
 
 <script>
-import { send } from 'q';
 const ComPop = resolve => {
   import("@/components/common/ComPop").then(module => {
     resolve(module);
@@ -93,13 +77,14 @@ export default {
       userInfo: this.$store.state.loginInfo.userInfo,
       smspush: {
         phone: ""
+        // phone: "" ||'13632411099'
       },
       getTem: {
         content: "",
         data_time: "",
         id: 0,
         sms_type: "",
-        template_name: "请选择模板",
+        template_name: "",
         user: ""
       },
 
@@ -108,16 +93,19 @@ export default {
       hasPhoneCompanyList: {}, //
       companyCount: 0,
       hasPhoneCount: 0, //含有手机号的[企业数]
-      hasPhoneCountNum:0,//含有企业的号码数
+      hasPhoneCountNum: 0, //含有企业的号码数
       bussiness: "",
-      count_money:'',
+      count_money: "",
 
       industryid: 0,
       provinces: "",
-      logo:'',
-      up_industry:'',
-      sendType:'',
-      companyName:'',
+      logo: "",
+      up_industry: "",
+      sendType: "",
+      companyName: "",
+
+      popModule: "",
+      datetimes: ""
 
       // 通过 弹窗传值获取参数 e
     };
@@ -130,9 +118,13 @@ export default {
   methods: {
     // 选择模板
     chooseTemplate() {
+      this.$store.state.pop.params;
+
       this.$store.commit("showPop", {
         popName: "selectTem",
-        params: {}
+        params: {
+          saveParams: true
+        }
       });
     },
 
@@ -140,11 +132,11 @@ export default {
       if (isShow) {
         let oldShow = this.$store.state.pop.oldShow;
         let showing = this.$store.state.pop.showing;
-        let { saveParams } = this.$store.state.pop.params;
+        let { saveParams, popModule } = this.$store.state.pop.params;
 
         // saveParams用于保存参数不被修改 (但如果强行修改也会被篡改！)
         // if (saveParams == true && oldShow == "CompanyList") {
-          
+
         //   this.handlerData();
         // }
         // //如果是触客模块的，走这里
@@ -158,11 +150,24 @@ export default {
         if (saveParams == true && oldShow == "selectTem") {
           let { getTem } = this.$store.state.pop.params;
           this.getTem = getTem;
-        }else {
+        } else {
           // 获取数据
-          this.handlerData();
+          if (popModule == "customerPool") {
+            this.popModule = popModule;
+            this.customerHandlerData();
+          } else {
+            this.handlerData();
+          }
         }
       }
+    },
+
+    customerHandlerData() {
+      let { date, companyCount, detail } = this.$store.state.pop.params;
+
+      this.companyCount = companyCount;
+      this.hasPhoneCountNum = false;
+      this.datetimes = date;
     },
 
     // 获取对应数据
@@ -174,17 +179,20 @@ export default {
         hasPhoneCount, //经筛选的公司信息
         hasPhoneCompanyList, //经筛选的公司信息总数
         bussiness, //搜索主营业务范围 即精准搜索的搜索范围
+        industryName,
 
         //从CompanyList / Chuke-msg 传入进来 s
-        industryid, 
+        industryid,
         provinces,
         logo,
         up_industry,
-        sendType,
+        sendType
 
         //从CompanyList / Chuke-msg 传入进来 e
       } = this.$store.state.pop.params;
-      
+
+      console.log(`==up_industry=====`, up_industry);
+
       this.getTem = {};
       this.hasPhoneCompanyList = hasPhoneCompanyList;
       this.companyCount = companyCount;
@@ -196,94 +204,96 @@ export default {
       this.up_industry = up_industry;
       this.sendType = sendType;
       // 要发送短信（用户已认证）的公司
-      this.companyName = this.$store.state.company.authComInfo.enterprise
-      
-      switch(sendType){
+      this.companyName = this.$store.state.company.authComInfo.enterprise;
+
+      switch (sendType) {
         case "chukeMsg":
           this.chukeMsgPhoneCount(this.$store.state.pop.params);
-        break;
+          break;
         default:
           this.companyListMsgPhoneCount(this.$store.state.pop.params);
       }
-        
     },
 
     // 短息触客 余额 发送手机号码数
     async chukeMsgPhoneCount({
       // companyList, //不经筛选的公司信息
-        companyCount, //不经筛选的公司信息总数
-        freshOtherFunc,
-        hasPhoneCount, //经筛选的公司信息
-        hasPhoneCompanyList, //经筛选的公司信息总数
-        bussiness, //搜索主营业务范围 即精准搜索的搜索范围
+      companyCount, //不经筛选的公司信息总数
+      freshOtherFunc,
+      hasPhoneCount, //经筛选的公司信息
+      hasPhoneCompanyList, //经筛选的公司信息总数
+      bussiness, //搜索主营业务范围 即精准搜索的搜索范围
 
-        //从CompanyList / Chuke-msg 传入进来 s
-        industryid, 
+      //从CompanyList / Chuke-msg 传入进来 s
+      industryid,
+      provinces,
+      logo,
+      up_industry,
+      sendType
+    }) {
+      let d = {
         provinces,
-        logo,
-        up_industry,
-        sendType,
-    }){
-      let chukeMsgInfo = await this.$axios.get(this.$api.chukeMsgInfo,{
-                                      params:{
-                                        provinces,
-                                        industryid,
-                                        business:bussiness,
-                                        token:this.userInfo.token,
-                                      }
-                                    })
-                                    .then(res=>res.data)
-                                    .catch(rej=>{
-                                      console.log(rej)
-                                      return rej;
+        industryid,
+        business: bussiness,
+        token: this.userInfo.token
+      };
 
-                                    })
-      
+      console.log(`=======`,d);
+      let chukeMsgInfo = await this.$axios
+        .get(this.$api.chukeMsgInfo, {
+          params: d
+        })
+        .then(res => res.data)
+        .catch(rej => {
+          console.log(rej);
+          return rej;
+        });
+
       console.warn(chukeMsgInfo);
 
       let {
         company_name, //公司名称
         count_money, //消费金额
         mobile_count, //发送号码数
-        money, //余额
+        money //余额
       } = chukeMsgInfo;
 
       this.hasPhoneCountNum = mobile_count;
-      this.count_money = count_money
+      this.count_money = count_money;
     },
-    
-    // 
+
+    //
     async companyListMsgPhoneCount({
       // companyList, //不经筛选的公司信息
-        companyCount, //不经筛选的公司信息总数
-        freshOtherFunc,
-        hasPhoneCount, //经筛选的公司信息
-        hasPhoneCompanyList, //经筛选的公司信息总数
-        bussiness, //搜索主营业务范围 即精准搜索的搜索范围
+      companyCount, //不经筛选的公司信息总数
+      freshOtherFunc,
+      hasPhoneCount, //经筛选的公司信息
+      hasPhoneCompanyList, //经筛选的公司信息总数
+      bussiness, //搜索主营业务范围 即精准搜索的搜索范围
 
-        //从CompanyList / Chuke-msg 传入进来 s
-        industryid,
-        provinces,
-        logo,
-        up_industry,
-        sendType,
-    }){
-      
+      //从CompanyList / Chuke-msg 传入进来 s
+      industryid,
+      provinces,
+      logo,
+      up_industry,
+      sendType
+    }) {
       let balance = await this.$axios
         .get(this.$api.sendSms, {
           params: {
             provinces,
             industryid,
             bussiness,
-            mobile:'',
+            mobile: "",
             token: this.userInfo.token,
             logo,
             up_industry,
+            company_id: this.$store.state.company.authComInfo.enterpriseid
           }
         })
         .then(res => res)
         .catch(rej => {
-          console.log(rej);
+          console.log("------------", rej);
           if (rej) {
             this.$toast({
               message: "号码查询失败，请检查网络或稍后重试"
@@ -298,20 +308,20 @@ export default {
         count_money, //当前消费总金额
         mobile_count, //号码发送总数
         money, //当前用户余额
-        company_name,
+        company_name
       } = data;
-      console.log(data)
-      if(message){
+
+      console.log("------pushmsg--------", data);
+
+      if (message) {
         this.$toast({
           message
         });
         return;
-
       }
       this.canSend = true;
       this.hasPhoneCountNum = mobile_count;
       this.count_money = count_money;
-
     },
 
     // 发送内容检查 检查短信内容 手机号码 是否认证
@@ -340,34 +350,47 @@ export default {
     // 短信发送
     async send() {
       console.log("check before");
+
+      let enterpriseid = this.$store.state.company.authComInfo.enterpriseid;
+
       if (!this.sendCheck()) {
         return;
       }
-      
+      if (this.popModule == "customerPool") {
+        this.customerPoolSend();
+        return;
+      }
+
       // 短信触客分支
-      if(this.sendType == 'chukeMsg'){
+      if (this.sendType == "chukeMsg") {
         this.chukeMsgSend();
         return;
       }
-      
-      console.log("check after");
+
       let { provinces, industryid, bussiness } = this;
 
       let mobile = this.smspush.phone;
 
+      let d = {
+        provinces,
+        industryid,
+        bussiness,
+        mobile,
+        token: this.userInfo.token,
+        logo: this.logo,
+        up_industry: this.up_industry,
+        company_id: enterpriseid
+      };
+      console.log("check after==-------", d);
+
       let balance = await this.$axios
         .get(this.$api.sendSms, {
-          params: {
-            provinces,
-            industryid,
-            bussiness,
-            mobile,
-            token: this.userInfo.token,
-            logo: this.logo,
-            up_industry: this.up_industry,
-          }
+          params: d
         })
-        .then(res => res)
+        .then(res => {
+          console.log(`====res===`, res);
+          return res;
+        })
         .catch(rej => {
           console.log(rej);
           if (rej) {
@@ -377,6 +400,8 @@ export default {
           }
           return rej;
         });
+
+      console.log(`====balance--------===`, balance);
 
       let { data } = balance;
       let {
@@ -397,12 +422,17 @@ export default {
           });
       }
 
+      console.log(`==messagemessage=====`, message);
+
       if (message == "查询出错") {
         // alert('查询出错');
         this.$messageBox.confirm("查询出错");
       }
 
-      if ([count_money, mobile_count, money, company_name].indexOf(undefined) ==-1) {
+      if (
+        [count_money, mobile_count, money, company_name].indexOf(undefined) ==
+        -1
+      ) {
         // ↑短信消费总金额 ↑号码发送总数    ↑当前用户余额 ↑公司名称
 
         /**
@@ -414,26 +444,31 @@ export default {
         // 余额不足
 
         if (money - count_money < 0) {
-          
           this.lackMoneyTip({
             company_name,
             mobile_count,
             money,
-            count_money,
+            count_money
           });
-          
         } else {
           // 余额充足 发送短信
 
+          let d = {
+            template_name: this.getTem.template_name,
+            mobile,
+            token: this.userInfo.token
+          };
+
+          console.log(`===pushSms  Res  d====`);
+
           let { data: pushSmsRes } = await this.$axios
-            .post(this.$api.pushSms, {
-              template_name: this.getTem.template_name,
-              mobile,
-              token: this.userInfo.token
+            .post(this.$api.pushSms, d)
+            .then(res => {
+              console.log(`==pushSms  Res =====`, res);
+              return res;
             })
-            .then(res => res)
             .catch(rej => {
-              console.log(rej);
+              console.log("===pushSms REJ---", rej);
               if (rej) {
                 this.$toast({
                   message: "支付失败，请检查网络或稍后重试"
@@ -449,9 +484,20 @@ export default {
             this.$toast({
               message: "短信发送成功！"
             });
-            let oldShow = this.$store.state.pop.oldShow;
-            this.$store.commit('showPop',oldShow);
-            
+            let { oldShow } = this.$store.state.pop;
+            // this.$store.commit('showPop',oldShow);
+            // this.$store.commit('showPop',{
+            //   params:{
+            //     popName:showing,
+            //     saveParams:true,
+            //   }
+            // });
+            this.$store.commit("showPop", {
+              params: {
+                popName: "CompanyList",
+                saveParams: true
+              }
+            });
           }
           if (message) {
             // alert(message);
@@ -460,42 +506,42 @@ export default {
         }
       }
     },
-    
+
     // 短信发送 短息触客分支
-    async chukeMsgSend(){
-      
-      let sendMsg = await this.$axios.post(this.$api.chukeMsgSend,{
-                      token:this.userInfo.token,
-                      provinces:this.provinces,
-                      industryid:this.industryid,
-                      business:this.bussiness,
-                      template_name:this.getTem.template_name,
-                      phone:this.smspush.phone,
-                    }).then(res=>res.data)
-                    .catch(rej=>{console.log(rej)});
+    async chukeMsgSend() {
+      let sendMsg = await this.$axios
+        .post(this.$api.chukeMsgSend, {
+          token: this.userInfo.token,
+          provinces: this.provinces,
+          industryid: this.industryid,
+          business: this.bussiness,
+          template_name: this.getTem.template_name,
+          phone: this.smspush.phone
+        })
+        .then(res => res.data)
+        .catch(rej => {
+          console.log(rej);
+        });
 
       console.log(sendMsg);
-      let {
-        message,
-        money,
-        code
-      } = sendMsg;
-      if(message=='余额不足'){
+      let { message, money, code } = sendMsg;
+      if (message == "余额不足") {
         this.lackMoneyTip({
-          company_name:this.companyName,
-          mobile_count:this.hasPhoneCountNum+(this.smspush.phone?1:0),
+          company_name: this.companyName,
+          mobile_count: this.hasPhoneCountNum + (this.smspush.phone ? 1 : 0),
           money,
-          count_money:this.count_money,
-        })
-      }else if(code == 0){
+          count_money: this.count_money
+        });
+      } else if (code == 0) {
         this.$toast({
           message: "短信发送成功！"
         });
-        // let oldShow = this.$store.state.pop.oldShow;
+        let { /*oldShow,*/ showing } = this.$store.state.pop;
         // this.$store.commit('showPop',oldShow);
-        
+        this.$store.commit("showPop", {
+          popName: showing
+        });
       }
-
     },
 
     // 余额不足提醒
@@ -503,9 +549,8 @@ export default {
       company_name, //公司名称
       mobile_count, //电话数
       money, //余额
-      count_money, //消费金额
-    }){
-
+      count_money //消费金额
+    }) {
       this.$messageBox({
         title: "余额不足",
         showCancelButton: true,
@@ -519,9 +564,7 @@ export default {
         `
       }).then(action => {
         if (action === "confirm") {
-          this.$store.commit("showPop", {
-            popName: "chongzhi"
-          });
+          this.$router.push("/chongzhi");
         }
 
         if (action === "cancel") {
@@ -530,16 +573,44 @@ export default {
           });
         }
       });
+    },
+
+    async customerPoolSend() {
+      let template_name = this.getTem.template_name;
+      let datetimes = this.datetimes;
+      this.smspush.phone;
+
+      let customerSmsRes = await this.$axios
+        .get(this.$api.customerSms, {
+          params: {
+            token: this.userInfo.token,
+            template_name,
+            datetimes
+          }
+        })
+        .then(res => res.data);
+
+      let { message, code } = customerSmsRes;
+
+      if (message) {
+        this.$toast(message);
+        return;
+      }
+
+      if (code === 0) {
+        this.$toast("发送成功");
+        return;
+      }
     }
   }
 };
 </script>
 
 <style scoped lang="scss">
-
-.mint-msgbox{
-
-}
+// .abc{
+//   border:1px solid red !important;
+//   padding-top :0.2rem !important;
+// }
 
 </style>
 

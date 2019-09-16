@@ -11,13 +11,15 @@ table { border-collapse:collapse; }
 input,textarea { outline:none; }
 em,i{font-style: normal;}
 textarea { resize:none; overflow:auto; }
-* /*禁用iPhone中Safari的字号自动调整 */
+/*禁用iPhone中Safari的字号自动调整 */
 html { -webkit-text-size-adjust: none; }
 /* 设置HTML5元素为块 */
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section { display: block; }
 body { font-size:14px; font-family:'SourceHanSansCN-Normal','microsoft yahei','sans-serif','Tahoma','Open Sans','Helvetica Neue','Arial','Hiragino Sans GB','WenQuanYi Micro Hei'; }
 /* end reset */
-*{outline:none}
+*{outline:none;
+-webkit-overflow-scrolling:touch;
+}
 button,input[type=submit],input[type=button]{border: 0;background-color: #fff;padding:0;margin:0;outline:none;-webkit-appearance:none}
 input[type=search]::-webkit-search-cancel-button{
     display: none;

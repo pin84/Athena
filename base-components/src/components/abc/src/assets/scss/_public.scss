@@ -1,3 +1,4 @@
+
 $bgColor : #f3f3f3; //背景底层颜色
 $themeColor: #08a3a2; //主题颜色
 $btnActive: #078e8d; //按钮被激活的颜色
@@ -18,7 +19,6 @@ $bannaBgRadius: 12px; // m-bannaBg 的圆角
 @mixin ellipsis{
 
     /* 用于隐藏文字溢出*/
-  
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -86,3 +86,54 @@ $bannaBgRadius: 12px; // m-bannaBg 的圆角
       }
   }
 //==============移动端1px END===============
+
+// 双边圆弧按钮
+@mixin circularBeadBtn($height, $width:false , $btColor:false , $fontColor:false ){
+    height:$height;
+    border-radius: $height / 2;
+    line-height: $height;
+    text-align: center;
+    @if $width {
+        width:$width;
+    }
+    @else{
+        width:100%;
+    }
+
+    @if $btColor {
+        background: $btColor;
+    }
+    @else{
+        background: $themeColor;
+    }
+
+    @if $fontColor {
+        color: $fontColor;
+    }
+    @else{
+        color: white;
+    }
+}
+
+.singleLine{
+    @include signalLine;
+}
+
+@mixin zoom-in-out($scaleStart:1,$scaleEnd:1.5,$duration:.6s){
+
+    @keyframes scaleClick {
+        from {
+            transform: scale($scaleStart);
+        }
+        to {
+            transform: scale($scaleEnd);
+        }
+    }
+    animation-name: scaleClick; 
+    animation-duration: $duration; //一个动画持续时间
+    animation-timing-function: linear; //运行方式
+    animation-delay:0; //延迟秒数
+    animation-iteration-count:infinite; //持续多少次 infinite 无限
+    animation-direction:alternate; // alternate奇数次正常播 偶数次逆向播
+  
+}

@@ -199,6 +199,10 @@ export default {
         }
       });
 
+      if (data.message === false) {
+        return;
+      }
+
       let areaLen = this.area.length;
       let resAreaLen = data.area.length;
 
@@ -254,16 +258,19 @@ export default {
     },
 
     search() {
-      let map = new Map(Object.entries(this.area));
-      let areaArr = [];
-      map.forEach(item => {
-        if (item.active) {
-          areaArr.push(item);
+      let area = this.areaHandler(this.area);
+      this.$emit("search", area);
+    },
+    areaHandler(arr) {
+      let tem = [];
+      arr.forEach(item => {
+        if (this.area[0].active) {
+          tem.push(item);
+        } else if (item.active) {
+          tem.push(item);
         }
       });
-
-
-      this.$emit("search", areaArr);
+      return tem;
     }
   }
 };

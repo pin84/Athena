@@ -7,16 +7,21 @@ Vue.use(Vuex)
 // 修改状态方法 _this.$store.commit('userId',121);
 // 引用方法 _this.$store.state.loginInfo.userId
 // 路由控制
-const routerControl = {
+const INITHEIGHT = document.body.style.height;
+const pageControl = {
   state: {
     isGo: true, //是否要跳转到
-
+    INITHEIGHT,
+    isloading: false, //使loading不被期间的axios请求打断
   },
   mutations: {
     // 
     isGoTargetState(state, params) {
       state.isGo = params;
     },
+    isloading(state, params) {
+      state.isloading = params;
+    }
 
   }
 }
@@ -31,7 +36,9 @@ const loginInfo = {
     }, //用户信息
     showingCId: "", //正在显示的企业ID
     loadFirstUrl: '',
-    Administrator:0, //用户权限
+    Administrator: null, //用户权限
+    isSubscribe:true, //是否关注公众号
+
   },
 
   mutations: {
@@ -60,7 +67,7 @@ const loginInfo = {
       state.loadFirstUrl = params;
     },
 
-    setAdministrator(state,params){
+    setAdministrator(state, params) {
       state.Administrator = params;
     },
 
@@ -74,13 +81,15 @@ const loginInfo = {
 // 保存现显示企业的信息
 const company = {
   state: {
-    info: {}, //不太确定这个字段有没有用到。
-    indexInfo: {},//首页面拿到的公司信息，有公司的id、名字、行业的id等
-    detailInfo: {},//保存企业详细信息，需要用indexInfo中的公司id和行业id从后台取
+    info: null, //不太确定这个字段有没有用到。
+    indexInfo: null,//首页面拿到的公司信息，有公司的id、名字、行业的id等
+    detailInfo: null,//保存企业详细信息，需要用indexInfo中的公司id和行业id从后台取
     saveComTags: [], //保存企业的标签
     savePersonTags: [], //保存个人的标签
-    authComInfo: {},//已认证或正在认证的企业信息
+    authComInfo: null,//已认证或正在认证的企业信息
+    searchCompany: false,//是否含有搜索企业信息 非false则还有搜索得到的企业 首页察觉到有则改变企业显示
   },
+
 
   mutations: {
     saveInfo(state, parms) {
@@ -100,9 +109,15 @@ const company = {
     },
     authComInfo(state, params) {
       state.authComInfo = params
+    },
+    searchCompany(state, params) {
+      state.searchCompany = params
+
     }
   }
 }
+
+
 
 // 订阅模块信息
 const dingyue = {
@@ -129,10 +144,11 @@ const dingyue = {
   }
 }
 
-//tips功能。测试用，
+//tips功能.
+
 const tips = {
   state: {
-    isShowTips: { content: '', type: false }
+    isShowTips: { content: '', isShow: false, handler: null }
   },
   mutations: {
     isShowTips(state, params) {
@@ -150,12 +166,14 @@ const pop = {
     zIndex: 999,
 
     call: 0,
-    config: {
+    defaultConfig: {
       confirm() { },
       cancel() { },
       confirmText: '确认',
-      text: '非合法操作'
+      text: '非合法操作',
+      cancelBtn: false
     },//弹窗配置
+    config: {},
     params: {}, // 参数
   },
   mutations: {
@@ -174,27 +192,47 @@ const pop = {
     */
 
     showPop(state, params) {
+
       let popName = "";
       state.oldShow = state.showing
       if (params.constructor.name == "Object") {
-        if (state.params.saveParams == true) {
-          state.params.saveParams = false;
-        } else {
+
+        if (params.params) {
+          if (params.params.saveParams == true) {
+            state.params.saveParams = false;
+          }
+        }
+        else {
           state.params = {
             saveParams: false
           };
         }
+
+
+        state.params = state.params = Object.assign(state.params, params.params);
+        // state.params = params.params || {};
         popName = params.popName || '';
-        state.params = params.params || {};
-        params.config ? state.config = params.config : null;
+        if (params.config) {
+
+          for (let configItem in state.defaultConfig) {
+            if (params.config[configItem]) {
+              state.config[configItem] = params.config[configItem]
+
+            } else {
+              state.config[configItem] = state.defaultConfig[configItem]
+
+            }
+          }
+        }
+
       }
-      if (typeof params == 'string') {
+      if (typeof params == 'string' && params.params) {
         popName = params;
       }
       console.log(state.componentList[popName])
-      Vue.set(state.componentList, popName, {
-        showState: 1,
-      })
+      // Vue.set(state.componentList, popName, {
+      //   showState: 1,
+      // })
       // state.componentList = Object.assign({},state.componentList)
       // console.clear()
       // console.log(popName,state.componentList[popName])
@@ -249,14 +287,18 @@ const shareInfo = {
     cancel: function () {
       // 用户取消分享后执行的回调函数
       // alert("分享失败");
-    }
+    },
+    saveBeforShareUrl: '',//保存分享之前的url
+
   },
+
+
+
 
   mutations: {
 
     // 改变分享信息
     setShareInfo(state, params = {}) {
-      // debugger;
       commonFn.forEachObj(params, (key, val) => {
         if (key == 'success' || key == 'cancel') {
           if (typeof val !== 'function') {
@@ -310,7 +352,12 @@ const shareInfo = {
         desc
       })
 
-    }
+    },
+    saveBeforShareUrl(state, url) {
+      localStorage.setItem('url', JSON.stringify(url))
+      state.saveBeforShareUrl = url
+    },
+
 
   },
 
@@ -335,7 +382,6 @@ const friendNetInfo = {
 
     // 改变分享信息
     setFriendNetInfo(state, params = {}) {
-      // debugger;
       commonFn.forEachObj(params, (key, val) => {
         if (key == 'success' || key == 'cancel') {
           if (typeof val !== 'function') {
@@ -402,7 +448,7 @@ export default new Vuex.Store({
   // }
 
   modules: {
-    routerControl, //路由控制
+    pageControl, //页面控制
     loginInfo, //登录模块的状态
     pop,//弹窗模块
     dingyue,  //订阅模块

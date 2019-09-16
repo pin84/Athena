@@ -1,17 +1,24 @@
 <template>
-  <div id="setSub">
-    <div
-      class="selectArea"
-      @click="showSelectArea"
-    >
-      <span>数据区域</span>
-      <span class="arrow"></span>
-    </div>
+  <div
+    id="setSub"
+    :class="{'add-mask':isShowSearchList}"
+  >
+    <div class="top-box">
+      <div
+        class="selectArea"
+        @click="showSelectArea"
+      >
+        <span>数据区域</span>
+        <span class="arrow"></span>
+      </div>
+      <div
+        class="search-box"
+        v-if="isShowSearchLit"
+      >
+        <SearchList @search='setArea' />
 
-    <SearchList
-      v-if="isShowSearchLit"
-      @search='setArea'
-    />
+      </div>
+    </div>
 
     <div class="area">{{showArea}}</div>
     <p class="note">设置关键词(商机信息包含的关键词)</p>
@@ -82,6 +89,7 @@ import SearchList from "../model/SearchList";
 export default {
   data() {
     return {
+      isShowSearchList: false,
       oldKeyword: [], //保存第一次进入页面时拿到的关键词。以用之后的比较
       isShowSearchLit: false,
       postData: {
@@ -104,11 +112,11 @@ export default {
         {
           label: "30",
           value: 0
-        },
-        {
-          label: "90",
-          value: 1
         }
+        // {
+        //   label: "90",
+        //   value: 1
+        // }
       ],
       area: [
         {
@@ -261,16 +269,16 @@ export default {
     SearchList
   },
 
-  beforeCreate() {
-    let tabbar = document.getElementById("tabbar");
-    tabbar.style.transform = "scale(0)";
-  },
+  // beforeCreate() {
+  //   let tabbar = document.getElementById("tabbar");
+  //   tabbar.style.transform = "scale(0)";
+  // },
 
-  beforeRouteLeave(to, from, next) {
-    let tabbar = document.getElementById("tabbar");
-    tabbar.style.transform = "scale(1)";
-    next();
-  },
+  // beforeRouteLeave(to, from, next) {
+  //   let tabbar = document.getElementById("tabbar");
+  //   tabbar.style.transform = "scale(1)";
+  //   next();
+  // },
 
   created() {
     let uerInfo = this.$store.state.loginInfo.userInfo;
@@ -292,6 +300,7 @@ export default {
         }
       })
       .then(res => {
+        console.log(`===9====`,res);
         if (res.data.message === false) {
           return;
         }
@@ -327,21 +336,25 @@ export default {
 
   methods: {
     setArea(area) {
-      if (Object.keys(area).length === 0) {
+      if (area[0].label === "全国") {
         this.postData.area_name = this.showArea = "全国";
         this.postData.areas_id = "0";
       } else {
         let areaArr = [];
         let idArr = [];
-        for (let key in area) {
-          idArr.push(area[key].id);
-          areaArr.push(area[key].label);
-        }
+        area.forEach(item => {
+          if (item.active) {
+            areaArr.push(item.label);
+            idArr.push(item.id);
+          }
+        });
 
         this.postData.area_name = this.showArea = areaArr.join();
         this.postData.areas_id = idArr.join();
       }
+
       this.isShowSearchLit = false;
+      this.isShowSearchList = !this.isShowSearchList;
     },
 
     delKeyword(index) {
@@ -368,7 +381,8 @@ export default {
     },
 
     showSelectArea() {
-      this.isShowSearchLit = true;
+      this.isShowSearchList = !this.isShowSearchList;
+      this.isShowSearchLit = !this.isShowSearchLit;
     },
     showSelectTime() {
       this.isShowSelectTime = true;
@@ -376,7 +390,7 @@ export default {
     selectTime() {
       console.log("selectTime");
     },
-    save() {
+    async save() {
       let token = this.$store.state.loginInfo.userInfo.token;
 
       let allLength = this.postData.keywordList.length;
@@ -411,58 +425,92 @@ export default {
         return this.$toast("请输入关键词,建议2-6个字。不包含空格或特殊字符");
       }
 
-      this.$axios.post(`${this.$api.setSubKeyword}`, data).then(res => {
-        let instance = this.$toast("保存成功");
-        setTimeout(() => {
-          instance.close();
-          this.$router.push("/mySubscript");
-        }, 1000);
-      });
+      // let d = {
+      //   BidsAreaID:
+      //     String(this.postData.areas_id) === "0"
+      //       ? ""
+      //       : String(this.postData.areas_id),
+      //   Title: this.postData.keywordList.join(),
+      //   page: "1",
+      //   page_size: 24,
+      //   token: token,
+      //   set_time: this.postData.remind_long_time
+      // };
+
+      // this.$axios.get(this.$api.mySubscript, {
+      //   params: d
+      // });
+
+      // let time = new Date()
+      // localStorage.setItem("setFirstRequestFlag", time);
+      this.$axios.post(`${this.$api.setSubKeyword}`, data);
+      setTimeout(() => {
+        this.$router.push({
+          name:'mySubscript',  
+        });
+        this.bus.$emit('isFollow');
+      }, 3000);
     }
   }
 };
 </script>
 <style lang="stylus" scoped>
 #setSub
+  position relative
   width 100%
-  height 100%
+  // height 100%
   box-sizing border-box
   font-size 0.28rem
-  position relative
   background-color #f3f3f3
-  margin-top 0.2rem
-  padding-bottom 1.4rem
   font-size 0.24rem
-  .selectArea
-    position relative
-    font-weight 600
-    display flex
-    justify-content space-between
-    align-items center
-    background-color #fff
-    height 0.74rem
-    line-height 0.74rem
-    span 
-      display inline-block
-      width 30%
-      padding 0.1rem 0.2rem
-      &.arrow
-        position absolute
-        right 0
-        height 0.32rem
-        background url(../../../assets/icon/arrow@16_29.png) 90% no-repeat 
-        background-size 0.16rem 0.32rem
+  &.add-mask 
+    position:absolute;
+    top:0; 
+    height: 100%;
+    overflow: hidden;
+  .top-box
+    width 100%
+    .selectArea
+      position relative
+      font-weight 600
+      display flex
+      justify-content space-between
+      align-items center
+      background-color #fff
+      height 0.8rem
+      line-height 0.8rem
+      span 
+        display inline-block
+        width 30%
+        padding 0.1rem 0.2rem
+        &.arrow
+          position absolute
+          right 0
+          height 0.32rem
+          background url(../../../assets/icon/arrow@16_29.png) 90% no-repeat 
+          background-size 0.16rem 0.32rem
+    .search-box
+      position absolute 
+      top  0.8rem
+      bottom 0
+      left 0
+      right 0
+      z-index 3
+
   .area
     height 0.74rem
     line-height 0.74rem
     padding 0.1rem 0.2rem 
     background-color #fff
+    white-space nowrap 
+    text-overflow ellipsis 
+    overflow hidden
   .note
     font-weight 600
     background-color #f3f3f3
-    height 40px
-    line-height 40px
-    padding 0 10px
+    height 0.8rem
+    line-height 0.8rem
+    padding 0 0.1rem
   .list
     width 100%
     padding 0 0.2rem
@@ -543,7 +591,16 @@ export default {
             height 100%
         .name
           margin-right 0.1rem
-        
+  .saveBtn
+    color #ffffff
+    text-align center
+    line-height 1rem
+    font-size 0.3rem
+    width 7rem
+    height 1rem
+    background-color #09a2a3
+    border-radius 0.06rem
+    margin 0.4rem auto
   .picker
     width 100%
     height 3rem
@@ -557,16 +614,5 @@ export default {
       text-align center
       height 0.48rem
       line-height 0.48rem
-      overflow-y auto
-  .saveBtn
-    color #ffffff
-    text-align center
-    line-height 1rem
-    font-size 0.3rem
-    width 7rem
-    height 1rem
-    background-color #09a2a3
-    border-radius 0.06rem
-    margin 0 auto
-    margin-top 0.5rem
+      overflow-y auto  
 </style>

@@ -21,13 +21,13 @@ import html2canvas from 'html2canvas';
 import vuePicturePreview from 'vue-picture-preview'
 Vue.use(vuePicturePreview);
 
-
 // import Mint from 'mint-ui';
 // Vue.use(Mint);
 
 
 // import MintUI from 'mint-ui'
-import {Toast,Indicator,MessageBox ,Picker,Cell, Popup,Navbar, TabItem ,InfiniteScroll } from 'mint-ui'
+import { Toast, Indicator, MessageBox, Picker, Cell, Popup, Navbar, TabItem, InfiniteScroll, } from 'mint-ui'
+
 Vue.component(Picker.name, Picker);
 Vue.component(Cell.name, Cell);
 Vue.component(Popup.name, Popup);
@@ -37,7 +37,7 @@ Vue.use(InfiniteScroll);
 
 import 'mint-ui/lib/style.css'
 Vue.prototype.$toast = Toast;
-Vue.prototype.$indicator  = Indicator ;
+Vue.prototype.$indicator = Indicator;
 Vue.prototype.$messageBox = MessageBox;
 import myAxios from './api/axios'
 
@@ -47,8 +47,14 @@ import '@/assets/css/reset.css';
 import '@/assets/css/index.css';
 import '@/assets/css/search-index.css';
 import '@/assets/css/search-resetUi.css';
+
 // import VConsole from 'vconsole'
-// var vConsole = new VConsole();
+//   var vConsole = new VConsole();
+
+// let user = JSON.parse(localStorage.getItem('sxlUserInfo'))
+// if (user.user_id === 604 || user.user_id === 600) {
+// }
+
 
 Vue.config.productionTip = false;
 Vue.prototype.$axios = myAxios;
@@ -70,7 +76,7 @@ Vue.prototype.$wx = wx;
 //   console.log('top')
 // })
 
-window.testVue = new Vue({
+new Vue({
   store,
   router,
   render: h => h(App),

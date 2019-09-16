@@ -6,6 +6,7 @@
   >
     <div class="u-mask"></div>
     <div class="m-bannerBg">
+      <!-- <SearchBoxStarter v-if="linkPopStyle && showSearch" @changeCompany="getCompany" id="label-search-style"/> -->
       <div
         class="u-close"
         @click="close"
@@ -18,15 +19,15 @@
       </div>
       
       <div ref="labelContent" class="m-content">
-        <div class="company-name">
-          {{companyInfo.companyName}}
-        </div>
+        <!-- <div v-show="!showSearch" class="company-name">
+          {{propCompanyInfo.companyName}}
+        </div> -->
         <div class="content-tag">
-        <svg id="svg-tag" ref="svgTag"></svg>
+        <svg class="svg-tag" ref="svgTag"></svg>
         </div>
       </div>
       
-      <div class="m-footer" >
+      <!-- <div class="m-footer" >
         <div class="m-footer-leftbtn">
           +关注
         </div>
@@ -36,6 +37,10 @@
         <div @click="toGetPoster" class="m-footer-leftbtn">
           生成海报
         </div>
+      </div> -->
+
+      <div v-if="linkPopStyle && isShowToPoster" @click="searchCompanyToPoster" class="m-to_poster" >
+        我也要生成海报 >
       </div>
     </div>
   </div>
@@ -45,9 +50,15 @@
 
 <script>
 import d3Cloud from 'd3-cloud';
+// import SearchBoxStarter from "@/components/shangLian/SearchBoxStarter"; //搜索框
+import upIndustry from '@/assets/js/upIndustry';
 
 export default {
+  name:'LabelShow',
+
   components: {
+    // SearchBoxStarter,
+
   },
   props:{
     companyInfo:{
@@ -79,6 +90,11 @@ export default {
       // 容器宽高
       containerWidth:0, 
       containerHeight:0,
+
+      isShowToPoster:false,
+      linkPopStyle:false,
+      showSearch:false,
+
 
       // 公司标签
       companyTags:[
@@ -143,14 +159,105 @@ export default {
         }
       ],
       companyTagsD3Data:[],
+      propCompanyInfo:this.companyInfo,
+      indexGetInfo:null,
     }
+  },
+
+  computed:{
+    
+   
+  },
+
+  async created(){
+    this.linkShow();
+    
   },
 
   mounted(){
     this.labelMountedInit();
   },
+  activated(){
+    this.bus.$on('labelShowCall',this.labelCall);
+  },
+  deactivated(){
+    this.bus.$off('labelShowCall');
+  },
   
   methods:{
+
+    labelCall(enterpriseid,enterprise,industryid, hadCompanyInfo,/*,path='/'*/){
+      // if(path == this.$route.path){
+        this.getCompany(enterpriseid,enterprise, industryid , hadCompanyInfo);
+        this.labelShow.isShow = true;
+      // }
+    },
+
+    linkShow(){
+      
+      let {
+        linkPop,
+        companyName,
+        enterpriseid,
+        industryid,
+      } = this.$route.query;
+      
+      if(linkPop =='poster' && enterpriseid && industryid){
+        if(this.$route.path !== '/search/company'){
+          this.$router.push({
+            path:'/search/company',
+            query:{
+              linkPop,
+              companyName,
+              enterpriseid,
+              industryid,
+            }
+          })
+        }
+        return
+        this.labelCall(enterpriseid,companyName, industryid);
+        this.linkPopStyle = true;
+        this.isShowToPoster = true;
+        // this.getCompany(enterpriseid,companyName, industryid);
+        // this.labelShow.isShow = true;
+        // this.linkPopStyle = true;
+        // this.isShowToPoster = true;
+
+      }
+
+    },
+    
+    async getCompany(companyId,companyName, industriesId,hadCompanyInfo){
+      let companyOtherInfo;
+      if(hadCompanyInfo){
+        companyOtherInfo = hadCompanyInfo;
+      }else{
+        companyOtherInfo = await this.$axios.get(this.$api.searchCompany,{
+            params:{
+              enterpriseid:companyName,
+              industryid:+industriesId,
+            }
+        }).then(res=>res.data).catch(rej=>rej)
+      }
+      console.log(companyOtherInfo)
+      
+      let {kind} = companyOtherInfo;
+
+      this.indexGetInfo = {
+        companyName,
+        companyTags:this.$commonFn.businessScope(kind),
+        enterprisesid:companyId,
+        industryid:industriesId,
+      }
+      
+    },
+
+    searchCompanyToPoster(){
+      this.showSearch = true;
+      this.isShowToPoster =false;
+
+    },
+
     labelMountedInit(){
       this.chartRef = this.$refs.svgTag;
       let containerWidth  = this.chartRef.parentElement.offsetWidth;
@@ -161,10 +268,9 @@ export default {
     },
     // 生成海报
     toGetPoster(){
-      // return
       this.$router.push({
         name:'poster',
-        params:this.companyInfo
+        params:this.propCompanyInfo
       })
 
     },
@@ -172,6 +278,7 @@ export default {
     close() {
       // this.item.isShow = !this.item.isShow;
       this.labelShow.isShow = false;
+      this.linkPopStyle = false;
     },
 
     // 跳转到baseInfo
@@ -179,16 +286,20 @@ export default {
       let {
         enterprisesid,
         industryId,
-      } = this.companyInfo
-      // let enterprisesid = this.companyInfo.enterprisesid;
-      // let companyName = this.companyInfo.companyName
+        industryid,
+        companyName,
+      } = this.propCompanyInfo
+
+      // let enterprisesid = this.propCompanyInfo.enterprisesid;
+      // let companyName = this.propCompanyInfo.companyName
       // let industryid = this.industryid
       this.close();
       // this.labelShow.isShow = false;
-      // debugger;
+
       let chooseInfo = {
         enterpriseid:enterprisesid,
-        industryid:industryId,
+        industryid:+(industryId||industryid),
+        companyName,
       }
       // console.clear();
       console.log(chooseInfo);
@@ -287,11 +398,19 @@ export default {
     },
 
     changeCompanyInfo(newVal){
-      this.$d3.select('#svg-tag').select('g').remove();
+      this.propCompanyInfo = JSON.parse(JSON.stringify(newVal));
+      
+      this.$d3.selectAll('.svg-tag').select('g').remove();
 
       console.log(newVal.companyTags)
-      let companyTags = newVal.companyTags;
-      
+      let companyTags = this.$commonFn.businessScope(newVal.companyTags);
+      if(!companyTags.length){
+        this.$toast({
+          message:'该企业暂无主营标签',
+          duration:1000,
+        })
+        // return;
+      }
       let tagData = [];
 
       console.dir(this.$refs.labelContent);
@@ -300,7 +419,7 @@ export default {
       let contHeight = labelContent.innerHeight || labelContent.clientHeight;
       console.log(contWidth,contHeight)
       let shortSide = contWidth <= contHeight?contWidth:contHeight;
-      // debugger
+
       console.log(shortSide);
       let baseFontSize = 5*6;
 
@@ -308,7 +427,7 @@ export default {
           let itemFontSize = baseFontSize;
           let tagLen = ele.length;
           if(ele.length * baseFontSize > shortSide){
-            itemFontSize = shortSide / ( tagLen + 4 );
+            itemFontSize = shortSide / ( tagLen + 6 );
             console.log('itemFontSize',itemFontSize);
           }
           tagData.push({
@@ -321,9 +440,18 @@ export default {
       this.initTag(tagData);
     },
   },
+
+
   watch:{
-    companyInfo(newVal){
+    indexGetInfo(newVal){
       this.changeCompanyInfo(newVal);
+    },
+    
+    companyInfo:{
+      handler(newVal){
+        this.changeCompanyInfo(newVal);
+      },
+      deep:true,
     }
 
   }
@@ -333,6 +461,18 @@ export default {
 <style lang="scss">
 
 .g-pop.label-pop{
+    #label-search-style{
+
+      position: absolute;
+      z-index: 12;
+
+      .search-input{
+        background: white;
+        color:#9a9a9a;
+
+      }
+    }
+
     .m-bannerBg{
       width:80%;
       height:70%;
@@ -366,6 +506,9 @@ export default {
         border: 1px solid #c0c0c0;
         border-radius: 0.3rem;
         width: 90%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
         // padding: 0.1rem 0;
       }
 
@@ -376,7 +519,7 @@ export default {
         top:0.8rem;
         bottom:0;
 
-        #svg-tag{
+        .svg-tag{
           width:100%;
           height:100%;
 
@@ -416,6 +559,25 @@ export default {
 
 
       }
+
+    }
+
+    .m-to_poster{
+      
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      transform: translate(0,120%);
+      
+      width: 100%;
+      height: 0.8rem;
+      background: white;
+      border-radius: 0.4rem;
+      text-align: center;
+      font-size: 0.36rem;
+      line-height: 0.8rem;
+      color:#0aa3a4;
+
 
     }
     

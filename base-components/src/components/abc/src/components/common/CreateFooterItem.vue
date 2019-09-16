@@ -19,6 +19,7 @@
   </ul>
 </template>
 
+
 <script>
 import { debug } from 'util';
 export default {
@@ -32,7 +33,7 @@ export default {
       pos: 0,
       tabbarList: [
         {
-          text: "图谱探索",
+          text: "企业客•库",
           iconPath: require("../../assets/icon/tupu-new.png"),
           selectedIconPath: require("../../assets/icon/tupu-new-active.png"),
           nowPage: "0",
@@ -41,7 +42,7 @@ export default {
           }
         },
         {
-          text: "订阅+",
+          text: "采购订阅+",
           iconPath: require("../../assets/icon/dingyue-new.png"),
           selectedIconPath: require("../../assets/icon/dingyue-new-active.png"),
           nowPage: "1",
@@ -50,7 +51,7 @@ export default {
           }
         },
         {
-          text: "触客+",
+          text: "企服专场+",
           iconPath: require("../../assets/icon/indexF2.png"),
           selectedIconPath: require("../../assets/icon/indexF2-active.png"),
           nowPage: "2",

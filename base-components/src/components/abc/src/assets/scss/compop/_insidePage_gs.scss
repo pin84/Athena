@@ -266,9 +266,7 @@
     }
     .sms-phone{
         flex: 1;
-        
     }
-    
 }
 // sms-textarea 权重增加
 .content{
@@ -278,6 +276,8 @@
             // width: 100%;
             height: calRem(100);
             line-height: calRem(18);
+            padding-top:0.2rem;
+            font-size: 0.32rem;
             // padding: calRem(10);
             // border: none;
             // background-color: $bgColor;

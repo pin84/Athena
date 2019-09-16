@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <com-pop
       @comPopShow="comPopIsShow"
       my-index="CompanyList"
@@ -10,17 +9,10 @@
     >
       <template v-slot:pop-content>
         <div id="companyList">
-          
           <div class="top">
-            <h4>{{province}}({{total}}家)</h4>
-            <button
-              class="searchBtn"
-              @click="searchCom"
-            >精准搜索</button>
-            <span
-              class="random"
-              @click="randomCompany"
-            >换一批</span>
+            <h4>{{provinceTrans(province)}}({{total||0}}家)</h4>
+            <button class="searchBtn" @click="searchCom">精准搜索</button>
+            <span class="random" @click="randomCompany">换一批</span>
           </div>
 
           <div class="bottom">
@@ -38,7 +30,7 @@
                 <span
                   class="main-label"
                   :style="labelColor()"
-                  v-for="(kindItme) in businessScope(companyItem.kind)"
+                  v-for="(kindItme) in $commonFn.businessScope(companyItem.kind)"
                   :key="kindItme"
                 >{{kindItme}}</span>
                 <!-- <span class="main-label" v-for="(item,index) in businessScope(item.kind)" :key="item.kind"> {{item}}</span> -->
@@ -53,16 +45,9 @@
         <div></div>
       </template>
       <template v-slot:flex-right>
-        <div
-          class="m-item m-itemcenter"
-          @click="pushVideo"
-        >推送视频</div>
-        <div
-          class="m-item m-itemcenter"
-          @click="pushMessage"
-        >推送短信</div>
+        <div class="m-item m-itemcenter" @click="pushVideo">推送视频</div>
+        <div class="m-item m-itemcenter" @click="pushMessage">推送短信</div>
       </template>
-
     </com-pop>
     <PrecisionSearch
       v-if="isShowPrecisionSearch"
@@ -71,21 +56,17 @@
       @newCompany="getSearchInfo"
     />
 
-    <label-show
-      v-show="labelShow"
-      :labelShow="labelShow"
-      :companyInfo="chooseCompany"
-    />
-
+    <label-show :labelShow="labelShow" :companyInfo="chooseCompany" />
   </div>
 
   <!-- 工商信息 e -->
 </template>
 
 <script>
-import {commonFnMixin} from '@/assets/js/mixins.js'
+import { commonFnMixin } from "@/assets/js/mixins.js";
 import LabelShow from "@/components/pop/shanglian/LabelShow";
 import PrecisionSearch from "@/components/pop/shanglian/PrecisionSearch";
+import Utils from "../../../utils";
 
 const ComPop = resolve => {
   import("@/components/common/ComPop").then(module => {
@@ -93,8 +74,7 @@ const ComPop = resolve => {
   });
 };
 export default {
-
-  mixins:[ commonFnMixin ],
+  mixins: [commonFnMixin],
 
   components: {
     ComPop,
@@ -113,8 +93,8 @@ export default {
       industryId: null,
       industryName: "" || "请选择对应行业",
       bussiness: "", //搜索范围
-      up_industry:'',
-      logo:'',
+      up_industry: "",
+      logo: "",
       // 该列表信息所属范围 e
 
       // 列表信息 s
@@ -141,6 +121,12 @@ export default {
   },
 
   methods: {
+    // 获得省份名 经处理：内蒙古自治区改为内蒙古
+    provinceTrans(provinceName) {
+      let transName = this.$commonFn.provinceNameTrans(provinceName);
+      return transName;
+    },
+
     // 此处仅限用于精准搜索获取参数
     getSearchInfo(count, all_count, info, all_info, searchBussiness) {
       //          ↑总计数 ↑所有搜索结果  ↑信息  ↑未经筛选信息  ↑主营业务搜索范围
@@ -181,22 +167,6 @@ export default {
         ...colorItem
       };
     },
-    //
-    businessScope(scope) {
-      if (typeof scope == "string" && scope.length > 0 && scope !== "\r") {
-        // console.log('ok ',scope)
-        let spliteStrArray = scope.split("|");
-        let setSpliteStrArray  = new Set(spliteStrArray);
-        console.log(setSpliteStrArray,spliteStrArray)
-        if (spliteStrArray.length > 2) {
-          spliteStrArray.splice(0, 1);
-        }
-
-        return spliteStrArray;
-      } else {
-        return [];
-      }
-    },
 
     // 获取弹窗传值 该方法仅限用于饼图传值
     getParams() {
@@ -218,9 +188,8 @@ export default {
 
       // let {enterprises_data,count}  = listData;
       // let { all_info, info, all_count, count } = listData;
-      let { count , enterprises_data } = companyLsData; //index/list
+      let { count, enterprises_data } = companyLsData; //index/list
 
-      
       // console.log(this.$store.state.pop.params.listData,all_info,count,info)
       /*
       this.companyList = all_info;
@@ -234,7 +203,7 @@ export default {
       this.industryName = industryName;
       */
 
-      this.companyList = enterprises_data; 
+      this.companyList = enterprises_data;
       this.total = count; //所有企业统计数
       this.hasPhoneTotal = count; //用于 短信推送 显示含有手机号码的统计数
       this.hasPhoneCompanyList = enterprises_data; //含有手机号码的企业数
@@ -243,11 +212,11 @@ export default {
       this.province = pName;
       this.industryId = insId;
       this.industryName = industryName;
-      this.up_industry = logo=='up'?up_industry:'';
+      this.up_industry = logo == "up" ? up_industry : "";
       this.logo = logo;
-
     },
     comPopIsShow(isShow) {
+      
       console.log(isShow, "isShow");
       if (isShow) {
         this.isShowPop = true;
@@ -287,21 +256,32 @@ export default {
     //给li加上active的类名
     selectCompany(index, companyItem) {
       this.num = index;
-      this.labelShow.isShow = true;
+      // this.labelShow.isShow = true;
 
       let companyName = companyItem.enterprises;
-      let companyTags = this.businessScope(companyItem.kind);
+      let companyTags = this.$commonFn.businessScope(companyItem.kind);
       let enterprisesid = companyItem.enterprisesid;
 
-      this.chooseCompany = {
-        companyName,
-        companyTags,
-        enterprisesid,
-        industryId: this.industryId
-      };
+      // this.chooseCompany = {
+      //   companyName,
+      //   companyTags,
+      //   enterprisesid,
+      //   industryId: this.industryId
+      // };
+
+      let toSearchCompanyInfo = {
+        enterpriseid: enterprisesid,
+        enterprise: companyName,
+        industryid: this.industryId,
+      }
+
+      this.$router.push({
+        name:'searchCompany',
+        params:toSearchCompanyInfo,
+      })
     },
     async randomCompany() {
-      if(this.bussiness){
+      if (this.bussiness) {
         this.$axios
           .get(this.$api.accuracySearch, {
             params: {
@@ -318,7 +298,7 @@ export default {
               });
               return;
             }
-  
+
             if (typeof count == "number" && typeof info == "object") {
               let bussiness = this.searchInfo.business;
               this.total = all_count;
@@ -329,7 +309,7 @@ export default {
           })
           .catch(rej => rej);
       }
-        
+
       /*
       this.companyList = enterprises_data; 
       this.total = count; //所有企业统计数
@@ -345,24 +325,25 @@ export default {
       */
 
       // -------------此为当直接进入省份换一批获得的数据 s
-      if(!this.bussiness){
+      if (!this.bussiness) {
+        let companyLsData = await this.$axios
+          .get(this.$api.searchPrinceCom, {
+            params: {
+              industryid: this.industryId,
+              provinces: this.province,
+              logo: this.logo,
+              up_industry: this.logo == "up" ? this.up_industry : ""
+            }
+          })
+          .then(res => res.data)
+          .catch(rej => rej);
 
-        let companyLsData = await this.$axios.get(this.$api.searchPrinceCom,{
-            params:{
-            industryid:this.industryId,
-            provinces:this.province,
-            logo:this.logo,
-            up_industry:this.logo=='up'?this.up_industry:'',
-          }
-        }).then(res=>res.data).catch(rej=>rej);
+        let { count, enterprises_data } = companyLsData;
 
-        let { count , enterprises_data } = companyLsData;
-
-        this.companyList = enterprises_data; 
+        this.companyList = enterprises_data;
         this.total = count; //所有企业统计数
         this.hasPhoneTotal = count; //用于 短信推送 显示含有手机号码的统计数
         this.hasPhoneCompanyList = enterprises_data; //含有手机号码的企业数
-      
       }
       // -------------此为当直接进入省份换一批获得的数据 e
 
@@ -399,62 +380,80 @@ export default {
     },
     pushVideo() {
       this.$toast({
-        message:'上下链暂未开放此功能，请期待我们的到来哦~~~'
-      })
+        message: "上下链暂未开放此功能，请期待我们的到来哦~~~"
+      });
     },
 
     // 推送短信
     pushMessage() {
-      
-      // from mixins → commonFnMixin 
-      let showPushMsg = async()=>{
-        
+      // from mixins → commonFnMixin
+      let showPushMsg = async () => {
         console.log(
           this.industryId,
           this.province,
           this.logo,
-          this.up_industry,
-        )
-        let phoneCount = await this.$axios.get(this.$api.phoneCount,{
-          params:{
-            // industryid[行业id] provinces[省份名] logo[ up / down ] up_industry[上链行业名称]!仅上链需要  区分上下链
-            industryid:this.industryId,
-            provinces:this.province,
-            logo:this.logo,
-            up_industry:this.up_industry,
-          }
-        }).then(res=>res.data).catch(rej=>rej)
-        
-        this.hasPhoneTotal = phoneCount.mobile_count?phoneCount.mobile_count :0;
-      
+          this.up_industry
+        );
+        let phoneCount = await this.$axios
+          .get(this.$api.phoneCount, {
+            params: {
+              // industryid[行业id] provinces[省份名] logo[ up / down ] up_industry[上链行业名称]!仅上链需要  区分上下链
+              industryid: this.industryId,
+              provinces: this.province,
+              logo: this.logo,
+              up_industry: this.up_industry
+            }
+          })
+          .then(res => res.data)
+          .catch(rej => rej);
+
+        this.hasPhoneTotal = phoneCount.mobile_count
+          ? phoneCount.mobile_count
+          : 0;
+
         this.$store.commit("showPop", {
           popName: "pushMsg",
           params: {
             saveParams: true,
             freshOtherFunc: function() {},
-  
+
             companyCount: this.total,
             hasPhoneCount: this.hasPhoneTotal,
             companyList: this.companyList,
             hasPhoneCompanyList: this.hasPhoneCompanyList,
             bussiness: this.bussiness,
-  
+
             // 此部分参数仅为了发送短信时的接口所用到的数据 s
             industryid: this.industryId,
             provinces: this.province,
             logo: this.logo,
             up_industry: this.up_industry,
-            sendType:'CompanyList',
-            
+            sendType: "CompanyList",
+            industryName: this.industryName
             // 此部分参数仅为了发送短信时的接口所用到的数据 e
           }
         });
 
+        //第一次到访提示 s
+        this.isFirstVisit();
+      };
+      this.identityAuth(() => {
+        showPushMsg();
+      });
+    },
+    //第一次到访提示 s
+    async isFirstVisit() {
+      let flag = await Utils.isFirstVisit(
+        this.$api.isShowTips,
+        // this.$route.meta.remark
+        "全网搜索推送短信"
+      );
+      if (flag) {
+        this.$router.push({
+          path: "../tipmain",
+          query: { num: [5, 6, 7], originUrl: this.$route.fullPath } //1是第1张图片
+        });
       }
-      this.identityAuth(()=>{
-        showPushMsg()
-      })
-
     }
   },
   computed: {}
@@ -494,18 +493,18 @@ export default {
       color #fe8700
       padding 0  0  0 20px
       font-size 0.32rem
-      &::before
-        position absolute 
-        right 100%
-        top 5px
-        display inline-block
-        content ''
-        background url('../../../assets/icon/random.png') center no-repeat
-        background-size 0.32rem 0.32rem
-        width 0.32rem
-        height 0.32rem
-        vertical-align center
-        transform scale(1)
+      // &::before
+      //   position absolute 
+      //   right 100%
+      //   top 5px
+      //   display inline-block
+      //   content ''
+      //   background url('../../../assets/icon/random.png') center no-repeat
+      //   background-size 0.32rem 0.32rem
+      //   width 0.32rem
+      //   height 0.32rem
+      //   vertical-align center
+      //   transform scale(1)
         
   .bottom
     // height 100vh

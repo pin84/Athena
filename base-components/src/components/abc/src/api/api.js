@@ -158,6 +158,8 @@ let api = {
 // python 新api
 let pythonApi = {
 
+     errorApi: pyBaseUrl + 'index/record/error',
+     
      // 判断用户是否拥有管理员权限 @param [token] 0拥有权限 1没有权限
      Administrator: pyBaseUrl + 'center/users/administrator/',
 
@@ -172,7 +174,10 @@ let pythonApi = {
 
      singleData: pyBaseUrl + 'index/single',
 
-     // @params enterpriseid[企业ID] industryid[行业ID] 当搜索出企业信息后获取公司id及行业id 并获取对应信息
+
+
+
+     // @params enterpriseid[企业ID][！！！后修改为企业名称] industryid[行业ID] 当搜索出企业信息后获取公司id及行业id 并获取对应信息
      comInfo: pyBaseUrl + "index/basic", //维度弹窗基本信息 公共部分 isMock
 
      // @params industryid[行业id] provinces[省份名] logo[ up / down ] up_industry[上链行业名称]!仅上链需要  区分上下链
@@ -182,9 +187,10 @@ let pythonApi = {
      inbatch: pyBaseUrl + 'index/batch/inbatch', //换一批
 
      // @params : industryid[行业ID] province[省份名称] page[分页]
-     precise: pyBaseUrl + 'industry/precise',//精准搜索 isMock
+     //此方法没有使用
+     // precise: pyBaseUrl + 'industry/precise',//精准搜索 isMock
 
-     // @method[POST] company_id[企业id] token
+     // @method[POST] company_id[企业id] industryid[行业id] token i_recommend[始终传值 true ]
      Recommend: pyBaseUrl + 'index/recommended/function/', //我推荐 
 
      // @params : token
@@ -199,7 +205,7 @@ let pythonApi = {
      phoneCount: pyBaseUrl + 'index/singles/mobile/count', //手机号码总计
      // @params: company_id[公司ID] industrysid[行业ID]
      searchFunc: pyBaseUrl + 'index/searchfunction', //获取公司访问人数 推荐数
-
+     // enterpriseid:[公司名称！！！]  industryid
      searchCompany: pyBaseUrl + 'index/search/data/info', //获取公司访问人数
 
      // @params: username[用户名称]
@@ -271,14 +277,21 @@ let pythonApi = {
      mySubscript: dingyue + 'subscribe/search',
 
      /**
+      * 我的订阅修改逻辑后的接口，可以保存用户设置时间内的所有内容，
+      * GET
+      * @params
+      * page,token
+      */
+     postToken: pyBaseUrl + 'subscribe/time/node/info/',
+     /**
       * 随便逛逛一开始随机获取数据
       *  page: 1,page_size: 8
       */
      randomData: dingyue + 'subscribe/casual/',
 
      /**
-      * 采招推荐第一闪访问获取数据 
-      * 
+      * 采招推荐第一次访问获取数据 
+      * GET
       */
      recommanInitData: pyBaseUrl + 'subscribe/random/ntoe',
 
@@ -295,6 +308,7 @@ let pythonApi = {
       * token
       */
      isShowTipsStep_1: pyBaseUrl + 'subscribe/sub/token',
+
 
 
      /**
@@ -346,7 +360,10 @@ let pythonApi = {
       */
      keywordSearch: dingyue + 'subscribe/fastseeks/',
      //关键字查询结果详情，返回结果的内容
-     detailContent: dingyue + 'subscribe/fastseek/',
+     // detailContent: dingyue + 'subscribe/fastseek/', 
+
+     detailContent: dingyue + 'subscribe/readwib/',
+
      /**
       * //根据区域和关键字筛选
       * token:
@@ -412,13 +429,110 @@ let pythonApi = {
       */
      userCenterInfo: pyBaseUrl + 'center/user/info',
 
+
+     /**
+     * 用户中心 协同 获取用户权限，是否有加入协同
+     * @method
+     * GET
+     * @param
+     * user_id,
+     * companyId
+     */
+     getUserAuth: pyBaseUrl + 'center/search',
+
+
+     /**
+      * 用户中心 协同 增加成员
+      * @method
+      * POST
+      * @param
+      * token,
+      * companyId
+      */
+     addMember: pyBaseUrl + 'center/invitation',
+     /**
+      * 用户中心 协同 删除成员
+      * @method
+      * GET
+      * @param
+      * token,company_id,user_id
+      */
+     delMember: pyBaseUrl + 'center/remove',
+     /**
+      * 用户中心 协同 权限转移
+      * @method
+      * GET
+      * @param
+      * token,company_id,user_id
+      */
+     surrender: pyBaseUrl + 'center/alter',
+     /**
+      * 用户中心 协同 设置用户为管理员
+      * @method
+      * POST
+      * @param
+      * token,company_id,user_id
+      */
+     setComAdmin: pyBaseUrl + 'center/addAdmin',
+
+
+     //专场服务
+     /**
+      * 增加图文
+      * @method  
+      * POST
+      * @param
+      * company_id,text,user_id,title,media_id
+      */
+     addArticle: pyBaseUrl + 'index/introduction/',
+     /**
+      * 查询图文
+      * @method  
+      * GET
+      * @param
+      * company_id,id(显示全文)
+      */
+     getArticle: pyBaseUrl + 'index/introduction/',
+     /**
+      * 删除图文
+      * @method  
+      * GET
+      * @param
+      * ：文章id,company_id,user_id 
+      */
+     delArticle: pyBaseUrl + 'index/introduction/remove',
+     /**
+      * 修改图文
+      * @method  
+      * GET
+      * @param
+      * ：文章id,company_id,user_id ,text,media_id,title
+      */
+     modArticle: pyBaseUrl + 'index/introduction/alter',
+     /**
+      * 图文排序
+      * @method  
+      * GET
+      * @param
+      * company_name, rule //1,2
+      */
+     sortArticle: pyBaseUrl + 'index/introduction/sort',
+     /**
+      * 图文动态返回图片名字
+      * 微信服务器id
+      */
+     getWXImgName: pyBaseUrl + 'index/save/wexin/pic',
+
+
+
+
      /**
       * 年审接口
       * GET
       * @param
       * token
       */
-     certificationYears:pyBaseUrl+'center/certification/years/pay',
+     certificationYears: pyBaseUrl + 'center/certification/years/pay',
 
 
      /**
@@ -429,6 +543,12 @@ let pythonApi = {
       * token
       */
      useNum: pyBaseUrl + 'users/number/',
+
+     /**
+      * 获取全国和省份和城市
+      * Get
+      */
+     getCity:pyBaseUrl+'/index/get/city',
 
      /**
       * 个人自画像 
@@ -443,6 +563,7 @@ let pythonApi = {
       * 企业自画像
       */
      comTags: pyBaseUrl + 'center/self/portrait',
+
      /**
       * 精准短信触客
       * GET
@@ -465,10 +586,10 @@ let pythonApi = {
       * 用户离开记录
       */
      leaveRecord: pyBaseUrl + 'monitor/log/user/leave/url',
-     
+
      // 精准短信触客  provinces，industryid，business ，token
      chukeMsgInfo: pyBaseUrl + 'contact/balance/info',
-     
+
      // [POST] 精准短信触客 短信发送 token，provinces，industryid，business，template_name,
      chukeMsgSend: pyBaseUrl + 'contact/sms/',
 
@@ -483,10 +604,17 @@ let pythonApi = {
      feedback: pyBaseUrl + 'center/feedback/info/',
 
      /**
+      * 上传图片到服务器
+      * POST
+      */
+     uploadImg: pyBaseUrl + 'index/save/pic',
+
+
+     /**
       * 反馈获取图片
       * avatar
       */
-     feedbackGetImg: pyBaseUrl+'center/getfeedbackinfo/image',
+     feedbackGetImg: pyBaseUrl + 'center/getfeedbackinfo/image',
 
      /**
       * 反馈后台，初始化获取数据
@@ -496,7 +624,7 @@ let pythonApi = {
       * functional_areas
       * audit_state
       */
-     feedbackBakInitData:pyBaseUrl+'center/feedback/infos/audit/',
+     feedbackBakInitData: pyBaseUrl + 'center/feedback/infos/audit/',
 
      /**
       * 反馈后台提交回复
@@ -505,16 +633,97 @@ let pythonApi = {
       * id
       * audit_content
       */
-     feedbackResponse:pyBaseUrl+'center/audit',
+     feedbackResponse: pyBaseUrl + 'center/audit/',
 
 
      //  获取退款信息 @method [GET] @params [none]
      refundInfo: pyBaseUrl + 'center/refund/audit/',
-     
+
      // 退款接口 @method [POST] [company_name]企业名称 [main_order_id]单号  [token]
      refundAudit: pyBaseUrl + 'center/refund/audit/',
-     
+
+     // 心灵鸡汤
      inspirationalText: pyBaseUrl + 'center/text',
+
+     // @method [POST] [new_user]新受邀用户id, [share_user]分享者id, [type]活动类型， [company_id]企业id , [compangy_name]企业名称
+     posterActivity: pyBaseUrl + 'oauth/back', //海报奖励
+
+     // @method [POST] [new_user]新受邀用户id, [share_user]分享者id, [type]活动类型，[custom_field]自定义字段
+     invLetterActivity: pyBaseUrl + 'oauth/invitation', //邀请函
+
+     // 邀请码后台看板
+     invitationInfo: pyBaseUrl + 'oauth/get/invitation/info',
+
+     // 邀请码后台看板按月份查询信息 [token] [month]月份
+     invitationMonthInfo: pyBaseUrl + 'oauth/month/',
+
+     // 参数 token 获取该用户的其他信息 比如是否关注公众号 1已关注 0 未关注
+     otherUserInfo: pyBaseUrl + 'oauth/wx',
+
+     /** 
+     *     @method [POST]
+     *     @params
+     *     must: 
+     *     !必填参数
+     *          [industry]行业id, "1,2,3,4"
+     *          [province]省份名, "广东省,北京市"
+     *          [headimgUrl]头像
+     *     choose: 
+     *     !下列参数为可选 没有则传空字符
+     *          [kind]主营 !字符串 英文逗号分隔 , 
+     *          [contains_company_name]企业名称 , 企业名称包含关键词
+     *          [company_name_birthday]成立日期 天数, 规定可选日期 7 15 20 30 60 [不限]为0
+     *          [registered_capital]注册资金, 例:200,300 逗号为分隔符
+     *          [wechat_push_state]微信推送状态,
+     *          [up_down_chain_push_state]上下链推送状态 0:不推送 1推送 默认推送
+     */
+     customPoolSaveSetting: pyBaseUrl + 'chainring/save/poll/info/', //潜在客户池 保存配置
+
+     // [token]
+     customPoolGetSetting: pyBaseUrl + 'chainring/get/save/poll', //潜在客户池 获取配置信息
+
+     // [token]
+     customPoolIndex: pyBaseUrl + 'chainring/index/poll', //潜在客户池 首页消息
+
+     // [token] ,[datetimes]
+     customPoolSearchByTime: pyBaseUrl + 'chainring/datetime/data', // 潜在客户池 按时间查找数据
+
+     // [token] template_name,datetimes 发送短信
+     customerSms: pyBaseUrl + 'chainring/sms/customer/poll',
+
+     // 专场api @params id=1,2 （行业id）
+     speciaIndustry: pyBaseUrl + 'index/speciaindustry/',
+
+     /**
+      *  专场列表接口
+      * @params
+      * [logo] up
+      * [provinces] 广东省
+      * [industryid]
+      * [name] 律师事务所 （专场名称）
+      * 
+      * @response
+      * [code]: 1已认证 0未认证
+      *  */
+     specialDataList: pyBaseUrl + 'index/speciallist/',
+
+     /**
+     * @params
+     * [provinces]
+     * [industryid]
+     * [id] 1201法律专场 对应不同的专场
+     * [business] 主营
+     * [company_name] 
+     * [city] 暂时无效 不传
+     * [start] 0开始
+     */
+     specialDataSearch: pyBaseUrl + 'index/special/search/',
+
+     articlePhoto: pyBaseUrl + 'index/save/pic',
+
+     // 获取所有省份里面的城市
+     allCity: pyBaseUrl + '/index/get/city',
+
 }
 
 let mockApi = {

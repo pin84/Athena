@@ -1,33 +1,28 @@
 <template>
-
   <div id="cz-wrapper">
     <!-- <ComHeader
       class="comHeader"
       @close='close'
-    /> -->
+    />-->
 
-    <div
-      id="chongzhing"
-      v-show="isShow"
-      ref='wrapper'
-    >
+    <div id="chongzhing" v-show="isShow" ref="wrapper">
       <h3 class="title">充值</h3>
       <!-- <div class="total">
         <span>剩余充值金额:
           <span class="total_num">￥{{resMoney}}</span>
         </span>
         <span class="jilu">充值记录</span>
-      </div> -->
+      </div>-->
       <div class="inputmoney">
         <span>输入充值金额</span>
         <div class="inputbox">
           <input
-            v-model='selectMoney'
+            v-model="selectMoney"
             type="number"
             placeholder="请输入大于等于1元的金额"
-            @focus='inputFocus'
-            @blur='inputBlur'
-          >
+            @focus="inputFocus"
+            @blur="inputBlur"
+          />
           <span>元</span>
         </div>
       </div>
@@ -48,21 +43,16 @@
       <div class="explain">
         <p>说明</p>
         <p>1、短信每条0.05元，视频短信每条0.30元。</p>
-        <p>2、普通短信70个字/条、长短信按64字/条计费；视频短
-          信大小不超过1.5M。</p>
+        <p>
+          2、普通短信70个字/条、长短信按64字/条计费；视频短
+          信大小不超过1.5M。
+        </p>
       </div>
     </div>
     <div class="footer">
-
-      <ComFooter
-        @rightEvent='recharge'
-        @leftEvent='cancelRecharge'
-        left='返回'
-        right='充值'
-      />
+      <ComFooter @rightEvent="recharge" @leftEvent="cancelRecharge" left="返回" right="充值" />
     </div>
   </div>
-
 </template>
 <script>
 import ComHeader from "@/components/common/Header";
@@ -154,11 +144,16 @@ export default {
 
       if (!moneyCheck.call(this, this.selectMoney)) return;
 
+      let d = {
+        total_fee: String(this.selectMoney * 100),
+        token: this.userInfo.token
+      };
+
+      
+
+      
       let { data: rechargeRes } = await this.$axios
-        .post(this.$api.recharge, {
-          total_fee: String(this.selectMoney * 100),
-          token: this.userInfo.token
-        })
+        .post(this.$api.recharge, d)
         .catch(rej => {
           console.log(rej);
         });
@@ -197,8 +192,8 @@ export default {
           //   })
           //   .catch(putRej => {});
           // window.location.href = "../?#/autConfig";
-        this.selectMoney = ''
-         window.history.back(-1);
+          this.selectMoney = "";
+          window.history.back(-1);
         } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
           this.$messageBox.confirm("您已取消支付");
           // window.location.href = "../?#/autConfig";

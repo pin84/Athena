@@ -1,5 +1,6 @@
 import axios from 'axios'
 import api from '../../api/api'
+// import store from '../../store'
 
 export default {
 
@@ -9,13 +10,16 @@ export default {
     return 'a'
   },
 
-  async  showDetail(item_id, token) {
+  async  showDetail(item_id, token ) {
     let res = await axios
-      .get(`${api.detailContent}${item_id}/`, {
+      .get(`${api.detailContent}`, {
         params: {
-          token
+          token,
+          id: item_id
         }
       })
+
+    console.log(`===data====`,item_id, token, res);
 
 
     if (res.data.message === false) {
@@ -25,7 +29,7 @@ export default {
       // this.detailData = item;
       // this.isShowDetail = "detail";
       let reg = /class=".*?"|id=".*?"/g;
-      let content = res.data.BidsContent[0].replace(reg, "");
+      let content = res.data.content.replace(reg, "");
 
       return content
     }
@@ -42,11 +46,11 @@ export default {
       tem.unshift(keyword);
       let set = new Set(tem)
       let arr = Array.from(set)
-      if(arr.length > 8 ){
+      if (arr.length > 8) {
         arr.pop()
       }
-     
-      console.log(`===arr====`,arr );
+
+      console.log(`===arr====`, arr);
 
 
       localStorage.setItem("historySearch", arr.join());

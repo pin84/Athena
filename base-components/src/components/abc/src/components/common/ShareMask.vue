@@ -19,9 +19,14 @@ export default {
         console.error(`bus function shareMaskShow's params must be boolean`);
         return;
       }
+      // this.$store.commit('saveBeforShareUrl',this.$route.fullPath)
       this.showShare = state
     });
 
+  },
+  destroyed() {
+    this.bus.$on('shareMaskShow');
+    
   },
   data(){
     return{
@@ -32,6 +37,8 @@ export default {
   methods: {
     closeShare(){
       this.showShare = false;
+      // console.log(`=======`,this.$store.state.shareInfo.saveBeforShareUrl);
+      // this.$router.push(this.$store.state.shareInfo.saveBeforShareUrl)
       this.$store.commit('resetShareInfo',this.$route);
     }
   },

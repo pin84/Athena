@@ -1,3 +1,5 @@
+const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
 
 // vue.config.js 配置说明
 // 这里只列一部分，具体配置惨考文档啊
@@ -7,10 +9,12 @@
 
 //  var apiTarget = 'http://sxl.weiren.me' // api地址
 
+
 module.exports = {
 
   // publicPath: '/js',
   // publicPath:'./',
+  productionSourceMap:false,
   publicPath: process.env.NODE_ENV === 'production' ? './': '/js/',
   devServer: {
     port: 80,
@@ -48,30 +52,33 @@ module.exports = {
 
       },
       sass: {
-        // @/ 是 src/ 的别名
-        // 所以这里假设你有 `src/variables.scss` 这个文件
         data: `
-                @import "@/assets/scss/compop/popSp.scss";
-                @import "@/assets/scss/_public.scss";
-                @import "@/assets/scss/_icon.scss";
-                @import "@/assets/scss/compop/_components.scss";
-                @import "@/assets/scss/compop/_insidePage_gs.scss";
-                @import "@/assets/scss/compop/_resetUi.scss";
-                @import "@/assets/scss/compop/compop.scss";
-                @import "@/assets/scss/views/ShangLian/ShangLian.scss";
-                @import "@/assets/scss/views/LianQuan/LianQuan.scss";
+            @import "@/assets/scss/compop/popSp.scss";
+            @import "@/assets/scss/_public.scss";
+            @import "@/assets/scss/_icon.scss";
+            @import "@/assets/scss/compop/_components.scss";
+            @import "@/assets/scss/compop/_insidePage_gs.scss";
+            @import "@/assets/scss/compop/_resetUi.scss";
+            @import "@/assets/scss/compop/compop.scss";
+            @import "@/assets/scss/views/ShangLian/ShangLian.scss";
+            @import "@/assets/scss/views/LianQuan/LianQuan.scss";
           `
       },
-      // less: {
-      //   // @/ 是 src/ 的别名
-      //   // 所以这里假设你有 `src/variables.scss` 这个文件
-      //   data: `@import "@/less.less";`
-      // }
-      // postcss: {
-      //   // 这里的选项会传递给 postcss-loader
-      // }
     }
   },
 
+  // configureWebpack: {
+  //   optimization: {
+  //     minimizer: [
+  //       new TerserPlugin({
+  //         terserOptions: {
+  //           compress: {
+  //             drop_console: false // 清除console
+  //           }
+  //         }
+  //       })
+  //     ]
+  //   }
+  // },
 
 }

@@ -1,0 +1,22 @@
+[
+    {
+        "festival":"TeachersDay",
+        "posterBgImgNum":12,
+        "activityTime":"09/10/00:00:00-09/10/23:59:59"
+    },
+    {
+        "festival":"MidAutumnFestival",
+        "posterBgImgNum":10,
+        "activityTime":"09/11/00:00:00-09/14/23:59:59"
+    },
+    {
+        "festival":"NationalDat",
+        "posterBgImgNum":3,
+        "activityTime":"09/15/00:00:00-10/05/23:59:59"
+    },
+    {
+        "festival":"DoubleNinthFestival",
+        "posterBgImgNum":0,
+        "activityTime":"10/06/00:00:00-10/07/23:59:59"
+    }
+]

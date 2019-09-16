@@ -1,20 +1,15 @@
 <template>
-  <div
-    id="user-center"
-    ref='wrapper'
-  >
+  <div id="user-center" ref="wrapper">
     <header>
       <div class="user">
         <section class="user-info">
           <span class="avatar">
-            <img
-              :src="userInfo.headimgUrl"
-              alt=""
-            >
+            <img :src="userInfo.headimgUrl" alt />
           </span>
           <dl class="user-name">
             <dt>{{userInfo.username}}</dt>
-            <dd v-if="num">{{companyName}}
+            <dd v-if="num">
+              {{companyName}}
               <span
                 class="cancel"
                 @click="companyAuth"
@@ -27,7 +22,7 @@
                 @click="companyAuth"
                 v-show="num !== 1"
               >{{thisPageData.comState[num]}}</span>
-            </dd> -->
+            </dd>-->
 
             <dd v-else>未绑定认证企业</dd>
           </dl>
@@ -41,11 +36,7 @@
       </div>
 
       <ul class="list">
-        <li
-          class="item"
-          v-for='(value, key,index) in userMsg'
-          :key='index'
-        >
+        <li class="item" v-for="(value, key,index) in userMsg" :key="index">
           <span>{{value}}</span>
           <span class="text">{{key}}</span>
         </li>
@@ -56,16 +47,13 @@
         <div class="self-list">
           <li
             class="item"
-            v-for='(item,index) in thisPageData.self'
-            :key='index'
+            v-for="(item,index) in thisPageData.self"
+            :key="index"
             @click="toComanyDetail(item,index)"
           >
             <span class="bg">
-              <img :src='require(`../../assets/icon/userCenter/self-${index+1}.png`)'>
-              <i
-                class="mark"
-                v-if="index === 0 || index === 1"
-              >{{tagNum[index]}}</i>
+              <img :src="require(`../../assets/icon/userCenter/self-${index+1}.png`)" />
+              <i class="mark" v-if="index === 0 || index === 1">{{tagNum[index] || 0}}</i>
             </span>
             <span class="text">{{item}}</span>
           </li>
@@ -78,73 +66,60 @@
           <span class="co">￥</span>
           <span class="co num">{{balance}}</span>
         </span>
-        <span
-          class="toPay"
-          @click="toPay"
-        >去充值</span>
+        <span class="toPay" @click="toPay">去充值</span>
       </div>
 
-      <div
-        class="my-self-ck"
-        @click="notOpen"
-      >
+      <div class="my-self-ck">
         <div class="title">
-          <span class="left">我的触客分发</span>
-          <span class="more">更多</span>
+          <span class="left">我的企业图文动态</span>
+          <!-- <span class="more">编辑</span> -->
         </div>
-        <div
-          class="cen"
-          @click="sendMsg"
-        > 发布第一条触客分发内容</div>
-        <div class="list">
+        <div class="cen" @click="sendMsg">&nbsp; 发布我的企业图文动态</div>
+        <p>用文字 / 图片介绍企业</p>
+        <!-- <div class="list">
           <p>用视频 / 图片分享企业内容</p>
           <div class="list-item">
-            <span
-              v-for='(value,key,index) in comment'
-              :key='index'
-            >
-              {{key}} ({{value}})
-            </span>
+            <span v-for="(value,key,index) in comment" :key="index">{{key}} ({{value}})</span>
           </div>
-        </div>
+        </div>-->
       </div>
 
       <div class="msg">
         <div class="title">
           <span class="left">短信触客</span>
-          <!-- <span>在线任务:
-            <span class="bl">0</span>
-            <span class="bl">1</span>
-          </span> -->
         </div>
-        <div
-          class="creat"
-          @click="preciseMsg"
-        >
+        <div class="creat" @click="preciseMsg">
           <span>精准短信触客</span>
-          <!-- <span>创建触客任务</span> -->
         </div>
         <p>用文字或视频短信精准触客</p>
       </div>
 
+      <div class="customer-pool">
+        <div class="title">
+          <span class="left">潜在客户池订阅</span>
+          <!-- <span class="more">查看</span> -->
+        </div>
+        <div class="creat" @click="toCustomerPool">
+          <span>潜在客户池推荐设置</span>
+        </div>
+        <p>去设置潜在客户池</p>
+      </div>
+
       <div class="servic">
         <div class="title">
-          <span class="left">企业服务</span>
+          <span class="left">平台服务</span>
         </div>
         <ul class="list">
           <li
             class="item"
-            v-for='(item,index) in thisPageData.service'
-            :key='index'
+            v-for="(item,index) in thisPageData.service"
+            :key="index"
             @click="comServic(item)"
           >
             <span class="img-box">
-              <img
-                :src="require(`../../assets/icon/userCenter/servic-${index+1}.png`)"
-                alt=""
-              >
+              <img :src="require(`../../assets/icon/userCenter/servic-${index+2}.png`)" alt />
             </span>
-            <span class=service-text>{{item}}</span>
+            <span class="service-text">{{item}}</span>
           </li>
         </ul>
       </div>
@@ -169,19 +144,10 @@
             <span class=service-text>{{item}}</span>
           </li>
         </ul>
-      </div> -->
-
+      </div>-->
     </div>
-    <SelfPic
-      v-show="isShowSelPic"
-      :picType='showPicType'
-      @clostSelfPic='clostSelfPic'
-    />
 
-    <Tips
-      v-if="isMask"
-      @closeTips='closeTips'
-    >
+    <Tips v-if="isMask" @closeTips="closeTips">
       <template v-slot:content>
         <span>确认退出企业认证 ?</span>
       </template>
@@ -195,26 +161,24 @@
     <FeedbackBtn />
     <CompanyContact />
     <!-- <CommonPop v-if="test" /> -->
-    <Waiting
-      v-if="isShowWait"
-      :comName='companyName'
-      @closeWaiting='closeWaiting'
-    />
+    <Waiting v-if="isShowWait" :comName="companyName" @closeWaiting="closeWaiting" />
 
-    <SelectTem @closeMsgTemplate='closeMsgTemplate' />
+    <SelectTem />
     <MsgTemplate />
   </div>
 </template>
 <script>
 import FeedbackBtn from "../../components/common/feedback/FeedbackBtn";
 import Tips from "../commonPage/model/Tips";
-import SelfPic from "./pop/SelfPic";
+// import SelfPic from "./pop/SelfPic";
 import { MessageBox } from "mint-ui";
 import CompanyContact from "../../components/pop/companySetting/CompanyContact";
 import CommonPop from "./pop/CommonPop";
 import Waiting from "./Waiting";
 import SelectTem from "../../components/pop/pushTemplate/SelectTem";
 import MsgTemplate from "../../components/pop/pushTemplate/MsgTemplate";
+import commonFN from "../../utils";
+import TestTips from "../../components/common/feedback/Tips_2 copy";
 export default {
   data() {
     return {
@@ -228,14 +192,14 @@ export default {
         // top: ["推荐", "访问", '关注', "已消费"],
         self: ["个人自画像", "企业自画像", "联系信息", "企业资料"],
         service: [
-          "充值记录",
           "消费记录",
           "需求配套",
           "短信模板",
           "协同",
           "发票管理",
           "推送记录",
-          "推送汇总"
+          "推送汇总",
+          "每日海报"
         ],
         us: ["订阅设置", "自定义维度", "推荐企业"],
         comState: ["未认证", "待支付", "已认证", "待审核", "待提交", "取消绑定"]
@@ -256,40 +220,81 @@ export default {
       companyName: "", //保存从后台拿回来的公司名字
       userInfo: {}, //保存从store取来的用户信息
       pay_status: undefined, //用户的支付状态
-      status: undefined //用户的审核状态
-      // test: true
+      status: undefined, //用户的审核状态
+      tagNum: [],
+      company_id: "" //已认证的企业id
     };
   },
   components: {
     Tips,
-    SelfPic,
+    // SelfPic,
     FeedbackBtn,
     CompanyContact,
     CommonPop,
     Waiting,
     SelectTem,
-    MsgTemplate
+    MsgTemplate,
+    TestTips
   },
   created() {
     this.userInfo = this.$store.state.loginInfo.userInfo;
-    this.isCertifiedCom();
+    // this.isCertifiedCom();
+    this.initData();
   },
 
-  computed: {
-    tagNum: function() {
-      let arr = [];
-      let personTagNum = this.$store.state.company.savePersonTags.length;
-      let comTagNum = this.$store.state.company.saveComTags.length;
-
-      arr.push(personTagNum);
-      arr.push(comTagNum);
-      return arr;
-    }
-  },
   methods: {
-    closeMsgTemplate() {
-      this.showMask(false);
-      window.scrollTo(0, this.scrollTopDitance);
+    async initData() {
+      let res = await this.$commonFn.isJoinCooperation(
+        this.$api.getUserAuth,
+        this.userInfo.token,
+        this.userInfo.user_id
+      );
+
+      if (res) {
+        this.num = 2; //认证状态
+        this.companyName = res.user.company_name;
+        this.company_id = res.user.company_id;
+        this.userMsg["推荐"] = res.companyInfo.number;
+        this.userMsg["访问"] = res.companyInfo.count;
+        this.balance = res.companyInfo.money;
+        this.getTags();
+      } else {
+        await this.isCertifiedCom();
+      }
+    },
+
+    async getTags() {
+      let token = this.$store.state.loginInfo.userInfo.token;
+
+      //个人标签
+      let resPersonTags = await this.$axios.get(`${this.$api.perTags}`, {
+        params: {
+          token
+        }
+      });
+      if (resPersonTags.data.lndividual_labels) {
+        this.tagNum.push(
+          resPersonTags.data.lndividual_labels.split("|").length
+        );
+      } else {
+        this.tagNum.push(0);
+      }
+
+      //企业标签
+      if (this.num === 2) {
+        let resComTags = await this.$axios.get(`${this.$api.comTags}`, {
+          params: {
+            token,
+            company_id: this.company_id
+          }
+        });
+
+        if (resComTags.data.kind) {
+          this.tagNum.push(resComTags.data.kind.split("|").length);
+        } else {
+          this.tagNum.push(0);
+        }
+      }
     },
     notOpen() {
       this.$toast("此功能暂未开放哦，敬请期待");
@@ -337,24 +342,25 @@ export default {
         }
       });
 
-      this.pay_status = res.data.pay_status;
+      console.log(`===res====`, res);
+
       this.status = res.data.status;
+      this.pay_status = res.data.pay_status;
+      this.handleStatus(res);
+      this.getTags();
+    },
 
-      // this.$store.commit("savaCertifiedState", {
-      //   pay_status: this.pay_status,
-      //   status: this.status
-      // });
-
+    handleStatus(res) {
       if (this.status === 0 && this.pay_status === 0) {
-        console.log(`=====未认证==`);
-
+        //未认证
         return (this.num = 0);
       }
 
+      //公司名字赋值
       this.companyName = res.data.company_name;
 
       if (this.pay_status === 0 && this.status === 1) {
-        console.log(`=====待付款=`);
+        //待付款
         return (this.num = 1);
       }
 
@@ -366,9 +372,10 @@ export default {
       if (this.status === 2) {
         console.log(`=====已认证=`);
         this.num = 2;
-        this.userMsg["推荐"] = res.data.recommended_count || 0;
-        this.userMsg["已消费(元)"] = res.data.consumption_count || 0;
-        this.userMsg["访问"] = res.data.access_count || 0;
+        this.company_id = res.data.company_id;
+        this.userMsg["推荐"] = res.data.recommended_count;
+        this.userMsg["已消费(元)"] = res.data.consumption_count;
+        this.userMsg["访问"] = res.data.access_count;
         this.balance = res.data.balance;
         return;
       }
@@ -383,8 +390,8 @@ export default {
 
       switch (item) {
         case "短信模板":
-          this.scrollTopDitance = document.documentElement.scrollTop;
-          this.showMask(true);
+          // this.scrollTopDitance = document.documentElement.scrollTop;
+          // this.showMask(true);
           this.$store.commit("showPop", {
             popName: "selectTem",
             params: {
@@ -395,7 +402,38 @@ export default {
           });
 
           break;
+        case "协同":
+          // if (
+          //   this.userInfo.username === "伊谢尔伦的风" ||
+          //   this.userInfo.user_id === 600
+          // ) {
+          //   this.$router.push("cooperation");
+          //   return;
+          // }
+          this.$router.push("/cooperation");
+          // this.$toast("此功能暂未开放哦，敬请期待");
+          break;
+        case this.thisPageData.service[0]:
+          if (this.userInfo.user_id === 653 || this.userInfo.user_id === 600) {
+            this.$router.push("./records-consumption");
+            return;
+          }
 
+          this.$toast("此功能暂未开放哦，敬请期待");
+          break;
+        case this.thisPageData.service[1]:
+          if (this.userInfo.user_id === 608 || this.userInfo.user_id === 600) {
+            return;
+          }
+          this.$toast("此功能暂未开放哦，敬请期待");
+          break;
+        case "每日海报":
+          this.$toast("此功能暂未开放哦，敬请期待");
+          //  this.$router.push({
+          //   name: './poster',
+          //   params: chooseCompany
+          // });
+          break;
         default:
           this.$toast("此功能暂未开放哦，敬请期待");
           break;
@@ -405,16 +443,19 @@ export default {
     },
 
     async preciseMsg() {
-      if (!this.isCertifie()) return;
-      this.$router.push("chuke-msg");
+      // if (!this.isCertifie()) return;
+      // this.$toast('功能正在完善中，敬请期待。')
+      // return
+      this.$router.push("/search/global");
     },
 
     async sendMsg() {
-      // if(!this.isCertifie()) return
+      if (!this.isCertifie()) return;
+      this.$router.push({ path: "./special", query: { ctype: 1 } });
+      localStorage.setItem("specialAdmin", true);
     },
     async toPay() {
       if (!this.isCertifie()) return;
-
       this.$router.push("chongzhi");
     },
 
@@ -450,28 +491,34 @@ export default {
     },
 
     async toComanyDetail(item, index) {
-      if (item !== "个人自画像") {
-        if (!this.isCertifie()) return;
+      switch (item) {
+        case "个人自画像":
+          this.$router.push({
+            path: "selfPic",
+            query: { type: "person" }
+          });
 
-        switch (item) {
-          case "企业自画像":
-            this.isShowSelPic = true;
-            this.showPicType = "company";
-            break;
-          case "联系信息":
-            this.$toast("此功能暂未开放哦，敬请期待");
+          break;
 
-            return;
-            break;
-          case "企业资料":
-            this.$toast("此功能暂未开放哦，敬请期待");
-            break;
-        }
-      } else {
-        this.isShowSelPic = true;
-        this.showPicType = "person";
-        this.showMask(true);
+        case "企业自画像":
+          if (!this.isCertifie()) return;
+          this.$router.push({
+            path: "selfPic",
+            query: { type: "company", company_id: this.company_id }
+          });
+          break;
+        case "联系信息":
+          this.$toast("此功能暂未开放哦，敬请期待");
+
+          return;
+          break;
+        case "企业资料":
+          this.$toast("此功能暂未开放哦，敬请期待");
+          break;
       }
+    },
+    toCustomerPool() {
+      this.$router.push("/customerpool");
     },
 
     closeTips() {
@@ -504,6 +551,8 @@ export default {
   font-size 0.28rem
   box-sizing border-box
   padding-bottom 1.3rem
+  overflow scroll
+  -webkit-overflow-scrolling touch
   &.add-mask 
     position:absolute;
     top:0; 
@@ -605,7 +654,7 @@ export default {
         background-color #fff
         border-radius 0.1rem
         display flex
-        // justify-content space-around
+        justify-content space-around
         
         .item
           display flex
@@ -655,11 +704,14 @@ export default {
         padding 0.1rem 0.4rem
         border-radius 0.3rem
         color #222a32
-  .my-self-ck
-    height 3.9rem
+  .my-self-ck 
     border-radius 0.1rem
     background-color #fff
     margin-top 0.2rem
+    padding-bottom 0.2rem
+    p
+      margin-top 0.1rem
+      text-align center
     .more
       color #666
       &::after
@@ -680,7 +732,7 @@ export default {
       text-align center
       font-size 0.32rem
       color #ec3d3d
-      font-weight 800
+      // font-weight 800
       &::before
         display inline-block
         content ''
@@ -710,7 +762,7 @@ export default {
           font-weight 800
           &:last-child
             border-right none
-  .msg
+  .msg, .customer-pool
     height 3.1rem
     text-align center
     background-color #ffffff
@@ -735,7 +787,7 @@ export default {
         border-radius 0.55rem
         text-align center
         color #09a3a3
-        font-weight 800
+        // font-weight 800
         &:last-child::before , &:first-child::before
           display inline-block
           content '' 
@@ -749,6 +801,17 @@ export default {
         &:first-child::before
           background url(../../assets/icon/userCenter/msg-1.png) center no-repeat
           background-size contain
+  .customer-pool
+    .creat
+      width 100%
+      span
+        color #faa500
+        border 1px solid  #faa500
+        &:first-child::before
+          background url(../../assets/icon/userCenter/seting.png) center no-repeat
+          background-size contain
+
+
     p
       color   #666
       font-size 0.26rem

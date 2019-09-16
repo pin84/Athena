@@ -16,45 +16,51 @@
       />
     </div>
 
-    <div class="p_l_20 p_r_20 w bs_bb clear ">
+    <div
+      v-for='(kw,index) in searchArray'
+      :key='index'
+      class="qs-list"
+    >
+
+      <div class="p_l_20 p_r_20 w bs_bb clear ">
+        <div class="input_info fr">
+          {{kw}}
+        </div>
+      </div>
+
       <div
-        class="input_info fr"
-        v-if="curKeyword.length !== 0"
+        class="res_info fl w bs_bb pos_res"
+        v-if="JSON.stringify(pData[index]) !== '[]'"
       >
-        {{curKeyword}}
+        <img src="../../../assets/icon/dingyue/lian.png">
+        <div>
+          <!-- <div
+            class="w index_list_r_list"
+            v-for='(item,index) in pData'
+            :key='index'
+          > -->
+          <DataList
+            :pData='pData[index]'
+            @showDetail='showDetail'
+          />
+          <!-- </div> -->
+          <a
+            class="watchMore dis_bl tx-c main_color_09a2a3"
+            @click="moreResult(index)"
+          >点击查看更多采招信息》</a>
+        </div>
       </div>
 
       <div
         class="as_tips bs_bb fl"
-        style="display: none;"
-      >检索到的商机信息较少，建议重新修饰关键词内容后再检索</div>
+        v-else
+      >
+        检索到的商机信息较少，建议重新修饰关键词内容后再检索
+      </div>
     </div>
 
     <!-- 底下的搜索 -->
     <FootSearch @search='search' />
-
-    <div
-      class="res_info fl w bs_bb pos_res"
-      v-if="pData.length !== 0"
-    >
-      <img src="../../../assets/icon/dingyue/lian.png">
-      <div>
-        <div
-          class="w index_list_r_list"
-          v-for='(item,index) in pData'
-          :key='index'
-        >
-          <DataList
-            :pData='item'
-            @showDetail='showDetail(item)'
-          />
-        </div>
-        <a
-          class="watchMore dis_bl tx-c main_color_09a2a3"
-          @click="moreResult"
-        >点击查看更多采招信息》</a>
-      </div>
-    </div>
 
     <!-- 详情页面 -->
     <PopDetail
@@ -64,7 +70,7 @@
       :content='content'
     />
 
-    <div
+    <!-- <div
       id="loadingToast"
       style="display: none;"
     >
@@ -77,11 +83,11 @@
       class="shareGuide dis_box box_a_c bo_p_c w h"
       style="display: none;"
     >
-      <!-- <img
+      <img
         src="../image/guide1.png"
         style="width: 3.3rem; height: 2.28rem;"
-      > -->
-    </div>
+      >
+    </div> -->
 
     <a
       class="pcBtn2T main_bgcolor_ffffff bs_bb dis_bl to_home"
@@ -98,9 +104,11 @@
 import SearchHeader from "./04_searchHistory_Header";
 import FootSearch from "../model/FootSearch";
 import TopRouter from "../model/TopRouter";
-import DataList from "../model/DataItem";
+// import DataList from "../model/DataItem";
+import DataList from "../model/DataItemT";
 import PopDetail from "../model/PopDetail";
 import myCommonJs from "../common";
+// import Commonjs from "./common";
 export default {
   data() {
     return {
@@ -109,6 +117,7 @@ export default {
       isShowDetail: "", //是否显示详情弹窗 值 'detail' or 'limit'
       isHotSearch: true, //显示热闹搜索还是历史搜索 true 热门
       curKeyword: "", //当前搜索的关键词
+      searchArray: [],
       pData: [],
       pageNum: "1", //下一页数据，默认为1
       searchData: {
@@ -116,7 +125,8 @@ export default {
         Title: "",
         page_size: 6,
         page: 1
-      }
+      },
+      token: ""
     };
   },
   components: {
@@ -128,6 +138,7 @@ export default {
   },
 
   created() {
+    this.token = this.$store.state.loginInfo.userInfo.token;
     let { keyword, id } = this.$route.query;
     if (keyword) {
       this.searchHotword(keyword);
@@ -136,19 +147,14 @@ export default {
       // let { BidsPirce,Company,CreateTime,EndDate,Title } = this.$route.query;
       this.showDetail(this.$route.query);
     }
-    // http://www.shangxialian.net/js/?#/03_quickSearch?Title=%E5%B4%87%E5%B7%9D%E5%8C%BA%E6%96%B0%E6%97%B6%E4%BB%A3%E6%96%87%E6%98%8E%E5%AE%9E%E8%B7%B5%E4%B8%AD%E5%BF%83%E3%80%81%E8%9E%8D%E5%AA%92&BidsPirce=255.0&CreateTime=2019-07-06&EndDate=2019-07-25&Company=%E4%B8%AD%E5%85%B1%E5%8D%97%E9%80%9A%E5%B8%82%E5%B4%87%E5%B7%9D%E5%8C%BA%E5%A7%94%E5%AE%A3%E4%BC%A0%E9%83%A8&id=59260&keyword=%E6%96%B0%E6%97%B6%E4%BB%A3
-    // this.toMoreResData = {
-    //   token: this.$store.state.loginInfo.userInfo.token,
-    //   Title: this.curKeyword,
-    //   page_size: 6,
-    //   page: this.pageNum
-    // };
+
+    console.log(`===aa====`,this.$route.query);
   },
 
   methods: {
-    moreResult() {
+    moreResult(index) {
       let data = {
-        morekey: this.searchData.Title
+        morekey: this.searchArray[index]
       };
 
       this.$router.push({ path: "/moreResult", query: data });
@@ -157,40 +163,43 @@ export default {
     closePop() {
       this.isShowDetail = "";
     },
-    showDetail(item) {
-      let token = this.$store.state.loginInfo.userInfo.token;
-      this.$axios
-        .get(`${this.$api.detailContent}${item.id}/`, {
-          params: {
-            token
-          }
-        })
-        .then(res => {
-          if (res.data.message === false) {
-            this.isShowDetail = "limit";
-          } else {
-            this.isShowDetail = "detail";
-            this.detailData = item;
-            let reg = /class=".*?"|id=".*?"/g;
-            res.data.BidsContent[0] = res.data.BidsContent[0].replace(reg, "");
 
-            this.content = res.data.BidsContent[0];
-          }
-        });
+     async showDetail(item) {
+      console.log(`====sdf===`,item,this.token);
+      let res = await myCommonJs.showDetail(item.id, this.token);
+
+      console.log(`=======`,res);
+
+      if (res !== false) {
+        this.detailData = item;
+
+        this.isShowDetail = "detail";
+        this.content = res;
+      } else {
+        this.isShowDetail = "limit";
+      }
     },
 
-    //删除搜索历史关键词
-    async delHotSearch() {
-      let token = this.$store.state.loginInfo.userInfo.token;
+    // showDetail(item) {
+    //   this.$axios
+    //     .get(`${this.$api.detailContent}${item.id}/`, {
+    //       params: {
+    //         token: this.token
+    //       }
+    //     })
+    //     .then(res => {
+    //       if (res.data.message === false) {
+    //         this.isShowDetail = "limit";
+    //       } else {
+    //         this.isShowDetail = "detail";
+    //         this.detailData = item;
+    //         let reg = /class=".*?"|id=".*?"/g;
+    //         res.data.BidsContent[0] = res.data.BidsContent[0].replace(reg, "");
 
-      let history = await this.$axios.delete(
-        `${this.$api.isHashistoryKerword}?token=${token}`
-      );
-
-      // this.$store.commit("hotOrHistory", false);
-      // this.$store.commit("setHistorySearch", []);
-      // this.isHotSearch = true;
-    },
+    //         this.content = res.data.BidsContent[0];
+    //       }
+    //     });
+    // },
 
     async searchHotword(hotword) {
       this.searchData.Title = hotword;
@@ -198,41 +207,35 @@ export default {
       myCommonJs.searchKeyword(hotword);
       this.bus.$emit("addHistorySearchKw", hotword);
 
-      // let hs = localStorage.getItem("historySearch");
-      // if (hs === null) {
-      //   localStorage.setItem("historySearch", hotword);
-      // } else {
-      //   let arr = hs.split(",");
-      //   arr.push(hotword);
-      //   localStorage.setItem("historySearch", arr.join());
-      // }
-
-      // this.bus.$emit("addHistorySearchKw", hotword);
-
       this.curKeyword = hotword;
-      // this.isHotSearch = false;
+
+      this.searchArray.unshift(hotword);
 
       let url = `${this.$api.keywordSearch}`;
       let searchData = {
-        token: this.$store.state.loginInfo.userInfo.token,
+        token: this.token,
         Title: hotword,
         page: this.pageNum,
         page_size: 6
       };
 
-      let res = await this.getData(url, searchData);
-      this.pData = res.data.data_dict;
+      this.accepeData(url, searchData);
+    },
 
-      // this.$store.commit("hotOrHistory", true);
-      // this.$store.commit("addKeyword", hotword);
+    async accepeData(url, searchData) {
+      let res = await this.getData(url, searchData);
+      if (!res) {
+        this.pData.unshift([]);
+      } else {
+        this.pData.unshift(res.data.data_dict);
+      }
     },
 
     async getData(url, data) {
       let res = await this.$axios.get(url, { params: data });
-
-      console.log(`==res=====`, res);
+      console.log(`====getData===`, res);
       if (res.data.message === false) {
-        return false;
+        return;
       }
 
       let now = new Date();
@@ -259,25 +262,15 @@ export default {
 
       this.curKeyword = keyword;
       myCommonJs.searchKeyword(keyword);
+      this.searchArray.unshift(keyword);
 
       this.bus.$emit("addHistorySearchKw", this.keyword);
 
-      console.log(`===aaa====`,this.searchData);
+      this.accepeData(this.$api.keywordSearch, this.searchData);
 
-      let res = await this.getData(this.$api.keywordSearch, this.searchData);
-      if (res === false) {
-        return this.$toast("你搜索的关键词没有数据");
-      }
-
-      if (res.data.message === false) {
-        return alert("没有相应的数据,请更换关键词试试");
-      }
-
-      console.log(`=======`,res.data.data_dict);
-
-      this.pData = res.data.data_dict;
     }
   },
+
   watch: {
     curKeyword(keyword) {
       if (!keyword) return;
@@ -316,6 +309,7 @@ export default {
   height: 100%;
   overflow-y: auto;
 }
+
 .to_home {
   position: fixed;
   width: 0.8rem;
@@ -399,7 +393,7 @@ export default {
 }
 .res_info {
   padding-left: 0.7rem;
-  margin-top: 0.4rem;
+  margin-top: 0.2rem;
 }
 .res_info > img {
   position: absolute;
@@ -493,6 +487,7 @@ export default {
   box-shadow: 0 0 0.1rem 0 rgba(0, 0, 0, 0.2);
   border-radius: 0.1rem;
   font-size: 0.32rem;
+  margin-bottom: 0.4rem;
 }
 .nores {
   box-shadow: 0 0 0.1rem 0 rgba(0, 0, 0, 0.2);

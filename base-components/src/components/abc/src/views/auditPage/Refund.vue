@@ -169,6 +169,14 @@ $themeGreen:#09a2a3;
 
 #g-refund{
     padding: 1rem 0 1rem;
+    .g-refund_list{
+        position: absolute;
+        top: 1rem;
+        left: 0;
+        right: 0;
+        bottom: 0.98rem;
+        overflow: scroll;
+    }
     .m-refund_item{
         background: white;
         box-shadow: 0px 0px 6px #f0f0f0;
