@@ -1,13 +1,23 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
+      <router-link to="/">Home</router-link>|
+      <router-link to="/about">About</router-link>|
       <router-link to="/gvc">Gvc</router-link>
     </div>
-    <router-view/>
+    <router-view />
+
+    <Tips />
   </div>
 </template>
+<script>
+import Tips from "@/components/common/TipsTest";
+export default {
+  components: {
+    Tips
+  }
+};
+</script>
 <style lang="stylus">
 #app
   font-family 'Avenir', Helvetica, Arial, sans-serif
