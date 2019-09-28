@@ -4,7 +4,14 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 
+import './assets/reset.styl'
+
+import theConfirm from '@/views/tips/confirm.js'
+Vue.prototype.$confirm = theConfirm;
+
 Vue.config.productionTip = false
+
+
 
 new Vue({
   router,
