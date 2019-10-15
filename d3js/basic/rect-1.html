@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="svg"></div>
+
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+
+  <script>
+    let dataset = [50, 32, 59, 60, 22, 34]
+    let height = 400
+    let width = 400
+    const svg = d3.select('#svg').append('svg').attr('height', height).attr('width', width)
+    const padding = { top: 20, left: 20, bottom: 20, right: 20 }
+
+    const xAxisWidth = width - padding.left - padding.right
+    const yAxisWidth = height - padding.bottom - padding.top
+
+    const rectStep = 35
+    const rectWidth = 30
+
+
+    //datum -----data
+    svg.selectAll('rect').data(dataset).enter().append('rect').attr('fill', 'red').attr('x', (d, i) => padding.left + xScale(i))
+      .attr('y', (d, i) => height - padding.bottom - d)
+      .attr('width', rectWidth)
+      .attr('height', d => d)
+
+    const text = svg.selectAll('text').data(dataset).enter().append('text')
+      .attr('fill', '#fff')
+      .attr('font-size', '14px')
+      .attr('text-anchor', 'middle')
+      .attr('x', (d, i) => padding.left + i * rectStep)
+      .attr('y', (d, i) => height - padding.bottom - d)
+      .text(d => d)
+      .attr('dx', rectWidth / 2)
+      .attr('dy', '1em')
+
+    // const init = dataset => {
+    //   genRect(svg.selectAll('rect').data(dataset).enter().append('rect'))
+    //   genRect(svg.selectAll('text').data(dataset).enter().append('text'))
+    // }
+
+    // const updata = dataset => {
+    //   genRect(svg.selectAll('rect').data(dataset))
+    //   genRect(svg.selectAll('text').data(dataset))
+    // }
+
+    // init(dataset)
+
+    const xScale = d3.scaleBand().domain(dataset.map((d, i) => i)).range([0, xAxisWidth]).padding(0.1)
+    const yScale = d3.scaleLinear().domain([0, d3.max(dataset)]).rangeRound([yAxisWidth, 0])
+
+    const xAxis = d3.axisBottom(xScale)
+    const gX = svg.append('g').attr('transform', `translate(${padding.left},${height - padding.bottom})`)
+    gX.call(xAxis)
+
+    const yAxis = d3.axisLeft(yScale)
+    const gY = svg.append('g').attr('transform', `translate(${padding.left},${height - yAxisWidth - padding.bottom})`)
+    gY.call(yAxis)
+
+
+
+  </script>
+</body>
+
+</html>
