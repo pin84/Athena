@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "d3": "^5.7.0",
+    "d3": "^7.6.1",
     "element-ui": "^2.4.6",
     "url-search-params-polyfill": "^5.0.0",
     "vue": "^2.5.17",
